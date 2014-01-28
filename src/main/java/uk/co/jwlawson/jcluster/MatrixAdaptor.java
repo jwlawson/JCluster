@@ -34,6 +34,16 @@ public class MatrixAdaptor extends DenseMatrix64F {
 		super(numRows, numCols);
 	}
 
+	private MatrixAdaptor(DenseMatrix64F m) {
+		super(m);
+	}
+
+	// This is a bit of a hack.
+	// TODO Do MatrixAdaptor copy better.
+	public MatrixAdaptor copyMatrix() {
+		return new MatrixAdaptor(((DenseMatrix64F) this).copy());
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == null) {

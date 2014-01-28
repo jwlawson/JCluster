@@ -27,12 +27,20 @@ public class QuiverMatrix {
 
 	private MatrixAdaptor mMatrix;
 
+	private QuiverMatrix(MatrixAdaptor m) {
+		mMatrix = m;
+	}
+
 	private QuiverMatrix(int rows, int cols) {
 		mMatrix = new MatrixAdaptor(rows, cols);
 	}
 
 	public QuiverMatrix(int rows, int cols, double... values) {
 		mMatrix = new MatrixAdaptor(rows, cols, true, values);
+	}
+
+	public QuiverMatrix mutate(int k) {
+		return mutate(k, new QuiverMatrix(mMatrix.numRows, mMatrix.numCols));
 	}
 
 	/**
@@ -42,18 +50,22 @@ public class QuiverMatrix {
 	 * Remember that the indexing starts at 0.
 	 * 
 	 * @param k Index to mutate on.
+	 * @param result The matrix to insert the new matrix. Ensure it is the right size.
 	 * @return New mutated matrix.
 	 */
-	public QuiverMatrix mutate(int k) {
-		int rows = mMatrix.getNumRows();
-		int cols = mMatrix.getNumCols();
+	public QuiverMatrix mutate(int k, QuiverMatrix result) {
+		int rows = getNumRows();
+		int cols = getNumCols();
 		if (k < 0 || k > Math.min(rows, cols)) {
 			throw new ArrayIndexOutOfBoundsException(
 					"Index needs to be within the unfrozen vaules of the matrix. Expected: " + 0
 							+ " to " + Math.min(rows, cols) + " Actual: " + k);
 		}
-		QuiverMatrix result = new QuiverMatrix(rows, cols);
-
+		if (rows != result.getNumRows() || cols != result.getNumCols()) {
+			throw new IllegalArgumentException("Incorrectly sized matrix passed. Expected: " + rows
+					+ " x " + cols + ". Actual: " + result.getNumRows() + " x "
+					+ result.getNumCols());
+		}
 		for (int i = 0; i < rows; i++) {
 			for (int j = 0; j < cols; j++) {
 				double a;
@@ -75,7 +87,7 @@ public class QuiverMatrix {
 		return mMatrix.get(row, col);
 	}
 
-	private double unsafeGet(int i, int j) {
+	double unsafeGet(int i, int j) {
 		return mMatrix.unsafe_get(i, j);
 	}
 
@@ -85,6 +97,10 @@ public class QuiverMatrix {
 
 	public int getNumCols() {
 		return mMatrix.numCols;
+	}
+
+	public QuiverMatrix copy() {
+		return new QuiverMatrix(mMatrix.copyMatrix());
 	}
 
 	@Override
