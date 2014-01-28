@@ -16,23 +16,85 @@
  */
 package uk.co.jwlawson.jcluster;
 
+import java.util.Arrays;
+
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 /**
  * @author John Lawson
  * 
  */
 public class NumericQuiver extends Quiver {
 
+	private final QuiverMatrix mMatrix;
+	private final double[] mValues;
+
+	public NumericQuiver(int rows, int cols, double... data) {
+		mMatrix = new QuiverMatrix(rows, cols, data);
+
+		int min = Math.min(rows, cols);
+		int max = Math.max(rows, cols);
+		mValues = new double[max];
+		for (int i = 0; i < max; i++) {
+			mValues[i] = 0;
+		}
+	}
+
+	public NumericQuiver(QuiverMatrix matrix, double[] values) {
+		int max = Math.max(matrix.getNumRows(), matrix.getNumCols());
+		if (max != values.length) {
+			throw new IllegalArgumentException();
+		}
+		this.mMatrix = matrix;
+		this.mValues = values;
+	}
+
+	public double getValue(int k) {
+		return mValues[k];
+	}
+
 	/**
+	 * Mutate the quiver at the specified vertex. Remember that the indices start at 0.
 	 * 
+	 * @return A new quiver which is the mutation of this one.
 	 */
-	public NumericQuiver() {
-		// TODO Auto-generated constructor stub
+	@Override
+	public Quiver mutate(int k) {
+		QuiverMatrix newMatrix = mMatrix.mutate(k);
+		double[] newValues = Arrays.copyOf(mValues, mValues.length);
+		double pos = 1;
+		double neg = 1;
+		for (int i = 0; i < mValues.length; i++) {
+			if (mMatrix.get(k, i) > 0) {
+				pos = pos * mValues[i];
+			} else if (mMatrix.get(k, i) < 0) {
+				neg = neg * mValues[i];
+			}
+		}
+		newValues[k] = (pos + neg) / mValues[k];
+
+		return new NumericQuiver(newMatrix, newValues);
 	}
 
 	@Override
-	public Quiver mutate(int k) {
-		// TODO Auto-generated method stub
-		return null;
+	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
+		if (obj == this) {
+			return true;
+		}
+		if (obj.getClass() != getClass()) {
+			return false;
+		}
+		NumericQuiver rhs = (NumericQuiver) obj;
+		return new EqualsBuilder().append(mMatrix, rhs.mMatrix).append(mValues, rhs.mValues)
+				.isEquals();
 	}
 
+	@Override
+	public int hashCode() {
+		return new HashCodeBuilder(23, 43).append(mMatrix).append(mValues).toHashCode();
+	}
 }
