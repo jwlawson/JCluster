@@ -16,7 +16,10 @@
  */
 package uk.co.jwlawson.jcluster;
 
+import java.util.Arrays;
+
 import com.perisic.ring.PolynomialRing;
+import com.perisic.ring.QuotientField;
 import com.perisic.ring.Ring;
 import com.perisic.ring.RingElt;
 
@@ -26,9 +29,9 @@ import com.perisic.ring.RingElt;
  */
 public class PolynomialQuiver extends Quiver {
 
-	private QuiverMatrix mMatrix;
-	private PolynomialRing mRing;
-	private RingElt[] mPolynomials;
+	private final QuiverMatrix mMatrix;
+	private final Ring mRing;
+	private final RingElt[] mPolynomials;
 
 	public PolynomialQuiver(int rows, int cols, double... data) {
 		mMatrix = new QuiverMatrix(rows, cols, data);
@@ -43,7 +46,7 @@ public class PolynomialQuiver extends Quiver {
 		for (int i = min; i < max; i++) {
 			variables[i] = "y" + i;
 		}
-		mRing = new PolynomialRing(Ring.Q, variables);
+		mRing = new QuotientField(new PolynomialRing(Ring.Q, variables));
 
 		mPolynomials = new RingElt[max];
 		for (int i = 0; i < min; i++) {
@@ -54,11 +57,59 @@ public class PolynomialQuiver extends Quiver {
 		}
 	}
 
+	public PolynomialQuiver(QuiverMatrix matrix, RingElt[] polynomials, Ring ring) {
+		int max = Math.max(matrix.getNumRows(), matrix.getNumCols());
+		if (max != polynomials.length) {
+			throw new IllegalArgumentException();
+		}
+		this.mMatrix = matrix;
+		this.mPolynomials = polynomials;
+		this.mRing = ring;
+	}
+
+	/**
+	 * Provides ring for testing, so that the expected polynomials can be created.
+	 */
+	Ring getRing() {
+		return mRing;
+	}
+
+	public RingElt getPolynomial(int k) {
+		return mPolynomials[k];
+	}
+
+	/**
+	 * Mutate the quiver at the specified vertex. Remember that the indices start at 0.
+	 * 
+	 * @return A new quiver which is the mutation of this one.
+	 */
 	@Override
 	public Quiver mutate(int k) {
 		QuiverMatrix newMatrix = mMatrix.mutate(k);
+		RingElt[] newPolynomials = Arrays.copyOf(mPolynomials, mPolynomials.length);
+		RingElt pos = mRing.one();
+		RingElt neg = mRing.one();
+		for (int i = 0; i < mPolynomials.length; i++) {
+			if (mMatrix.get(k, i) > 0) {
+				pos = mRing.mult(pos, mPolynomials[i]);
+			} else if (mMatrix.get(k, i) < 0) {
+				neg = mRing.mult(neg, mPolynomials[i]);
+			}
+		}
+		newPolynomials[k] = mRing.div(mRing.add(pos, neg), mPolynomials[k]);
 
-		return null;
+		return new PolynomialQuiver(newMatrix, newPolynomials, mRing);
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		// TODO Auto-generated method stub
+		return super.equals(obj);
+	}
+
+	@Override
+	public int hashCode() {
+		// TODO Auto-generated method stub
+		return super.hashCode();
+	}
 }

@@ -58,11 +58,11 @@ public class QuiverMatrix {
 			for (int j = 0; j < cols; j++) {
 				double a;
 				if (i == k || j == k) {
-					a = -1 * unsafe_get(i, j);
+					a = -1 * unsafeGet(i, j);
 				} else {
-					a = unsafe_get(i, j)
-							+ (Math.abs(unsafe_get(i, k)) * unsafe_get(k, j) + unsafe_get(i, k)
-									* Math.abs(unsafe_get(k, j))) / 2;
+					a = unsafeGet(i, j)
+							+ (Math.abs(unsafeGet(i, k)) * unsafeGet(k, j) + unsafeGet(i, k)
+									* Math.abs(unsafeGet(k, j))) / 2;
 				}
 				result.mMatrix.unsafe_set(i, j, a);
 			}
@@ -75,8 +75,16 @@ public class QuiverMatrix {
 		return mMatrix.get(row, col);
 	}
 
-	private double unsafe_get(int i, int j) {
+	private double unsafeGet(int i, int j) {
 		return mMatrix.unsafe_get(i, j);
+	}
+
+	public int getNumRows() {
+		return mMatrix.numRows;
+	}
+
+	public int getNumCols() {
+		return mMatrix.numCols;
 	}
 
 	@Override
