@@ -18,6 +18,9 @@ package uk.co.jwlawson.jcluster;
 
 import java.util.Arrays;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import com.perisic.ring.PolynomialRing;
 import com.perisic.ring.QuotientField;
 import com.perisic.ring.Ring;
@@ -103,13 +106,22 @@ public class PolynomialQuiver extends Quiver {
 
 	@Override
 	public boolean equals(Object obj) {
-		// TODO Auto-generated method stub
-		return super.equals(obj);
+		if (obj == null) {
+			return false;
+		}
+		if (obj == this) {
+			return true;
+		}
+		if (obj.getClass() != getClass()) {
+			return false;
+		}
+		PolynomialQuiver rhs = (PolynomialQuiver) obj;
+		return new EqualsBuilder().append(mMatrix, rhs.mMatrix)
+				.append(mPolynomials, rhs.mPolynomials).isEquals();
 	}
 
 	@Override
 	public int hashCode() {
-		// TODO Auto-generated method stub
-		return super.hashCode();
+		return new HashCodeBuilder(23, 43).append(mMatrix).append(mPolynomials).toHashCode();
 	}
 }

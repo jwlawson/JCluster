@@ -43,4 +43,24 @@ public class PolynomialQuiverTest {
 		assertEquals(x1, mut.getPolynomial(1));
 		assertEquals(x2, mut.getPolynomial(2));
 	}
+
+	@Test
+	public void test4x4() {
+		PolynomialQuiver quiv = new PolynomialQuiver(4, 4, 0, -1, 0, 1, 1, 0, -1, 0, 0, 1, 0, -1,
+				-1, 0, 1, 0);
+
+		/* Expected values calculated using Kellers app */
+		Ring ring = quiv.getRing();
+		RingElt x0 = ring.map("(x0*x1 + x1*x2 + (x0 + x2)*x3)/(x0*x1*x2)");
+		RingElt x1 = ring.map("(x0 + x2)/x1");
+		RingElt x2 = ring.map("(x0*x1 + x1*x2 + (x0 + x2)*x3)/(x0*x1*x3)");
+		RingElt x3 = ring.map("(x0*x1 + x1*x2 + (x0 + x2)*x3)/(x1*x2*x3)");
+
+		PolynomialQuiver mut = (PolynomialQuiver) quiv.mutate(1).mutate(2).mutate(3).mutate(0)
+				.mutate(2);
+		assertEquals(x0, mut.getPolynomial(0));
+		assertEquals(x1, mut.getPolynomial(1));
+		assertEquals(x2, mut.getPolynomial(2));
+		assertEquals(x3, mut.getPolynomial(3));
+	}
 }
