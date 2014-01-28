@@ -53,11 +53,11 @@ public class CheckInfTaskTest {
 		CompletionService<QuiverMatrix> pool = new ExecutorCompletionService<QuiverMatrix>(
 				threadPool);
 
-		for (DynkinDiagram m : DynkinDiagram.values()) {
+		for (DynkinDiagram m : DynkinDiagram.MUT_FINITE) {
 			pool.submit(new CheckInfTask(m.getMatrix()));
 		}
 
-		for (int i = 0; i < DynkinDiagram.values().length; i++) {
+		for (int i = 0; i < DynkinDiagram.MUT_FINITE.size(); i++) {
 			try {
 				assertNull(pool.take().get());
 			} catch (InterruptedException e) {

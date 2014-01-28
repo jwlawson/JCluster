@@ -16,6 +16,8 @@
  */
 package uk.co.jwlawson.jcluster;
 
+import java.util.EnumSet;
+
 /**
  * @author John Lawson
  * 
@@ -108,6 +110,48 @@ public enum DynkinDiagram {
 			 0, 0, 0, 0, 0,-1, 0, 1, 0,
 			 0, 0, 0, 0, 0, 0,-1, 0, 2,
 			 0, 0, 0, 0, 0, 0, 0,-2, 0 ),
+	C3(3,	 0, 1, 0,
+			-1, 0,-2,
+			 0, 2, 0),
+	C4(4,	 0, 1, 0, 0,
+			-1, 0, 1, 0,
+			 0,-1, 0,-2,
+			 0, 0, 2, 0),
+	C5(5, 	 0, 1, 0, 0, 0, 
+			-1, 0, 1, 0, 0,
+			 0,-1, 0, 1, 0,
+			 0, 0,-1, 0,-2,
+			 0, 0, 0, 2, 0),
+	C6(6, 	 0, 1, 0, 0, 0, 0,
+			-1, 0, 1, 0, 0, 0,
+			 0,-1, 0, 1, 0, 0,
+			 0, 0,-1, 0, 1, 0, 
+			 0, 0, 0,-1, 0,-2,
+			 0, 0, 0, 0, 2, 0),
+	C7(7, 	 0, 1, 0, 0, 0, 0, 0, 
+			-1, 0, 1, 0, 0, 0, 0, 
+			 0,-1, 0, 1, 0, 0, 0,
+			 0, 0,-1, 0, 1, 0, 0,
+			 0, 0, 0,-1, 0, 1, 0,
+			 0, 0, 0, 0,-1, 0,-2,
+			 0, 0, 0, 0, 0, 2, 0),
+	C8(8, 	 0, 1, 0, 0, 0, 0, 0, 0,
+			-1, 0, 1, 0, 0, 0, 0, 0, 
+			 0,-1, 0, 1, 0, 0, 0, 0, 
+			 0, 0,-1, 0, 1, 0, 0, 0, 
+			 0, 0, 0,-1, 0, 1, 0, 0, 
+			 0, 0, 0, 0,-1, 0, 1, 0, 
+			 0, 0, 0, 0, 0,-1, 0,-2, 
+			 0, 0, 0, 0, 0, 0, 2, 0),
+	C9(9,  	 0, 1, 0, 0, 0, 0, 0, 0, 0,
+			-1, 0, 1, 0, 0, 0, 0, 0, 0, 
+			 0,-1, 0, 1, 0, 0, 0, 0, 0,
+			 0, 0,-1, 0, 1, 0, 0, 0, 0,
+			 0, 0, 0,-1, 0, 1, 0, 0, 0,
+			 0, 0, 0, 0,-1, 0, 1, 0, 0,
+			 0, 0, 0, 0, 0,-1, 0, 1, 0,
+			 0, 0, 0, 0, 0, 0,-1, 0, -2,
+			 0, 0, 0, 0, 0, 0, 0, 2, 0 ),
 	D4(4, 	 0, 1, 0, 0,
 			-1, 0, 1, 1,
 			 0,-1, 0, 0,
@@ -146,7 +190,28 @@ public enum DynkinDiagram {
 			 0, 0, 0, 0,-1, 0, 1, 0, 0,
 			 0, 0, 0, 0, 0,-1, 0, 1, 1,
 			 0, 0, 0, 0, 0, 0,-1, 0, 0,
-			 0, 0, 0, 0, 0, 0,-1, 0, 0 ),;
+			 0, 0, 0, 0, 0, 0,-1, 0, 0 ),
+	E6(6, 	 0, 1, 0, 0, 0, 0,
+			-1, 0, 1, 0, 0, 0,
+			 0,-1, 0, 1, 1, 0,
+			 0, 0,-1, 0, 0, 0, 
+			 0, 0,-1, 0, 0, 1,
+			 0, 0, 0, 0,-1, 0),
+	E7(7, 	 0, 1, 0, 0, 0, 0, 0, 
+			-1, 0, 1, 0, 0, 0, 0, 
+			 0,-1, 0, 1, 1, 0, 0,
+			 0, 0,-1, 0, 0, 0, 0,
+			 0, 0,-1, 0, 0, 1, 0,
+			 0, 0, 0, 0,-1, 0, 1,
+			 0, 0, 0, 0, 0,-1, 0),
+	E8(8, 	 0, 1, 0, 0, 0, 0, 0, 0,
+			-1, 0, 1, 0, 0, 0, 0, 0, 
+			 0,-1, 0, 1, 1, 0, 0, 0, 
+			 0, 0,-1, 0, 0, 0, 0, 0, 
+			 0, 0,-1, 0, 0, 1, 0, 0, 
+			 0, 0, 0, 0,-1, 0, 1, 0, 
+			 0, 0, 0, 0, 0,-1, 0, 1, 
+			 0, 0, 0, 0, 0, 0,-1, 0);
 	
 	//@formatter:on
 	private final QuiverMatrix matrix;
@@ -158,4 +223,12 @@ public enum DynkinDiagram {
 	public QuiverMatrix getMatrix() {
 		return matrix;
 	}
+
+	public static EnumSet<DynkinDiagram> A_SET = EnumSet.range(A2, A9);
+	public static EnumSet<DynkinDiagram> B_SET = EnumSet.range(B2, B9);
+	public static EnumSet<DynkinDiagram> C_SET = EnumSet.range(C3, C9);
+	public static EnumSet<DynkinDiagram> D_SET = EnumSet.range(D4, D9);
+	public static EnumSet<DynkinDiagram> E_SET = EnumSet.range(E6, E8);
+	public static EnumSet<DynkinDiagram> MUT_INFINITE = EnumSet.range(B2, C9);
+	public static EnumSet<DynkinDiagram> MUT_FINITE = EnumSet.complementOf(MUT_INFINITE);
 }
