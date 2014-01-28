@@ -33,11 +33,10 @@ public class NumericQuiver extends Quiver {
 	public NumericQuiver(int rows, int cols, double... data) {
 		mMatrix = new QuiverMatrix(rows, cols, data);
 
-		int min = Math.min(rows, cols);
 		int max = Math.max(rows, cols);
 		mValues = new double[max];
 		for (int i = 0; i < max; i++) {
-			mValues[i] = 0;
+			mValues[i] = 1;
 		}
 	}
 
