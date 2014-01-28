@@ -3,6 +3,14 @@ JCluster
 
 A library for computing cluster algebras and quiver mutations.
 
+Build
+-----
+
+JCluster uses maven to build. Ensure that you have both EJML and ring.perisic.com 
+installed in your local repository - and that their IDs match those in pom.xml.
+
+Build using `mvn compile`, test with `mvn test` and create a jar with `mvn package`.
+
 License
 -------
 
@@ -23,7 +31,7 @@ JCluster is made available as is under the Apache 2.0 license without warranty.
 	limitations under the License.
 
 JCluster uses:
-*[EMJL](code.google.com/p/efficient-java-matrix-library) (Apache 2.0 license)
-*[ring.perisic.com](ring.perisic.com) (LGPL)
+* [EJML](code.google.com/p/efficient-java-matrix-library) (Apache 2.0 license)
+* [ring.perisic.com](ring.perisic.com) (LGPL)
 
     
