@@ -19,7 +19,7 @@ package uk.co.jwlawson.jcluster;
 import org.ejml.data.DenseMatrix64F;
 
 /**
- * @author Administrator
+ * @author John Lawson
  * 
  */
 public class QuiverMatrix {

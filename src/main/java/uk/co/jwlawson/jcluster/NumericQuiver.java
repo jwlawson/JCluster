@@ -17,7 +17,7 @@
 package uk.co.jwlawson.jcluster;
 
 /**
- * @author Administrator
+ * @author John Lawson
  * 
  */
 public class NumericQuiver extends Quiver {
