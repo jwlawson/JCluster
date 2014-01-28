@@ -26,5 +26,10 @@
       <artifactId>PRing</artifactId>
       <version>3</version>
     </dependency>
+    <dependency>
+      <groupId>com.googlecode.efficient-java-matrix-library</groupId>
+	  <artifactId>ejml</artifactId>
+	  <version>0.24</version>
+    </dependency>
   </dependencies>
 </project>

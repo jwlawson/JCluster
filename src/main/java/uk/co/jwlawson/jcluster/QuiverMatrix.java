@@ -16,17 +16,33 @@
  */
 package uk.co.jwlawson.jcluster;
 
+import org.ejml.data.DenseMatrix64F;
+
 /**
  * @author Administrator
- *
+ * 
  */
 public class QuiverMatrix {
 
-	/**
-	 * 
-	 */
-	public QuiverMatrix() {
-		// TODO Auto-generated constructor stub
+	private DenseMatrix64F mMatrix;
+
+	private QuiverMatrix(int rows, int cols) {
+		mMatrix = new DenseMatrix64F(rows, cols);
+	}
+
+	public QuiverMatrix(int rows, int cols, double... values) {
+		mMatrix = new DenseMatrix64F(rows, cols, true, values);
+	}
+
+	public QuiverMatrix mutate(int k) {
+		QuiverMatrix ret = new QuiverMatrix(mMatrix.getNumRows(), mMatrix.getNumCols());
+
+		return ret;
+	}
+
+	@Override
+	public String toString() {
+		return mMatrix.toString();
 	}
 
 }

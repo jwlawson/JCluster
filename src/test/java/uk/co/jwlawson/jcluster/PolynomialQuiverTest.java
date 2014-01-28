@@ -1,9 +1,7 @@
 package uk.co.jwlawson.jcluster;
-import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.Test;
-
 
 public class PolynomialQuiverTest {
 
@@ -13,7 +11,7 @@ public class PolynomialQuiverTest {
 
 	@Test
 	public void test() {
-		fail("Not yet implemented");
+//		fail("Not yet implemented");
 	}
 
 }
