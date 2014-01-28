@@ -16,7 +16,8 @@
  */
 package uk.co.jwlawson.jcluster;
 
-import org.ejml.data.DenseMatrix64F;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * @author John Lawson
@@ -24,25 +25,83 @@ import org.ejml.data.DenseMatrix64F;
  */
 public class QuiverMatrix {
 
-	private DenseMatrix64F mMatrix;
+	private MatrixAdaptor mMatrix;
 
 	private QuiverMatrix(int rows, int cols) {
-		mMatrix = new DenseMatrix64F(rows, cols);
+		mMatrix = new MatrixAdaptor(rows, cols);
 	}
 
 	public QuiverMatrix(int rows, int cols, double... values) {
-		mMatrix = new DenseMatrix64F(rows, cols, true, values);
+		mMatrix = new MatrixAdaptor(rows, cols, true, values);
 	}
 
+	/**
+	 * Mutates the matrix at the k-th entry and returns the new mutated matrix.
+	 * This does not change the initial matrix.
+	 * 
+	 * Remember that the indexing starts at 0.
+	 * 
+	 * @param k Index to mutate on.
+	 * @return New mutated matrix.
+	 */
 	public QuiverMatrix mutate(int k) {
-		QuiverMatrix ret = new QuiverMatrix(mMatrix.getNumRows(), mMatrix.getNumCols());
+		int rows = mMatrix.getNumRows();
+		int cols = mMatrix.getNumCols();
+		if (k < 0 || k > Math.min(rows, cols)) {
+			throw new ArrayIndexOutOfBoundsException(
+					"Index needs to be within the unfrozen vaules of the matrix. Expected: " + 0
+							+ " to " + Math.min(rows, cols) + " Actual: " + k);
+		}
+		QuiverMatrix result = new QuiverMatrix(rows, cols);
 
-		return ret;
+		for (int i = 0; i < rows; i++) {
+			for (int j = 0; j < cols; j++) {
+				double a;
+				if (i == k || j == k) {
+					a = -1 * unsafe_get(i, j);
+				} else {
+					a = unsafe_get(i, j)
+							+ (Math.abs(unsafe_get(i, k)) * unsafe_get(k, j) + unsafe_get(i, k)
+									* Math.abs(unsafe_get(k, j))) / 2;
+				}
+				result.mMatrix.unsafe_set(i, j, a);
+			}
+		}
+
+		return result;
+	}
+
+	public double get(int row, int col) {
+		return mMatrix.get(row, col);
+	}
+
+	private double unsafe_get(int i, int j) {
+		return mMatrix.unsafe_get(i, j);
 	}
 
 	@Override
 	public String toString() {
 		return mMatrix.toString();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
+		if (obj == this) {
+			return true;
+		}
+		if (obj.getClass() != getClass()) {
+			return false;
+		}
+		QuiverMatrix rhs = (QuiverMatrix) obj;
+		return new EqualsBuilder().append(mMatrix, rhs.mMatrix).isEquals();
+	}
+
+	@Override
+	public int hashCode() {
+		return new HashCodeBuilder(19, 41).append(mMatrix).toHashCode();
 	}
 
 }

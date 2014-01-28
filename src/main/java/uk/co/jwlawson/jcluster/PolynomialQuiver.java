@@ -16,22 +16,48 @@
  */
 package uk.co.jwlawson.jcluster;
 
+import com.perisic.ring.PolynomialRing;
+import com.perisic.ring.Ring;
+import com.perisic.ring.RingElt;
+
 /**
  * @author John Lawson
  * 
  */
 public class PolynomialQuiver extends Quiver {
 
-	/**
-	 * 
-	 */
-	public PolynomialQuiver() {
-		// TODO Auto-generated constructor stub
+	private QuiverMatrix mMatrix;
+	private PolynomialRing mRing;
+	private RingElt[] mPolynomials;
+
+	public PolynomialQuiver(int rows, int cols, double... data) {
+		mMatrix = new QuiverMatrix(rows, cols, data);
+
+		int min = Math.min(rows, cols);
+		int max = Math.max(rows, cols);
+
+		String[] variables = new String[max];
+		for (int i = 0; i < min; i++) {
+			variables[i] = "x" + i;
+		}
+		for (int i = min; i < max; i++) {
+			variables[i] = "y" + i;
+		}
+		mRing = new PolynomialRing(Ring.Q, variables);
+
+		mPolynomials = new RingElt[max];
+		for (int i = 0; i < min; i++) {
+			mPolynomials[i] = mRing.map("x" + i);
+		}
+		for (int i = min; i < max; i++) {
+			mPolynomials[i] = mRing.map("y" + i);
+		}
 	}
 
 	@Override
 	public Quiver mutate(int k) {
-		// TODO Auto-generated method stub
+		QuiverMatrix newMatrix = mMatrix.mutate(k);
+
 		return null;
 	}
 
