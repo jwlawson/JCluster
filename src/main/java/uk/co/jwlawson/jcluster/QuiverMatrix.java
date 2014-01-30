@@ -121,8 +121,22 @@ public class QuiverMatrix {
 		return mMatrix.numCols;
 	}
 
+	/**
+	 * Creates a copy of this matrix.
+	 * 
+	 * @return A new matrix which contains the same entries as the first.
+	 */
 	public QuiverMatrix copy() {
 		return new QuiverMatrix(mMatrix.copyMatrix());
+	}
+
+	/**
+	 * Set this matrix to match the values in the provided matrix.
+	 * 
+	 * @param matrix The matrix to copy the values from.
+	 */
+	public void set(QuiverMatrix matrix) {
+		mMatrix.set(matrix.getNumRows(), matrix.getNumCols(), true, matrix.mMatrix.data);
 	}
 
 	@Override
