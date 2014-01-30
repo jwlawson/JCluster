@@ -45,4 +45,21 @@ public class QuiverMatrixTest {
 		assertEquals("Mutation in Markov quiver", exp, mat.mutate(2));
 	}
 
+	@Test
+	public void testEnlarge() {
+		QuiverMatrix m = new QuiverMatrix(3, 3, 0, 2, -2, -2, 0, 2, 2, -2, 0);
+		QuiverMatrix exp = new QuiverMatrix(4, 4, 0, 2, -2, 0, -2, 0, 2, 0, 2, -2, 0, 0, 0, 0, 0, 0);
+
+		assertEquals("Enlargin 3x3 to 4x4", exp, m.enlargeMatrix(1, 1));
+	}
+
+	@Test
+	public void testEnlarge2() {
+		QuiverMatrix m = new QuiverMatrix(3, 3, 0, 2, -2, -2, 0, 2, 2, -2, 0);
+		QuiverMatrix exp = new QuiverMatrix(5, 5, 0, 2, -2, 0, 0, -2, 0, 2, 0, 0, 2, -2, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+
+		assertEquals("Enlargin 3x3 to 4x4", exp, m.enlargeMatrix(2, 2));
+	}
+
 }

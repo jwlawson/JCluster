@@ -16,6 +16,8 @@
  */
 package uk.co.jwlawson.jcluster;
 
+import java.util.Arrays;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -89,6 +91,26 @@ public class QuiverMatrix {
 
 	double unsafeGet(int i, int j) {
 		return mMatrix.unsafe_get(i, j);
+	}
+
+	void unsafeSet(int i, int j, double val) {
+		mMatrix.unsafe_set(i, j, val);
+	}
+
+	public QuiverMatrix enlargeMatrix(int extraRows, int extraCols) {
+		int rows = mMatrix.numRows;
+		int cols = mMatrix.numCols;
+		int newRows = rows + extraRows;
+		int newCols = cols + extraCols;
+		double[] values = new double[newRows * newCols];
+		Arrays.fill(values, 0d);
+		for (int i = 0; i < rows; i++) {
+			for (int j = 0; j < cols; j++) {
+				values[i * newCols + j] = mMatrix.unsafe_get(i, j);
+			}
+		}
+		QuiverMatrix result = new QuiverMatrix(newRows, newCols, values);
+		return result;
 	}
 
 	public int getNumRows() {

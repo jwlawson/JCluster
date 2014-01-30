@@ -49,7 +49,7 @@ public class CheckInfTask implements Callable<QuiverMatrix> {
 	 * Check whether the quiver matrix is mutation infinite. Return the matrix if it is.
 	 */
 	public QuiverMatrix call() throws Exception {
-		log.info("Starting to check if infinite: " + mMatrix);
+		log.debug("Starting to check if infinite");
 		while (mCounter < MAX_NUMBER_MUTATIONS) {
 			do {
 				mRand = ThreadLocalRandom.current().nextInt(0, mMatrix.getNumRows());
@@ -58,12 +58,10 @@ public class CheckInfTask implements Callable<QuiverMatrix> {
 			/* Alternate between mutating the two matrices in the array. */
 			mMutated[mCounter % 2].mutate(mRand, mMutated[++mCounter % 2]);
 			if (isInfinite(mMutated[mCounter % 2])) {
-				log.info("Found infinite:" + mMatrix);
 				return mMatrix;
 			}
 			mLastMutation = mRand;
 		}
-		log.info("Probably not infinte: " + mMatrix);
 		return null;
 	}
 
