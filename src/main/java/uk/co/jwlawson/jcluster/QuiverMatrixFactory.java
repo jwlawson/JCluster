@@ -16,9 +16,13 @@
  */
 package uk.co.jwlawson.jcluster;
 
+import java.util.HashMap;
+
 import org.apache.commons.pool2.BasePooledObjectFactory;
 import org.apache.commons.pool2.PooledObject;
 import org.apache.commons.pool2.impl.DefaultPooledObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author John Lawson
@@ -26,10 +30,31 @@ import org.apache.commons.pool2.impl.DefaultPooledObject;
  */
 public class QuiverMatrixFactory extends BasePooledObjectFactory<QuiverMatrix> {
 
-	private int rows;
-	private int cols;
+	private static HashMap<Integer, QuiverMatrixFactory> sFactoryMap = new HashMap<Integer, QuiverMatrixFactory>();
 
-	public QuiverMatrixFactory(int rows, int cols) {
+	private final int rows;
+	private final int cols;
+	private final Logger logger = LoggerFactory.getLogger(getClass());
+
+	public static QuiverMatrixFactory getInstance(int rows, int cols) {
+		int id = getId(rows, cols);
+		if (sFactoryMap.containsKey(id)) {
+			return sFactoryMap.get(id);
+		} else {
+			QuiverMatrixFactory factory = new QuiverMatrixFactory(rows, cols);
+			sFactoryMap.put(id, factory);
+			return factory;
+		}
+	}
+
+	/*
+	 * Szudzik's function. See http://szudzik.com/ElegantPairing.pdf
+	 */
+	private static int getId(int a, int b) {
+		return a >= b ? a * a + a + b : a + b * b;
+	}
+
+	private QuiverMatrixFactory(int rows, int cols) {
 		this.rows = rows;
 		this.cols = cols;
 	}
@@ -41,6 +66,7 @@ public class QuiverMatrixFactory extends BasePooledObjectFactory<QuiverMatrix> {
 	 */
 	@Override
 	public QuiverMatrix create() throws Exception {
+		logger.debug("New QuiverMatrix created {}x{}", rows, cols);
 		return new QuiverMatrix(rows, cols);
 	}
 

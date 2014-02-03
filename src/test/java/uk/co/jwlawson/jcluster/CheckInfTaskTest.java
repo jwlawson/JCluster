@@ -38,7 +38,8 @@ public class CheckInfTaskTest {
 
 	@Test
 	public void testCall() {
-		CheckInfTask task = new CheckInfTask(DynkinDiagram.A6.getMatrix());
+		CheckInfTask task = new CheckInfTask(DynkinDiagram.A6.getMatrix(), QuiverPool.getInstance(
+				6, 6));
 
 		try {
 			assertNull(task.call());
@@ -54,7 +55,9 @@ public class CheckInfTaskTest {
 				threadPool);
 
 		for (DynkinDiagram m : DynkinDiagram.MUT_FINITE) {
-			pool.submit(new CheckInfTask(m.getMatrix()));
+			QuiverMatrix matrix = m.getMatrix();
+			pool.submit(new CheckInfTask(matrix, QuiverPool.getInstance(matrix.getNumRows(),
+					matrix.getNumCols())));
 		}
 
 		for (int i = 0; i < DynkinDiagram.MUT_FINITE.size(); i++) {

@@ -20,6 +20,8 @@ import java.util.Arrays;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author John Lawson
@@ -27,13 +29,15 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  */
 public class QuiverMatrix {
 
+	private final Logger log = LoggerFactory.getLogger(getClass());
+
 	private MatrixAdaptor mMatrix;
 
 	private QuiverMatrix(MatrixAdaptor m) {
 		mMatrix = m;
 	}
 
-	private QuiverMatrix(int rows, int cols) {
+	QuiverMatrix(int rows, int cols) {
 		mMatrix = new MatrixAdaptor(rows, cols);
 	}
 
@@ -162,6 +166,10 @@ public class QuiverMatrix {
 	@Override
 	public int hashCode() {
 		return new HashCodeBuilder(19, 41).append(mMatrix).toHashCode();
+	}
+
+	public void zero() {
+		mMatrix.zero();
 	}
 
 }

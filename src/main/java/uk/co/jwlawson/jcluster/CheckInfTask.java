@@ -19,6 +19,7 @@ package uk.co.jwlawson.jcluster;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ThreadLocalRandom;
 
+import org.apache.commons.pool2.ObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,31 +37,46 @@ public class CheckInfTask implements Callable<QuiverMatrix> {
 	private int mLastMutation;
 	private int mCounter;
 	private int mRand;
+	private ObjectPool<QuiverMatrix> mMatrixPool;
 
-	public CheckInfTask(QuiverMatrix matrix) {
+	public CheckInfTask(QuiverMatrix matrix, ObjectPool<QuiverMatrix> pool) {
 		mMatrix = matrix;
-		mMutated = new QuiverMatrix[] { mMatrix.copy(), mMatrix.copy() };
 		mCounter = 0;
 		mRand = -1;
 		mLastMutation = -1;
+		mMatrixPool = pool;
+		mMutated = new QuiverMatrix[2];
 	}
 
 	/**
 	 * Check whether the quiver matrix is mutation infinite. Return the matrix if it is.
 	 */
 	public QuiverMatrix call() throws Exception {
-		log.debug("Starting to check if infinite");
-		while (mCounter < MAX_NUMBER_MUTATIONS) {
-			do {
-				mRand = ThreadLocalRandom.current().nextInt(0, mMatrix.getNumRows());
-			} while (mRand == mLastMutation);
-
-			/* Alternate between mutating the two matrices in the array. */
-			mMutated[mCounter % 2].mutate(mRand, mMutated[++mCounter % 2]);
-			if (isInfinite(mMutated[mCounter % 2])) {
-				return mMatrix;
+//		log.debug("Starting to check if infinite");
+		try {
+			for (int i = 0; i < 2; i++) {
+				QuiverMatrix matrix = mMatrixPool.borrowObject();
+				matrix.set(mMatrix);
+				mMutated[i] = matrix;
 			}
-			mLastMutation = mRand;
+			while (mCounter < MAX_NUMBER_MUTATIONS) {
+				do {
+					mRand = ThreadLocalRandom.current().nextInt(0, mMatrix.getNumRows());
+				} while (mRand == mLastMutation);
+
+				/* Alternate between mutating the two matrices in the array. */
+				mMutated[mCounter % 2].mutate(mRand, mMutated[++mCounter % 2]);
+				if (isInfinite(mMutated[mCounter % 2])) {
+					return mMatrix;
+				}
+				mLastMutation = mRand;
+			}
+		} finally {
+			for (int i = 0; i < 2; i++) {
+				if (null != mMutated[i]) {
+					mMatrixPool.returnObject(mMutated[i]);
+				}
+			}
 		}
 		return null;
 	}

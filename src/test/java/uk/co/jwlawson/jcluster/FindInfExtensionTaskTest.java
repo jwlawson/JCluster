@@ -36,8 +36,8 @@ public class FindInfExtensionTaskTest {
 
 	@Test
 	public void test() {
-		ExecutorService threadPool = Executors.newFixedThreadPool(4);
-		FindInfExtensionTask task = new FindInfExtensionTask(DynkinDiagram.A8.getMatrix(),
+		ExecutorService threadPool = Executors.newFixedThreadPool(20);
+		FindInfExtensionTask task = new FindInfExtensionTask(DynkinDiagram.A9.getMatrix(),
 				threadPool);
 
 		log.info("Starting test on matrix");
@@ -46,7 +46,7 @@ public class FindInfExtensionTaskTest {
 			Set<QuiverMatrix> set = future.get();
 			log.debug("Infinite extensions found:");
 			for (QuiverMatrix m : set) {
-				log.debug("{}", m);
+//				log.debug("{}", m);
 			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();
