@@ -77,6 +77,7 @@ public class CheckInfTask implements Callable<QuiverMatrix> {
 					mMatrixPool.returnObject(mMutated[i]);
 				}
 			}
+			mMatrixPool.returnObject(mMatrix);
 		}
 		return null;
 	}

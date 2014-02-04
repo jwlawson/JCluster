@@ -19,6 +19,7 @@ package uk.co.jwlawson.jcluster;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -35,17 +36,18 @@ import org.slf4j.LoggerFactory;
 public class FindInfExtensionTaskTest {
 
 	private static final int NUM_THREADS = 1;
-	private static final int QUEUE_SIZE = 1000;
+	private static final int QUEUE_SIZE = 50;
 	private Logger log = LoggerFactory.getLogger(getClass());
 
 	@Test
 	public void test() {
 		ExecutorService threadPool = getThreadPool();
-		FindInfExtensionTask task = new FindInfExtensionTask(DynkinDiagram.A8.getMatrix(),
+		FindInfExtensionTask task = new FindInfExtensionTask(DynkinDiagram.A9.getMatrix(),
 				threadPool);
 
 		log.info("Starting test on matrix");
-		Future<Set<QuiverMatrix>> future = threadPool.submit(task);
+		ExecutorService thread = Executors.newSingleThreadExecutor();
+		Future<Set<QuiverMatrix>> future = thread.submit(task);
 		try {
 			Set<QuiverMatrix> set = future.get();
 			log.debug("Infinite extensions found:");
