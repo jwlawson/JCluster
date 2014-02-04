@@ -51,9 +51,9 @@ public class FindInfExtensionTaskTest {
 		try {
 			Set<QuiverMatrix> set = future.get();
 			log.debug("Infinite extensions found:");
-			for (QuiverMatrix m : set) {
+//			for (QuiverMatrix m : set) {
 //				log.debug("{}", m);
-			}
+//			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		} catch (ExecutionException e) {

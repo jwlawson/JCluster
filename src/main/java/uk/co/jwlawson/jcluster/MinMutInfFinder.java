@@ -16,8 +16,6 @@
  */
 package uk.co.jwlawson.jcluster;
 
-import java.util.Queue;
-import java.util.Set;
 
 /**
  * @author John Lawson
@@ -25,8 +23,8 @@ import java.util.Set;
  */
 public class MinMutInfFinder {
 
-	private Queue<QuiverMatrix> mQuiverQueue;
-	private Set<CheckInfTask> mMutators;
+//	private Queue<QuiverMatrix> mQuiverQueue;
+//	private Set<CheckInfTask> mMutators;
 
 	public MinMutInfFinder() {
 	}

@@ -16,12 +16,9 @@
  */
 package uk.co.jwlawson.jcluster;
 
-import java.io.PrintWriter;
 import java.util.HashMap;
 
 import org.apache.commons.pool2.ObjectPool;
-import org.apache.commons.pool2.impl.AbandonedConfig;
-import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.apache.commons.pool2.impl.SoftReferenceObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,8 +30,6 @@ import org.slf4j.LoggerFactory;
 public class QuiverPool {
 
 	private static HashMap<Integer, ObjectPool<QuiverMatrix>> sPoolMap = new HashMap<Integer, ObjectPool<QuiverMatrix>>();
-	private static GenericObjectPoolConfig sPoolConfig;
-	private static AbandonedConfig sAbandonConfig;
 
 	private final static Logger logger = LoggerFactory.getLogger(QuiverPool.class);
 
@@ -44,8 +39,6 @@ public class QuiverPool {
 			return sPoolMap.get(id);
 		} else {
 			logger.info("Creating new pool {}x{}", rows, cols);
-//			ObjectPool<QuiverMatrix> pool = new GenericObjectPool<QuiverMatrix>(
-//					QuiverMatrixFactory.getInstance(rows, cols), getConfig(), getAbandonConfig());
 			ObjectPool<QuiverMatrix> pool = new SoftReferenceObjectPool<QuiverMatrix>(
 					QuiverMatrixFactory.getInstance(rows, cols));
 			sPoolMap.put(id, pool);
@@ -58,27 +51,6 @@ public class QuiverPool {
 	 */
 	private static int getId(int a, int b) {
 		return a >= b ? a * a + a + b : a + b * b;
-	}
-
-	private static GenericObjectPoolConfig getConfig() {
-		if (sPoolConfig == null) {
-			sPoolConfig = new GenericObjectPoolConfig();
-			sPoolConfig.setBlockWhenExhausted(false);
-			sPoolConfig.setMaxTotal(-1);
-			sPoolConfig.setMinIdle(1);
-			sPoolConfig.setTimeBetweenEvictionRunsMillis(-1);
-		}
-		return sPoolConfig;
-	}
-
-	private static AbandonedConfig getAbandonConfig() {
-		if (sAbandonConfig == null) {
-			sAbandonConfig = new AbandonedConfig();
-			sAbandonConfig.setRemoveAbandonedOnBorrow(true);
-			sAbandonConfig.setRemoveAbandonedOnMaintenance(false);
-			sAbandonConfig.setLogWriter(new PrintWriter(System.out));
-		}
-		return sAbandonConfig;
 	}
 
 }
