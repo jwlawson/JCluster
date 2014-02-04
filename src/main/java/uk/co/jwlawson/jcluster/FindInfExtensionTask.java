@@ -21,7 +21,6 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,12 +48,18 @@ public class FindInfExtensionTask implements Callable<Set<QuiverMatrix>> {
 
 	public Set<QuiverMatrix> call() throws Exception {
 		int size = mInitialMatrix.getNumRows();
-		ExecutorCompletionService<Future<QuiverMatrix>> pool = new ExecutorCompletionService<Future<QuiverMatrix>>(
+		ExecutorCompletionService<QuiverMatrix> pool = new ExecutorCompletionService<QuiverMatrix>(
 				mExecutor);
 
 		for (int num = 0; num < Math.pow(5, size); num++) {
-			AddVertexTask t = new AddVertexTask(mEnlargedMatrix, num, mExecutor);
-			pool.submit(t);
+			QuiverMatrix matrix = mEnlargedMatrix.copy();
+			for (int i = 0; i < size; i++) {
+				int val = (((int) (num / Math.pow(5, i))) % 5) - 2;
+				matrix.unsafeSet(size, i, val);
+				matrix.unsafeSet(i, size, -val);
+			}
+			pool.submit(new CheckInfTask(matrix, QuiverPool.getInstance(matrix.getNumRows(),
+					matrix.getNumCols())));
 		}
 		log.info("All extensions queued up");
 		Set<QuiverMatrix> infiniteMatrices = new HashSet<QuiverMatrix>();
@@ -62,7 +67,7 @@ public class FindInfExtensionTask implements Callable<Set<QuiverMatrix>> {
 			if (num % 10000 == 0) {
 				log.debug("{} Infinite matrices found out of {}", num, Math.pow(5, size));
 			}
-			QuiverMatrix res = pool.take().get().get();
+			QuiverMatrix res = pool.take().get();
 			if (res != null) {
 //				infiniteMatrices.add(res);
 			}

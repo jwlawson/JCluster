@@ -19,8 +19,10 @@ package uk.co.jwlawson.jcluster;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -32,12 +34,14 @@ import org.slf4j.LoggerFactory;
  */
 public class FindInfExtensionTaskTest {
 
+	private static final int NUM_THREADS = 1;
+	private static final int QUEUE_SIZE = 1000;
 	private Logger log = LoggerFactory.getLogger(getClass());
 
 	@Test
 	public void test() {
-		ExecutorService threadPool = Executors.newFixedThreadPool(20);
-		FindInfExtensionTask task = new FindInfExtensionTask(DynkinDiagram.A9.getMatrix(),
+		ExecutorService threadPool = getThreadPool();
+		FindInfExtensionTask task = new FindInfExtensionTask(DynkinDiagram.A8.getMatrix(),
 				threadPool);
 
 		log.info("Starting test on matrix");
@@ -58,4 +62,9 @@ public class FindInfExtensionTaskTest {
 
 	}
 
+	private ExecutorService getThreadPool() {
+		return new ThreadPoolExecutor(NUM_THREADS, NUM_THREADS, 0, TimeUnit.MILLISECONDS,
+				new LinkedBlockingQueue<Runnable>(QUEUE_SIZE),
+				new ThreadPoolExecutor.CallerRunsPolicy());
+	}
 }
