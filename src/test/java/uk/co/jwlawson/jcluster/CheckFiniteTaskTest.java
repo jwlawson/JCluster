@@ -36,7 +36,7 @@ public class CheckFiniteTaskTest {
 	@Test
 	public void test() {
 		log.debug("Starting test");
-		CheckFiniteTask task = new CheckFiniteTask(DynkinDiagram.A3.getMatrix());
+		CheckFiniteTask task = new CheckFiniteTask(DynkinDiagram.A7.getMatrix());
 		ExecutorService exec = Executors.newSingleThreadExecutor();
 
 		Future<QuiverMatrix> future = exec.submit(task);

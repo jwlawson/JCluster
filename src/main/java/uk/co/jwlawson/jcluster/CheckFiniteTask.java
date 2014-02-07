@@ -16,11 +16,13 @@
  */
 package uk.co.jwlawson.jcluster;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.Callable;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.pool2.ObjectPool;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.Multigraph;
@@ -50,25 +52,25 @@ public class CheckFiniteTask implements Callable<QuiverMatrix> {
 		graph.addVertex(mInitialMatrix);
 		boolean vertexAdded;
 		log.debug("Graph at start: {}", graph);
-		QuiverMatrix[] matrices = new QuiverMatrix[10];
+		Collection<QuiverMatrix> matrices = new ArrayList<QuiverMatrix>(1000);
+		ObjectPool<QuiverMatrix> quiverPool = QuiverPool.getInstance(mInitialMatrix.getNumRows(),
+				mInitialMatrix.getNumCols());
 		do {
+			matrices.clear();
 			vertexAdded = false;
-			matrices = graph.vertexSet().toArray(matrices);
-			for (int j = 0; j < matrices.length; j++) {
-				if (matrices[j] == null) {
-					break;
-				}
+			matrices.addAll(graph.vertexSet());
+			for (QuiverMatrix mat : matrices) {
 				for (int i = 0; i < mSize; i++) {
-					if (shouldMutateAt(graph, matrices[j], i)) {
-						QuiverMatrix m = matrices[j].mutate(i);
+					if (shouldMutateAt(graph, mat, i)) {
+						QuiverMatrix m = mat.mutate(i, quiverPool.borrowObject());
 						if (graph.containsVertex(m)) {
-							MutationEdge edge = new MutationEdge(i, matrices[j], m);
-							graph.addEdge(matrices[j], m, edge);
+							MutationEdge edge = new MutationEdge(i, m, m);
+							graph.addEdge(mat, m, edge);
 						} else {
 							vertexAdded = true;
 							graph.addVertex(m);
-							MutationEdge edge = new MutationEdge(i, matrices[j], m);
-							graph.addEdge(matrices[j], m, edge);
+							MutationEdge edge = new MutationEdge(i, m, m);
+							graph.addEdge(mat, m, edge);
 						}
 					}
 				}
@@ -76,6 +78,12 @@ public class CheckFiniteTask implements Callable<QuiverMatrix> {
 		} while (vertexAdded);
 		log.info("Graph complete: No. vertices: {}, No. edges: {}", graph.vertexSet().size(), graph
 				.edgeSet().size());
+		for (QuiverMatrix m : graph.vertexSet()) {
+			if (m == mInitialMatrix) {
+				continue;
+			}
+			quiverPool.returnObject(m);
+		}
 		return null;
 	}
 
