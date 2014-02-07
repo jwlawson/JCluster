@@ -26,6 +26,8 @@ import org.apache.commons.pool2.ObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.co.jwlawson.jcluster.CheckInfTask.CheckInfListener;
+
 /**
  * @author John Lawson
  * 
@@ -51,27 +53,20 @@ public class FindInfExtensionTask implements Callable<Set<QuiverMatrix>> {
 		int size = mInitialMatrix.getNumRows();
 		ExecutorCompletionService<QuiverMatrix> pool = new ExecutorCompletionService<QuiverMatrix>(
 				mExecutor);
-		ObjectPool<QuiverMatrix> matrixPool = QuiverPool.getInstance(mEnlargedMatrix.getNumRows(),
-				mEnlargedMatrix.getNumCols());
+		final ObjectPool<QuiverMatrix> matrixPool = QuiverPool.getInstance(
+				mEnlargedMatrix.getNumRows(), mEnlargedMatrix.getNumCols());
 
 		for (int num = 0; num < Math.pow(5, size); num++) {
-			QuiverMatrix matrix = matrixPool.borrowObject();
-			matrix.set(mEnlargedMatrix);
-			for (int i = 0; i < size; i++) {
-				int val = (((int) (num / Math.pow(5, i))) % 5) - 2;
-				matrix.unsafeSet(size, i, val);
-				matrix.unsafeSet(i, size, -val);
-			}
-			pool.submit(new CheckInfTask(matrix, QuiverPool.getInstance(matrix.getNumRows(),
-					matrix.getNumCols())));
-			if (num % 10000 == 0) {
+			CheckInfTask task = getEnlargedCheckInfTask(size, matrixPool, num);
+			pool.submit(task);
+			if (num % 100000 == 0) {
 				log.debug("{} CheckInfTasksSubmitted out of {}", num, Math.pow(5, size));
 			}
 		}
 		log.info("All extensions queued up");
 		Set<QuiverMatrix> infiniteMatrices = new HashSet<QuiverMatrix>();
 		for (int num = 0; num < Math.pow(5, size); num++) {
-			if (num % 10000 == 0) {
+			if (num % 100000 == 0) {
 				log.debug("{} Infinite matrices found out of {}", num, Math.pow(5, size));
 			}
 			QuiverMatrix res = pool.take().get();
@@ -81,6 +76,35 @@ public class FindInfExtensionTask implements Callable<Set<QuiverMatrix>> {
 		}
 		log.info("All extensions checked");
 		return infiniteMatrices;
+	}
+
+	private CheckInfTask getEnlargedCheckInfTask(int size,
+			final ObjectPool<QuiverMatrix> matrixPool, int num) throws Exception {
+		QuiverMatrix matrix = addVertexToMatrix(size, matrixPool, num);
+		CheckInfTask task = new CheckInfTask(matrix, QuiverPool.getInstance(matrix.getNumRows(),
+				matrix.getNumCols()));
+		task.addListener(new CheckInfListener() {
+			public void matrixChecked(QuiverMatrix matrix) {
+				try {
+					matrixPool.returnObject(matrix);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+		return task;
+	}
+
+	private QuiverMatrix addVertexToMatrix(int size, final ObjectPool<QuiverMatrix> matrixPool,
+			int num) throws Exception {
+		QuiverMatrix matrix = matrixPool.borrowObject();
+		matrix.set(mEnlargedMatrix);
+		for (int i = 0; i < size; i++) {
+			int val = (((int) (num / Math.pow(5, i))) % 5) - 2;
+			matrix.unsafeSet(size, i, val);
+			matrix.unsafeSet(i, size, -val);
+		}
+		return matrix;
 	}
 
 }

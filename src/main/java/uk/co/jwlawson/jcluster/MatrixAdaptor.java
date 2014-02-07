@@ -71,6 +71,7 @@ public class MatrixAdaptor extends DenseMatrix64F {
 
 	@Override
 	public int hashCode() {
+		removeNegZero(this);
 		return new HashCodeBuilder(17, 37).append(this.data).toHashCode();
 	}
 }

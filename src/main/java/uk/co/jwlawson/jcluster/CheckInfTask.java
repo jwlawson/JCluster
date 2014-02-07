@@ -16,6 +16,8 @@
  */
 package uk.co.jwlawson.jcluster;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -38,6 +40,7 @@ public class CheckInfTask implements Callable<QuiverMatrix> {
 	private int mCounter;
 	private int mRand;
 	private ObjectPool<QuiverMatrix> mMatrixPool;
+	private List<CheckInfListener> mListeners;
 
 	public CheckInfTask(QuiverMatrix matrix, ObjectPool<QuiverMatrix> pool) {
 		mMatrix = matrix;
@@ -46,6 +49,11 @@ public class CheckInfTask implements Callable<QuiverMatrix> {
 		mLastMutation = -1;
 		mMatrixPool = pool;
 		mMutated = new QuiverMatrix[2];
+		mListeners = new ArrayList<CheckInfTask.CheckInfListener>(1);
+	}
+
+	public void addListener(CheckInfListener listener) {
+		mListeners.add(listener);
 	}
 
 	/**
@@ -77,7 +85,9 @@ public class CheckInfTask implements Callable<QuiverMatrix> {
 					mMatrixPool.returnObject(mMutated[i]);
 				}
 			}
-			mMatrixPool.returnObject(mMatrix);
+			for (CheckInfListener l : mListeners) {
+				l.matrixChecked(mMatrix);
+			}
 		}
 		return null;
 	}
@@ -94,4 +104,7 @@ public class CheckInfTask implements Callable<QuiverMatrix> {
 		return false;
 	}
 
+	public interface CheckInfListener {
+		public void matrixChecked(QuiverMatrix matrix);
+	}
 }
