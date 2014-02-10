@@ -42,7 +42,7 @@ public class FindInfExtensionTaskTest {
 	@Test
 	public void test() {
 		ExecutorService threadPool = getThreadPool();
-		FindInfExtensionTask task = new FindInfExtensionTask(DynkinDiagram.A9.getMatrix(),
+		FindInfExtensionTask task = new FindInfExtensionTask(DynkinDiagram.A4.getMatrix(),
 				threadPool);
 
 		log.info("Starting test on matrix");

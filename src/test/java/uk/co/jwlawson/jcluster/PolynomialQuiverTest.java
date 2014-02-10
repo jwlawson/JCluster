@@ -63,4 +63,21 @@ public class PolynomialQuiverTest {
 		assertEquals(x2, mut.getPolynomial(2));
 		assertEquals(x3, mut.getPolynomial(3));
 	}
+
+	@Test
+	public void testG3(){
+		PolynomialQuiver quiv = new PolynomialQuiver(2,2,0,3,-1,0);
+
+		Ring ring = quiv.getRing();
+		RingElt x0 = ring.map("(x1^3+1)/x0");
+		RingElt x1 = ring.map("x1");
+
+		PolynomialQuiver mut = (PolynomialQuiver) quiv.mutate(0);
+
+		assertEquals(x0, mut.getPolynomial(0));
+		assertEquals(x1, mut.getPolynomial(1));
+
+		assertEquals("Mutate should be involution", quiv, mut.mutate(0));
+
+	}
 }

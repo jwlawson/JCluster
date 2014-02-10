@@ -85,7 +85,7 @@ public class PolynomialQuiver extends Quiver {
 	 * Mutate the quiver at the specified vertex. Remember that the indices start at 0.
 	 * 
 	 * @return A new quiver which is the mutation of this one.
-	 */
+	 nt*/
 	@Override
 	public Quiver mutate(int k) {
 		QuiverMatrix newMatrix = mMatrix.mutate(k);
@@ -94,9 +94,13 @@ public class PolynomialQuiver extends Quiver {
 		RingElt neg = mRing.one();
 		for (int i = 0; i < mPolynomials.length; i++) {
 			if (mMatrix.get(k, i) > 0) {
-				pos = mRing.mult(pos, mPolynomials[i]);
+				RingElt mul = mRing.pow(mPolynomials[i], 
+						(int) (mMatrix.get(k,i)));
+				pos = mRing.mult(pos,mul);
 			} else if (mMatrix.get(k, i) < 0) {
-				neg = mRing.mult(neg, mPolynomials[i]);
+				RingElt mul = mRing.pow(mPolynomials[i], 
+						(int) -(1*mMatrix.get(k,i)));
+				neg = mRing.mult(neg, mul);
 			}
 		}
 		newPolynomials[k] = mRing.div(mRing.add(pos, neg), mPolynomials[k]);
@@ -123,5 +127,18 @@ public class PolynomialQuiver extends Quiver {
 	@Override
 	public int hashCode() {
 		return new HashCodeBuilder(23, 43).append(mMatrix).append(mPolynomials).toHashCode();
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append(mMatrix);
+		sb.append(" {");
+		for(int i = 0; i < mPolynomials.length; i++){
+			sb.append(mPolynomials[i]).append(",");
+		}
+		sb.deleteCharAt(sb.length()-1);
+		sb.append("} ");
+		return sb.toString();
 	}
 }

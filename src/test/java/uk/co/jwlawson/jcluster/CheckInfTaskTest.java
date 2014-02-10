@@ -38,8 +38,10 @@ public class CheckInfTaskTest {
 
 	@Test
 	public void testCall() {
-		CheckInfTask task = new CheckInfTask(DynkinDiagram.A6.getMatrix(), QuiverPool.getInstance(
-				6, 6));
+		QuiverMatrix matrix = DynkinDiagram.A5.getMatrix();
+		CheckInfTask task = new CheckInfTask(matrix, 
+				QuiverPool.getInstance(matrix.getNumRows(),
+					matrix.getNumCols() ));
 
 		try {
 			assertNull(task.call());
@@ -54,13 +56,14 @@ public class CheckInfTaskTest {
 		CompletionService<QuiverMatrix> pool = new ExecutorCompletionService<QuiverMatrix>(
 				threadPool);
 
-		for (DynkinDiagram m : DynkinDiagram.MUT_FINITE) {
+		for (DynkinDiagram m : DynkinDiagram.TEST_SET) {
 			QuiverMatrix matrix = m.getMatrix();
-			pool.submit(new CheckInfTask(matrix, QuiverPool.getInstance(matrix.getNumRows(),
-					matrix.getNumCols())));
+			pool.submit(new CheckInfTask(matrix, 
+						QuiverPool.getInstance(matrix.getNumRows(),	
+							matrix.getNumCols())));
 		}
 
-		for (int i = 0; i < DynkinDiagram.MUT_FINITE.size(); i++) {
+		for (int i = 0; i < DynkinDiagram.TEST_SET.size(); i++) {
 			try {
 				assertNull(pool.take().get());
 			} catch (InterruptedException e) {
