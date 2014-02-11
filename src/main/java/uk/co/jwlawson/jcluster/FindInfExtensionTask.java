@@ -100,11 +100,13 @@ public class FindInfExtensionTask implements Callable<Set<QuiverMatrix>> {
 			int num) throws Exception {
 		QuiverMatrix matrix = matrixPool.getObj();
 		matrix.set(mEnlargedMatrix);
+		log.debug("Enlarged matrix: {} copied to {}", mEnlargedMatrix, matrix);
 		for (int i = 0; i < size; i++) {
 			int val = (((int) (num / Math.pow(5, i))) % 5) - 2;
 			matrix.unsafeSet(size, i, val);
 			matrix.unsafeSet(i, size, -val);
 		}
+		log.debug("Added vertex id: {} to get matrix: {}", num, matrix);
 		return matrix;
 	}
 
