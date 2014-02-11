@@ -18,6 +18,8 @@ package uk.co.jwlawson.jcluster;
 
 import java.util.HashMap;
 
+import nf.fr.eraasoft.pool.PoolSettings;
+
 import org.apache.commons.pool2.ObjectPool;
 import org.apache.commons.pool2.impl.SoftReferenceObjectPool;
 import org.slf4j.Logger;
@@ -45,6 +47,21 @@ public class QuiverPool {
 			return pool;
 		}
 	}
+	
+	private static HashMap<Integer, nf.fr.eraasoft.pool.ObjectPool<QuiverMatrix>> sObjPoolMap = new HashMap<Integer, nf.fr.eraasoft.pool.ObjectPool<QuiverMatrix>>();
+
+	public static synchronized nf.fr.eraasoft.pool.ObjectPool<QuiverMatrix> getPool(int rows, int cols) {
+		int id = getId(rows, cols);
+		if (sObjPoolMap.containsKey(id)) {
+			return sObjPoolMap.get(id);
+		} else {
+			logger.info("Creating new pool {}x{}", rows, cols);
+			PoolSettings<QuiverMatrix> settings = new PoolSettings<QuiverMatrix>(QuiverMatrixPoolableObject.getInstance(rows, cols));
+			nf.fr.eraasoft.pool.ObjectPool<QuiverMatrix> pool = settings.pool();
+			sObjPoolMap.put(id, pool);
+			return pool;
+		}
+	}	
 
 	/*
 	 * Szudzik's function. See http://szudzik.com/ElegantPairing.pdf
