@@ -21,7 +21,8 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ThreadLocalRandom;
 
-import org.apache.commons.pool2.ObjectPool;
+import nf.fr.eraasoft.pool.ObjectPool;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,7 +64,7 @@ public class CheckInfTask implements Callable<QuiverMatrix> {
 //		log.debug("Starting to check if infinite");
 		try {
 			for (int i = 0; i < 2; i++) {
-				QuiverMatrix matrix = mMatrixPool.borrowObject();
+				QuiverMatrix matrix = mMatrixPool.getObj();
 				matrix.set(mMatrix);
 				mMutated[i] = matrix;
 			}
@@ -82,7 +83,7 @@ public class CheckInfTask implements Callable<QuiverMatrix> {
 		} finally {
 			for (int i = 0; i < 2; i++) {
 				if (null != mMutated[i]) {
-					mMatrixPool.returnObject(mMutated[i]);
+					mMatrixPool.returnObj(mMutated[i]);
 				}
 			}
 			for (CheckInfListener l : mListeners) {

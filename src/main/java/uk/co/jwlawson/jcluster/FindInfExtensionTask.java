@@ -22,7 +22,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 
-import org.apache.commons.pool2.ObjectPool;
+import nf.fr.eraasoft.pool.ObjectPool;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,7 +87,7 @@ public class FindInfExtensionTask implements Callable<Set<QuiverMatrix>> {
 		task.addListener(new CheckInfListener() {
 			public void matrixChecked(QuiverMatrix matrix) {
 				try {
-					matrixPool.returnObject(matrix);
+					matrixPool.returnObj(matrix);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -97,7 +98,7 @@ public class FindInfExtensionTask implements Callable<Set<QuiverMatrix>> {
 
 	private QuiverMatrix addVertexToMatrix(int size, final ObjectPool<QuiverMatrix> matrixPool,
 			int num) throws Exception {
-		QuiverMatrix matrix = matrixPool.borrowObject();
+		QuiverMatrix matrix = matrixPool.getObj();
 		matrix.set(mEnlargedMatrix);
 		for (int i = 0; i < size; i++) {
 			int val = (((int) (num / Math.pow(5, i))) % 5) - 2;

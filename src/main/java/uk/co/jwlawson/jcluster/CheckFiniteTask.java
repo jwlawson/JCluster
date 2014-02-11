@@ -20,9 +20,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.Callable;
 
+import nf.fr.eraasoft.pool.ObjectPool;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.pool2.ObjectPool;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.Multigraph;
@@ -62,7 +63,7 @@ public class CheckFiniteTask implements Callable<QuiverMatrix> {
 			for (QuiverMatrix mat : matrices) {
 				for (int i = 0; i < mSize; i++) {
 					if (shouldMutateAt(graph, mat, i)) {
-						QuiverMatrix m = mat.mutate(i, quiverPool.borrowObject());
+						QuiverMatrix m = mat.mutate(i, quiverPool.getObj());
 						if (graph.containsVertex(m)) {
 							MutationEdge edge = new MutationEdge(i, m, m);
 							graph.addEdge(mat, m, edge);
@@ -82,7 +83,7 @@ public class CheckFiniteTask implements Callable<QuiverMatrix> {
 			if (m == mInitialMatrix) {
 				continue;
 			}
-			quiverPool.returnObject(m);
+			quiverPool.returnObj(m);
 		}
 		return null;
 	}
