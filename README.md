@@ -6,8 +6,9 @@ A library for computing cluster algebras and quiver mutations.
 Build
 -----
 
-JCluster uses maven to build. Ensure that you have both EJML and ring.perisic.com 
-installed in your local repository - and that their IDs match those in pom.xml.
+JCluster uses maven to build. Ensure that you have ring.perisic.com 
+installed in your local repository as it is not available in Maven 
+Central - and that its IDs match those in pom.xml.
 
 Build using `mvn compile`, test with `mvn test` and create a jar with `mvn package`.
 
