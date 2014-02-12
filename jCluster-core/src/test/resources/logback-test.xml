@@ -26,7 +26,12 @@
   </appender>
   
 
-  <logger name="uk.co.jwlawson.jcluster" level="DEBUG" additivity="false">
+  <logger name="uk.co.jwlawson.jcluster" level="INFO" additivity="false">
+      <appender-ref ref="FILE" />
+    <appender-ref ref="STDOUT" />
+  </logger>
+  
+    <logger name="uk.co.jwlawson.jcluster.NewFiniteTask" level="DEBUG" additivity="false">
       <appender-ref ref="FILE" />
     <appender-ref ref="STDOUT" />
   </logger>

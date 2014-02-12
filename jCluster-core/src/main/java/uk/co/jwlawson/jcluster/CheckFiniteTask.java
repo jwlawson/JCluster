@@ -38,8 +38,8 @@ public class CheckFiniteTask implements Callable<QuiverMatrix> {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private QuiverMatrix mInitialMatrix;
-	private int mSize;
+	private final QuiverMatrix mInitialMatrix;
+	private final int mSize;
 
 	public CheckFiniteTask(QuiverMatrix matrix) {
 		mInitialMatrix = matrix;
@@ -65,12 +65,12 @@ public class CheckFiniteTask implements Callable<QuiverMatrix> {
 					if (shouldMutateAt(graph, mat, i)) {
 						QuiverMatrix m = mat.mutate(i, quiverPool.getObj());
 						if (graph.containsVertex(m)) {
-							MutationEdge edge = new MutationEdge(i, m, m);
+							MutationEdge edge = new MutationEdge(i, m, mat);
 							graph.addEdge(mat, m, edge);
 						} else {
 							vertexAdded = true;
 							graph.addVertex(m);
-							MutationEdge edge = new MutationEdge(i, m, m);
+							MutationEdge edge = new MutationEdge(i, m, mat);
 							graph.addEdge(mat, m, edge);
 						}
 					}
@@ -100,9 +100,9 @@ public class CheckFiniteTask implements Callable<QuiverMatrix> {
 	}
 
 	private class MutationEdge extends DefaultEdge {
-		private QuiverMatrix mMat1;
-		private QuiverMatrix mMat2;
-		private int mMutationLabel;
+		private final QuiverMatrix mMat1;
+		private final QuiverMatrix mMat2;
+		private final int mMutationLabel;
 
 		public MutationEdge(int label, QuiverMatrix m1, QuiverMatrix m2) {
 			mMat1 = m1;

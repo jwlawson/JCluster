@@ -57,10 +57,13 @@ public class QuiverMatrix {
 	 * @return New mutated matrix.
 	 */
 	public QuiverMatrix mutate(int k, QuiverMatrix result) {
+		if(result == null){
+			throw new RuntimeException("Do not call this method with null - use the one parameter method.");
+		}
 		int rows = getNumRows();
 		int cols = getNumCols();
 		if (k < 0 || k > Math.min(rows, cols)) {
-			throw new ArrayIndexOutOfBoundsException(
+			throw new IllegalArgumentException(
 					"Index needs to be within the unfrozen vaules of the matrix. Expected: " + 0
 							+ " to " + Math.min(rows, cols) + " Actual: " + k);
 		}
