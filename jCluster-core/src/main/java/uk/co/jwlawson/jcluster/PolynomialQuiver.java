@@ -33,8 +33,8 @@ import com.perisic.ring.RingElt;
 public class PolynomialQuiver extends Quiver {
 
 	private final QuiverMatrix mMatrix;
-	private final Ring mRing;
-	private final RingElt[] mPolynomials;
+	private Ring mRing;
+	private RingElt[] mPolynomials;
 
 	public PolynomialQuiver(int rows, int cols, double... data) {
 		mMatrix = new QuiverMatrix(rows, cols, data);
@@ -42,20 +42,35 @@ public class PolynomialQuiver extends Quiver {
 		int min = Math.min(rows, cols);
 		int max = Math.max(rows, cols);
 
-		String[] variables = new String[max];
-		for (int i = 0; i < min; i++) {
+		initPolynomials(min, max);
+	}
+	
+	public PolynomialQuiver(QuiverMatrix matrix){
+		mMatrix = matrix;
+		int rows = mMatrix.getNumRows();
+		int cols = mMatrix.getNumCols();
+		
+		int unFrozenVars = Math.min(rows, cols);
+		int totalVars = Math.max(rows, cols);
+		
+		initPolynomials(unFrozenVars, totalVars);
+	}
+
+	private void initPolynomials(int unFrozenVars, int totalVars) {
+		String[] variables = new String[totalVars];
+		for (int i = 0; i < unFrozenVars; i++) {
 			variables[i] = "x" + i;
 		}
-		for (int i = min; i < max; i++) {
+		for (int i = unFrozenVars; i < totalVars; i++) {
 			variables[i] = "y" + i;
 		}
 		mRing = new QuotientField(new PolynomialRing(Ring.Q, variables));
 
-		mPolynomials = new RingElt[max];
-		for (int i = 0; i < min; i++) {
+		mPolynomials = new RingElt[totalVars];
+		for (int i = 0; i < unFrozenVars; i++) {
 			mPolynomials[i] = mRing.map("x" + i);
 		}
-		for (int i = min; i < max; i++) {
+		for (int i = unFrozenVars; i < totalVars; i++) {
 			mPolynomials[i] = mRing.map("y" + i);
 		}
 	}
@@ -133,11 +148,12 @@ public class PolynomialQuiver extends Quiver {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(mMatrix);
-		sb.append(" {");
+		sb.append(System.lineSeparator());
+		sb.append(" { ");
 		for(int i = 0; i < mPolynomials.length; i++){
-			sb.append(mPolynomials[i]).append(",");
+			sb.append(mPolynomials[i]).append(", ");
 		}
-		sb.deleteCharAt(sb.length()-1);
+		sb.deleteCharAt(sb.length()-2);
 		sb.append("} ");
 		return sb.toString();
 	}
