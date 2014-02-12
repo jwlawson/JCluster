@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
  * @author John
  *
  */
-public class NewFiniteTask implements Callable<QuiverMatrix> {
+public class NewFiniteTask implements Callable<Integer> {
 	
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final Map<QuiverMatrix, LinkableQuiverMatrixHolder> mMatrixSet;
@@ -45,7 +45,7 @@ public class NewFiniteTask implements Callable<QuiverMatrix> {
 		return Math.min(matrix.getNumRows(), matrix.getNumCols());
 	}
 
-	public QuiverMatrix call() throws Exception {
+	public Integer call() throws Exception {
 		log.debug("NewFiniteTask started for {}", mInitialMatrix);
 		for(int i = 0; i < 2; i++){
 			mNewVerticesArr[i] = new ArrayList<QuiverMatrix>();
@@ -61,8 +61,8 @@ public class NewFiniteTask implements Callable<QuiverMatrix> {
 			readIndex = mCount % 2;
 			addIndex = (++mCount) % 2;
 			mNewVerticesArr[addIndex].clear();
-			
-			for (QuiverMatrix mat : mNewVerticesArr[readIndex]) {
+			for(int j = 0; j < mNewVerticesArr[readIndex].size(); j++){
+				QuiverMatrix mat = mNewVerticesArr[readIndex].get(j);
 				for (int i = 0; i < size; i++) {
 					if (shouldMutateAt(mMatrixSet, mat, i)) {
 						QuiverMatrix newMatrix = mat.mutate(i, quiverPool.getObj());
@@ -80,27 +80,30 @@ public class NewFiniteTask implements Callable<QuiverMatrix> {
 						oldHolder.setLinkAt(i, newMatrix);
 					}
 				}
-				for(QuiverMatrix remove : possibleRemove){
-					LinkableQuiverMatrixHolder holder = mMatrixSet.get(remove);
-					if(holder.isComplete()){
-						mMatrixSet.remove(remove);
-						quiverPool.returnObj(remove);
-					}
-				}
+				removeUnneeded(quiverPool, possibleRemove);
 				possibleRemove.clear();
+				if(j % 50000 == 0){
+					log.debug("Handled {} matrices", j);
+				}
 			}
 			mNumMatrices += mNewVerticesArr[addIndex].size();
-			log.debug("Added {} vertices, now at {}, with {} in map", mNewVerticesArr[addIndex].size(),mNumMatrices, mMatrixSet.size());
-			for(QuiverMatrix remove : mNewVerticesArr[readIndex]){
-				LinkableQuiverMatrixHolder holder = mMatrixSet.get(remove);
-				if(holder != null && holder.isComplete()){
-					mMatrixSet.remove(remove);
-					quiverPool.returnObj(remove);
-				}
-			}
+			log.debug("Added {} vertices, now at {}, with {} in map", 
+					mNewVerticesArr[addIndex].size(), mNumMatrices, mMatrixSet.size());
+			removeUnneeded(quiverPool, mNewVerticesArr[readIndex]);
 		} while (!mNewVerticesArr[addIndex].isEmpty());
 		log.info("Graph completed. Vertices: {}", mNumMatrices );
-		return null;
+		return mNumMatrices;
+	}
+
+	private void removeUnneeded(ObjectPool<QuiverMatrix> quiverPool,
+			List<QuiverMatrix> possibleRemove) {
+		for(QuiverMatrix remove : possibleRemove){
+			LinkableQuiverMatrixHolder holder = mMatrixSet.get(remove);
+			if(holder != null && holder.isComplete()){
+				mMatrixSet.remove(remove);
+				quiverPool.returnObj(remove);
+			}
+		}
 	}
 
 	private boolean shouldMutateAt(

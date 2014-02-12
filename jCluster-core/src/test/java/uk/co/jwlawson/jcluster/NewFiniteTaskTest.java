@@ -23,10 +23,10 @@ public class NewFiniteTaskTest {
 	@Test
 	public void test() {
 		log.debug("Starting test");
-		NewFiniteTask task = new NewFiniteTask(DynkinDiagram.A7.getMatrix());
+		NewFiniteTask task = new NewFiniteTask(DynkinDiagram.A4.getMatrix());
 		ExecutorService exec = Executors.newSingleThreadExecutor();
 
-		Future<QuiverMatrix> future = exec.submit(task);
+		Future<Integer> future = exec.submit(task);
 		try {
 			future.get();
 		} catch (InterruptedException e) {
