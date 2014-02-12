@@ -27,6 +27,7 @@ import com.perisic.ring.Ring;
 import com.perisic.ring.RingElt;
 
 /**
+ * A quiver which has polynomials at each vertex.
  * @author John Lawson
  * 
  */
@@ -92,6 +93,11 @@ public class PolynomialQuiver extends Quiver {
 		return mRing;
 	}
 
+	/**
+	 * Get the polynomial at the specified vertex.
+	 * @param k The vertex at which the required polynomial is
+	 * @return The polynomial at vertex k
+	 */
 	public RingElt getPolynomial(int k) {
 		return mPolynomials[k];
 	}
@@ -100,7 +106,7 @@ public class PolynomialQuiver extends Quiver {
 	 * Mutate the quiver at the specified vertex. Remember that the indices start at 0.
 	 * 
 	 * @return A new quiver which is the mutation of this one.
-	 nt*/
+	 */
 	@Override
 	public Quiver mutate(int k) {
 		QuiverMatrix newMatrix = mMatrix.mutate(k);

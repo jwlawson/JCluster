@@ -18,13 +18,15 @@ package uk.co.jwlawson.jcluster;
 
 import java.util.HashMap;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import nf.fr.eraasoft.pool.PoolException;
 import nf.fr.eraasoft.pool.PoolableObjectBase;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
+ * Object factory required for pooling QuiverMatrix objects.
+ * 
  * @author John
  *
  */
@@ -35,7 +37,7 @@ public class QuiverMatrixPoolableObject extends PoolableObjectBase<QuiverMatrix>
 	private final int cols;
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
-	public static QuiverMatrixPoolableObject getInstance(int rows, int cols) {
+	public synchronized static QuiverMatrixPoolableObject getInstance(int rows, int cols) {
 		int id = getId(rows, cols);
 		if (sFactoryMap.containsKey(id)) {
 			return sFactoryMap.get(id);

@@ -22,6 +22,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
+ * Quiver which has numeric values at each vertex which get mutated along with the matrix.
  * @author John Lawson
  * 
  */

@@ -25,6 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * Convenience class to provide an ObjectPool of QuiverMatrix objects.
+ * Caches the instances so that the pools are always reused.
  * @author John Lawson
  * 
  */
@@ -55,4 +57,10 @@ public class QuiverPool {
 		return a >= b ? a * a + a + b : a + b * b;
 	}
 
+	/** 
+	 * QuiverPool should not be instantiated itself.
+	 * Just use the getInstance method to get the ObjectPool.
+	 */
+	private QuiverPool(){
+	}
 }

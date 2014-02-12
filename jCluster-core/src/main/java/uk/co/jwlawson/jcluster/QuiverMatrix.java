@@ -22,12 +22,13 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
+ * The basic quiver with methods to mutate the quiver at its vertices.
  * @author John Lawson
  * 
  */
 public class QuiverMatrix {
 
-	private MatrixAdaptor mMatrix;
+	private final MatrixAdaptor mMatrix;
 
 	private QuiverMatrix(MatrixAdaptor m) {
 		mMatrix = m;
@@ -97,6 +98,14 @@ public class QuiverMatrix {
 		mMatrix.unsafe_set(i, j, val);
 	}
 
+	/**
+	 * Provides a new matrix which has added rows and columns filled with zeros.
+	 * 
+	 * This can be used to add vertices to the quiver.
+	 * @param extraRows Number of extra rows to add
+	 * @param extraCols Number of extra columns to add
+	 * @return The enlarged matrix
+	 */
 	public QuiverMatrix enlargeMatrix(int extraRows, int extraCols) {
 		int rows = mMatrix.numRows;
 		int cols = mMatrix.numCols;

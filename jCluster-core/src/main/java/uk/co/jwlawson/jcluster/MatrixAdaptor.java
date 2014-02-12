@@ -21,6 +21,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.ejml.data.DenseMatrix64F;
 
 /**
+ * Adaptor class for DenseMatrix64F which provides equals and hashcode methods.
  * @author John Lawson
  * 
  */
