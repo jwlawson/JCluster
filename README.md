@@ -31,7 +31,11 @@ JCluster is made available as is under the Apache 2.0 license without warranty.
 	limitations under the License.
 
 JCluster uses:
-* [EJML](code.google.com/p/efficient-java-matrix-library) (Apache 2.0 license)
-* [ring.perisic.com](ring.perisic.com) (LGPL)
+* [Apache commons-lang](https://commons.apache.org/proper/commons-lang/) (Apache 2.0 License)
+* [EJML](http://code.google.com/p/efficient-java-matrix-library) (Apache 2.0 License)
+* [furious-objectpool](https://code.google.com/p/furious-objectpool/) (Apache 2.0 License)
+* [ring.perisic.com](http://ring.perisic.com) (LGPL)
+* [SLF4J](http://slf4j.org/) (MIT License)
+
 
     
