@@ -54,7 +54,7 @@ public class CheckFiniteTask implements Callable<QuiverMatrix> {
 		boolean vertexAdded;
 		log.debug("Graph at start: {}", graph);
 		Collection<QuiverMatrix> matrices = new ArrayList<QuiverMatrix>(1000);
-		ObjectPool<QuiverMatrix> quiverPool = QuiverPool.getInstance(mInitialMatrix.getNumRows(),
+		ObjectPool<QuiverMatrix> quiverPool = Pools.getQuiverMatrixPool(mInitialMatrix.getNumRows(),
 				mInitialMatrix.getNumCols());
 		do {
 			matrices.clear();

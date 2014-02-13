@@ -52,8 +52,9 @@ public class NewFiniteTask implements Callable<Integer> {
 		}
 		mNewVerticesArr[0].add(mInitialMatrix);
 		int size = Math.min(mInitialMatrix.getNumRows(),mInitialMatrix.getNumCols());
-		ObjectPool<QuiverMatrix> quiverPool = QuiverPool.getInstance(mInitialMatrix.getNumRows(),
+		ObjectPool<QuiverMatrix> quiverPool = Pools.getQuiverMatrixPool(mInitialMatrix.getNumRows(),
 				mInitialMatrix.getNumCols());
+		ObjectPool<LinkHolder> holderPool = Pools.getHolderPool(size);
 		int readIndex;
 		int addIndex;
 		List<QuiverMatrix> possibleRemove = new ArrayList<QuiverMatrix>();
@@ -72,7 +73,7 @@ public class NewFiniteTask implements Callable<Integer> {
 							possibleRemove.add(newMatrix);
 						} else {
 							mNewVerticesArr[addIndex].add(newMatrix);
-							newHolder = new LinkHolder(getSize(newMatrix));
+							newHolder = holderPool.getObj();
 							mMatrixSet.put(newMatrix, newHolder);
 						}
 						newHolder.setLinkAt(i, mat);
@@ -80,7 +81,7 @@ public class NewFiniteTask implements Callable<Integer> {
 						oldHolder.setLinkAt(i, newMatrix);
 					}
 				}
-				removeUnneeded(quiverPool, possibleRemove);
+				removeUnneeded(quiverPool, holderPool, possibleRemove);
 				possibleRemove.clear();
 				if(j % 50000 == 0){
 					log.debug("Handled {} matrices", j);
@@ -89,19 +90,21 @@ public class NewFiniteTask implements Callable<Integer> {
 			mNumMatrices += mNewVerticesArr[addIndex].size();
 			log.debug("Added {} vertices, now at {}, with {} in map", 
 					mNewVerticesArr[addIndex].size(), mNumMatrices, mMatrixSet.size());
-			removeUnneeded(quiverPool, mNewVerticesArr[readIndex]);
+			removeUnneeded(quiverPool, holderPool, mNewVerticesArr[readIndex]);
 		} while (!mNewVerticesArr[addIndex].isEmpty());
 		log.info("Graph completed. Vertices: {}", mNumMatrices );
 		return mNumMatrices;
 	}
 
 	private void removeUnneeded(ObjectPool<QuiverMatrix> quiverPool,
+			ObjectPool<LinkHolder> holderPool,
 			List<QuiverMatrix> possibleRemove) {
 		for(QuiverMatrix remove : possibleRemove){
 			LinkHolder holder = mMatrixSet.get(remove);
 			if(holder != null && holder.isComplete()){
 				mMatrixSet.remove(remove);
 				quiverPool.returnObj(remove);
+				holderPool.returnObj(holder);
 			}
 		}
 	}

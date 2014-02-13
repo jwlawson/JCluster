@@ -30,25 +30,41 @@ import org.slf4j.LoggerFactory;
  * @author John Lawson
  * 
  */
-public class QuiverPool {
+public class Pools {
 
-	private final static Logger logger = LoggerFactory.getLogger(QuiverPool.class);
+	private final static Logger logger = LoggerFactory.getLogger(Pools.class);
 	
-	private static HashMap<Integer, ObjectPool<QuiverMatrix>> sObjPoolMap = new HashMap<Integer, ObjectPool<QuiverMatrix>>();
+	private static HashMap<Integer, ObjectPool<QuiverMatrix>> sQuiverPoolMap = new HashMap<Integer, ObjectPool<QuiverMatrix>>();
+	private static HashMap<Integer, ObjectPool<LinkHolder>> sHolderPoolMap = new HashMap<Integer, ObjectPool<LinkHolder>>();
 
-	public static synchronized ObjectPool<QuiverMatrix> getInstance(int rows, int cols) {
+	public static synchronized ObjectPool<QuiverMatrix> getQuiverMatrixPool(int rows, int cols) {
 		int id = getId(rows, cols);
-		if (sObjPoolMap.containsKey(id)) {
-			return sObjPoolMap.get(id);
+		if (sQuiverPoolMap.containsKey(id)) {
+			return sQuiverPoolMap.get(id);
 		} else {
 			logger.info("Creating new pool {}x{}", rows, cols);
 			PoolSettings<QuiverMatrix> settings = new PoolSettings<QuiverMatrix>(QuiverMatrixPoolableObject.getInstance(rows, cols));
-			settings.max(Integer.MAX_VALUE);
+			settings.max(-1);
+			settings.maxIdle(1000);
 			ObjectPool<QuiverMatrix> pool = settings.pool();
-			sObjPoolMap.put(id, pool);
+			sQuiverPoolMap.put(id, pool);
 			return pool;
 		}
-	}	
+	}
+	
+	public static synchronized ObjectPool<LinkHolder> getHolderPool(int size){
+		if(sHolderPoolMap.containsKey(size)){
+			return sHolderPoolMap.get(size);
+		} else {
+			logger.info("Creating new Holder pool of size {}", size);
+			PoolSettings<LinkHolder> settings = new PoolSettings<LinkHolder>(new LinkHolderPoolableObject(size));
+			settings.max(-1);
+			settings.maxIdle(1000);
+			ObjectPool<LinkHolder> pool = settings.pool();
+			sHolderPoolMap.put(size, pool);
+			return pool;
+		}
+	}
 
 	/*
 	 * Szudzik's function. See http://szudzik.com/ElegantPairing.pdf
@@ -61,6 +77,6 @@ public class QuiverPool {
 	 * QuiverPool should not be instantiated itself.
 	 * Just use the getInstance method to get the ObjectPool.
 	 */
-	private QuiverPool(){
+	private Pools(){
 	}
 }

@@ -40,7 +40,7 @@ public class CheckInfTaskTest {
 	public void testCall() {
 		QuiverMatrix matrix = DynkinDiagram.A5.getMatrix();
 		CheckInfTask task = new CheckInfTask(matrix, 
-				QuiverPool.getInstance(matrix.getNumRows(),
+				Pools.getQuiverMatrixPool(matrix.getNumRows(),
 					matrix.getNumCols() ));
 
 		try {
@@ -59,7 +59,7 @@ public class CheckInfTaskTest {
 		for (DynkinDiagram m : DynkinDiagram.TEST_SET) {
 			QuiverMatrix matrix = m.getMatrix();
 			pool.submit(new CheckInfTask(matrix, 
-						QuiverPool.getInstance(matrix.getNumRows(),	
+						Pools.getQuiverMatrixPool(matrix.getNumRows(),	
 							matrix.getNumCols())));
 		}
 
