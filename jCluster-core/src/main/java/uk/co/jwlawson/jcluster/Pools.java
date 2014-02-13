@@ -45,7 +45,7 @@ public class Pools {
 			logger.info("Creating new pool {}x{}", rows, cols);
 			PoolSettings<QuiverMatrix> settings = new PoolSettings<QuiverMatrix>(QuiverMatrixPoolableObject.getInstance(rows, cols));
 			settings.max(-1);
-			settings.maxIdle(50000);
+			settings.maxIdle(500000);
 			ObjectPool<QuiverMatrix> pool = settings.pool();
 			sQuiverPoolMap.put(id, pool);
 			return pool;
@@ -59,7 +59,7 @@ public class Pools {
 			logger.info("Creating new Holder pool of size {}", size);
 			PoolSettings<LinkHolder> settings = new PoolSettings<LinkHolder>(new LinkHolderPoolableObject(size));
 			settings.max(-1);
-			settings.maxIdle(50000);
+			settings.maxIdle(500000);
 			ObjectPool<LinkHolder> pool = settings.pool();
 			sHolderPoolMap.put(size, pool);
 			return pool;

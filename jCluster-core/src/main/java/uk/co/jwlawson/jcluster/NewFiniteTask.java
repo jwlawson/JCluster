@@ -57,17 +57,26 @@ public class NewFiniteTask implements Callable<Integer> {
 		ObjectPool<LinkHolder> holderPool = Pools.getHolderPool(size);
 		int readIndex;
 		int addIndex;
+		int counter;
 		List<QuiverMatrix> possibleRemove = new ArrayList<QuiverMatrix>();
+		LinkHolder newHolder;
+		LinkHolder oldHolder;
+		QuiverMatrix mat;
+		QuiverMatrix newMatrix;
+		int i;
+		int matrixIndex;
 		do {
 			readIndex = mCount % 2;
 			addIndex = (++mCount) % 2;
 			mNewVerticesArr[addIndex].clear();
-			for(int j = 0; j < mNewVerticesArr[readIndex].size(); j++){
-				QuiverMatrix mat = mNewVerticesArr[readIndex].get(j);
-				for (int i = 0; i < size; i++) {
+			counter = 0;
+			while(!mNewVerticesArr[readIndex].isEmpty()){
+				matrixIndex = mNewVerticesArr[readIndex].size()-1;
+				mat = mNewVerticesArr[readIndex].get(matrixIndex);
+				for (i = 0; i < size; i++) {
 					if (shouldMutateAt(mMatrixSet, mat, i)) {
-						QuiverMatrix newMatrix = mat.mutate(i, quiverPool.getObj());
-						LinkHolder newHolder;
+						newMatrix = quiverPool.getObj();
+						newMatrix = mat.mutate(i, newMatrix);
 						if (mMatrixSet.containsKey(newMatrix)) {
 							newHolder = mMatrixSet.get(newMatrix);
 							possibleRemove.add(newMatrix);
@@ -77,18 +86,20 @@ public class NewFiniteTask implements Callable<Integer> {
 							mMatrixSet.put(newMatrix, newHolder);
 						}
 						newHolder.setLinkAt(i, mat);
-						LinkHolder oldHolder = mMatrixSet.get(mat);
+						oldHolder = mMatrixSet.get(mat);
 						oldHolder.setLinkAt(i, newMatrix);
 					}
 				}
 				removeUnneeded(quiverPool, holderPool, possibleRemove);
 				removeQuiver(mat, quiverPool, holderPool);
 				possibleRemove.clear();
-				if(j % 50000 == 0){
-					log.debug("Handled {} matrices, now at {}, with {} in map", j, 
-							mNumMatrices+mNewVerticesArr[addIndex].size(), 
-							mMatrixSet.size());
+				mNewVerticesArr[readIndex].remove(matrixIndex);
+				if(counter % 50000 == 0 && counter != 0){
+					log.debug("Handled {} matrices, now at {}, with {} in map. quiverpool {}. holderpool {}.", counter, 
+							mNumMatrices+mNewVerticesArr[addIndex].size() + counter, 
+							mMatrixSet.size(), quiverPool.toString(), holderPool.toString());
 				}
+				counter++;
 			}
 			mNumMatrices += mNewVerticesArr[addIndex].size();
 			log.debug("Added {} vertices, now at {}, with {} in map", 
@@ -101,7 +112,8 @@ public class NewFiniteTask implements Callable<Integer> {
 	private void removeUnneeded(ObjectPool<QuiverMatrix> quiverPool,
 			ObjectPool<LinkHolder> holderPool,
 			List<QuiverMatrix> possibleRemove) {
-		for(QuiverMatrix remove : possibleRemove){
+		for(int i = 0; i < possibleRemove.size(); i++){
+			QuiverMatrix remove = possibleRemove.get(i);
 			removeQuiver(remove, quiverPool, holderPool);
 		}
 	}

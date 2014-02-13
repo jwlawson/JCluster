@@ -82,7 +82,7 @@
 					</dependency>
 				</dependencies>
 				<configuration>
-					<argLine>-Xms1g -Xmx2g -d64</argLine>
+					<argLine>-Xms1g -Xmx3g -d64 -verbose:gc</argLine>
 				</configuration>
 			</plugin>
 		</plugins>
