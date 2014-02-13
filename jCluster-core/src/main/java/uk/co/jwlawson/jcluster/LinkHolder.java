@@ -10,41 +10,47 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  * @author John
  *
  */
-public class LinkableQuiverMatrixHolder {
+public class LinkHolder {
 	
 	
-	private final QuiverMatrix[] mList;
+	private final boolean[] mList;
 	
-	public LinkableQuiverMatrixHolder(int size) {
-		mList = new QuiverMatrix[size];
+	public LinkHolder(int size) {
+		mList = new boolean[size];
 	}
 	
-	public QuiverMatrix[] getLinksList() {
+	public boolean[] getLinksList() {
 		return mList;
 	}
 	
 	public boolean hasLink(int index){
-		return mList[index] != null;
+		return mList[index] != false;
 	}
 	
-	public QuiverMatrix getLinkAt(int index){
+	public boolean getLinkAt(int index){
 		return mList[index];
 	}
 	
 	public void setLinkAt(int index, QuiverMatrix link){
-		if(mList[index]!= null){
+		if(mList[index]!= false){
 			throw new RuntimeException("Link already set");
 		}
-		mList[index]= link;
+		mList[index]= true;
 	}
 	
 	public boolean isComplete() {
 		for(int i = 0; i < mList.length; i++){
-			if(mList[i] == null){
+			if(mList[i] == false){
 				return false;
 			}
 		}
 		return true;
+	}
+	
+	public void clear() {
+		for(int i = 0; i < mList.length; i++){
+			mList[i] = false;
+		}
 	}
 
 	@Override
@@ -58,7 +64,7 @@ public class LinkableQuiverMatrixHolder {
 		if (obj.getClass() != getClass()) {
 			return false;
 		}
-		LinkableQuiverMatrixHolder rhs = (LinkableQuiverMatrixHolder) obj;
+		LinkHolder rhs = (LinkHolder) obj;
 		return new EqualsBuilder().append(mList, rhs.mList).isEquals();
 	}
 	
@@ -72,7 +78,7 @@ public class LinkableQuiverMatrixHolder {
 		StringBuilder sb = new StringBuilder();
 		sb.append(System.lineSeparator()).append("With links ");
 		for(int i = 0; i < mList.length; i ++){
-			sb.append(i).append("->").append(mList[i] != null);
+			sb.append(i).append("->").append(mList[i] != false);
 			sb.append(System.lineSeparator());
 		}
 		return sb.toString();

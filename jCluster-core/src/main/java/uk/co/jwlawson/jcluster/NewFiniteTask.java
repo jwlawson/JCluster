@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 public class NewFiniteTask implements Callable<Integer> {
 	
 	private final Logger log = LoggerFactory.getLogger(getClass());
-	private final Map<QuiverMatrix, LinkableQuiverMatrixHolder> mMatrixSet;
+	private final Map<QuiverMatrix, LinkHolder> mMatrixSet;
 	private final QuiverMatrix mInitialMatrix;
 	private final List<QuiverMatrix>[] mNewVerticesArr;
 	private int mCount;
@@ -31,9 +31,9 @@ public class NewFiniteTask implements Callable<Integer> {
 		log.debug("Set up task to check if finite for {}", matrix);
 		mInitialMatrix = matrix;
 		
-		mMatrixSet = new ConcurrentHashMap<QuiverMatrix, LinkableQuiverMatrixHolder>();
+		mMatrixSet = new ConcurrentHashMap<QuiverMatrix, LinkHolder>();
 		
-		LinkableQuiverMatrixHolder initial = new LinkableQuiverMatrixHolder(getSize(matrix));
+		LinkHolder initial = new LinkHolder(getSize(matrix));
 		mMatrixSet.put(mInitialMatrix, initial);
 		
 		mNewVerticesArr = new List[2];
@@ -66,17 +66,17 @@ public class NewFiniteTask implements Callable<Integer> {
 				for (int i = 0; i < size; i++) {
 					if (shouldMutateAt(mMatrixSet, mat, i)) {
 						QuiverMatrix newMatrix = mat.mutate(i, quiverPool.getObj());
-						LinkableQuiverMatrixHolder newHolder;
+						LinkHolder newHolder;
 						if (mMatrixSet.containsKey(newMatrix)) {
 							newHolder = mMatrixSet.get(newMatrix);
 							possibleRemove.add(newMatrix);
 						} else {
 							mNewVerticesArr[addIndex].add(newMatrix);
-							newHolder = new LinkableQuiverMatrixHolder(getSize(newMatrix));
+							newHolder = new LinkHolder(getSize(newMatrix));
 							mMatrixSet.put(newMatrix, newHolder);
 						}
 						newHolder.setLinkAt(i, mat);
-						LinkableQuiverMatrixHolder oldHolder = mMatrixSet.get(mat);
+						LinkHolder oldHolder = mMatrixSet.get(mat);
 						oldHolder.setLinkAt(i, newMatrix);
 					}
 				}
@@ -98,7 +98,7 @@ public class NewFiniteTask implements Callable<Integer> {
 	private void removeUnneeded(ObjectPool<QuiverMatrix> quiverPool,
 			List<QuiverMatrix> possibleRemove) {
 		for(QuiverMatrix remove : possibleRemove){
-			LinkableQuiverMatrixHolder holder = mMatrixSet.get(remove);
+			LinkHolder holder = mMatrixSet.get(remove);
 			if(holder != null && holder.isComplete()){
 				mMatrixSet.remove(remove);
 				quiverPool.returnObj(remove);
@@ -107,9 +107,9 @@ public class NewFiniteTask implements Callable<Integer> {
 	}
 
 	private boolean shouldMutateAt(
-			Map<QuiverMatrix, LinkableQuiverMatrixHolder> matrixSet,
+			Map<QuiverMatrix, LinkHolder> matrixSet,
 			QuiverMatrix matrix, int i) {
-		LinkableQuiverMatrixHolder holder = matrixSet.get(matrix);
+		LinkHolder holder = matrixSet.get(matrix);
 		return holder != null && !holder.hasLink(i);
 	}
 
