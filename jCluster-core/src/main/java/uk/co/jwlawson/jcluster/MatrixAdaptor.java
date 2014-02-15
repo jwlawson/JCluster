@@ -16,9 +16,14 @@
  */
 package uk.co.jwlawson.jcluster;
 
+import nf.fr.eraasoft.pool.ObjectPool;
+import nf.fr.eraasoft.pool.PoolException;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.ejml.data.DenseMatrix64F;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Adaptor class for DenseMatrix64F which provides equals and hashcode methods.
@@ -26,6 +31,8 @@ import org.ejml.data.DenseMatrix64F;
  * 
  */
 public class MatrixAdaptor extends DenseMatrix64F {
+	
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	public MatrixAdaptor(int numRows, int numCols, boolean rowMajor, double... data) {
 		super(numRows, numCols, rowMajor, data);
@@ -59,7 +66,19 @@ public class MatrixAdaptor extends DenseMatrix64F {
 		MatrixAdaptor rhs = (MatrixAdaptor) obj;
 		removeNegZero(this);
 		removeNegZero(rhs);
-		return new EqualsBuilder().append(this.data, rhs.data).isEquals();
+		ObjectPool<EqualsBuilder> builderPool = Pools.getEqualsBuilerPool();
+		EqualsBuilder builder = null;
+		try{
+			builder = builderPool.getObj();
+			return builder.append(this.data, rhs.data).isEquals();
+		} catch (PoolException e) {
+			log.error("Error getting equals builder from pool" + e.getMessage(), e);
+			return new EqualsBuilder().append(this.data, rhs.data).isEquals();
+		} finally {
+			if(builder != null){
+				builderPool.returnObj(builder);
+			}
+		}
 	}
 
 	private void removeNegZero(MatrixAdaptor matrix) {

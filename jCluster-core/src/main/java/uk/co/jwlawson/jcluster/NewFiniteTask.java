@@ -4,6 +4,7 @@
 package uk.co.jwlawson.jcluster;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -48,7 +49,7 @@ public class NewFiniteTask implements Callable<Integer> {
 	public Integer call() throws Exception {
 		log.debug("NewFiniteTask started for {}", mInitialMatrix);
 		for(int i = 0; i < 2; i++){
-			mNewVerticesArr[i] = new ArrayList<QuiverMatrix>();
+			mNewVerticesArr[i] = new LinkedList<QuiverMatrix>();
 		}
 		mNewVerticesArr[0].add(mInitialMatrix);
 		int size = Math.min(mInitialMatrix.getNumRows(),mInitialMatrix.getNumCols());
@@ -71,8 +72,8 @@ public class NewFiniteTask implements Callable<Integer> {
 			mNewVerticesArr[addIndex].clear();
 			counter = 0;
 			while(!mNewVerticesArr[readIndex].isEmpty()){
-				matrixIndex = mNewVerticesArr[readIndex].size()-1;
-				mat = mNewVerticesArr[readIndex].get(matrixIndex);
+				matrixIndex = 0;
+				mat = mNewVerticesArr[readIndex].remove(matrixIndex);
 				for (i = 0; i < size; i++) {
 					if (shouldMutateAt(mMatrixSet, mat, i)) {
 						newMatrix = quiverPool.getObj();
@@ -92,11 +93,9 @@ public class NewFiniteTask implements Callable<Integer> {
 				}
 				removeUnneeded(quiverPool, holderPool, possibleRemove);
 				removeQuiver(mat, quiverPool, holderPool);
-				possibleRemove.clear();
-				mNewVerticesArr[readIndex].remove(matrixIndex);
 				if(counter % 50000 == 0 && counter != 0){
 					log.debug("Handled {} matrices, now at {}, with {} in map. quiverpool {}. holderpool {}.", counter, 
-							mNumMatrices+mNewVerticesArr[addIndex].size() + counter, 
+							mNumMatrices + mNewVerticesArr[addIndex].size(), 
 							mMatrixSet.size(), quiverPool.toString(), holderPool.toString());
 				}
 				counter++;
@@ -113,7 +112,7 @@ public class NewFiniteTask implements Callable<Integer> {
 			ObjectPool<LinkHolder> holderPool,
 			List<QuiverMatrix> possibleRemove) {
 		for(int i = 0; i < possibleRemove.size(); i++){
-			QuiverMatrix remove = possibleRemove.get(i);
+			QuiverMatrix remove = possibleRemove.remove(i);
 			removeQuiver(remove, quiverPool, holderPool);
 		}
 	}

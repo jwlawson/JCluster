@@ -68,5 +68,10 @@ public class QuiverMatrixPoolableObject extends PoolableObjectBase<QuiverMatrix>
 	public void activate(QuiverMatrix arg0) throws PoolException {
 		
 	}
+	
+	@Override
+	public void passivate(QuiverMatrix quiver) {
+		quiver.reset();
+	}
 
 }

@@ -21,6 +21,7 @@ import java.util.HashMap;
 import nf.fr.eraasoft.pool.ObjectPool;
 import nf.fr.eraasoft.pool.PoolSettings;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +37,7 @@ public class Pools {
 	
 	private static HashMap<Integer, ObjectPool<QuiverMatrix>> sQuiverPoolMap = new HashMap<Integer, ObjectPool<QuiverMatrix>>();
 	private static HashMap<Integer, ObjectPool<LinkHolder>> sHolderPoolMap = new HashMap<Integer, ObjectPool<LinkHolder>>();
+	private static ObjectPool<EqualsBuilder> sEqualsBuilderPool;
 
 	public static synchronized ObjectPool<QuiverMatrix> getQuiverMatrixPool(int rows, int cols) {
 		int id = getId(rows, cols);
@@ -46,6 +48,7 @@ public class Pools {
 			PoolSettings<QuiverMatrix> settings = new PoolSettings<QuiverMatrix>(QuiverMatrixPoolableObject.getInstance(rows, cols));
 			settings.max(-1);
 			settings.maxIdle(500000);
+			PoolSettings.timeBetweenTwoControls(600);
 			ObjectPool<QuiverMatrix> pool = settings.pool();
 			sQuiverPoolMap.put(id, pool);
 			return pool;
@@ -60,10 +63,22 @@ public class Pools {
 			PoolSettings<LinkHolder> settings = new PoolSettings<LinkHolder>(new LinkHolderPoolableObject(size));
 			settings.max(-1);
 			settings.maxIdle(500000);
+			PoolSettings.timeBetweenTwoControls(600);
 			ObjectPool<LinkHolder> pool = settings.pool();
 			sHolderPoolMap.put(size, pool);
 			return pool;
 		}
+	}
+	
+	public static synchronized ObjectPool<EqualsBuilder> getEqualsBuilerPool() {
+		if(sEqualsBuilderPool == null){
+			PoolSettings<EqualsBuilder> settings = new PoolSettings<EqualsBuilder>(new EqualsBuilderPoolableObject());
+			settings.max(-1);
+			settings.maxIdle(1000);
+			PoolSettings.timeBetweenTwoControls(600);
+			sEqualsBuilderPool = settings.pool();
+		}
+		return sEqualsBuilderPool;
 	}
 
 	/*
