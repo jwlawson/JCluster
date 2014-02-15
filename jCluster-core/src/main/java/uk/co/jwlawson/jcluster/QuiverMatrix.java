@@ -87,7 +87,7 @@ public class QuiverMatrix {
 				result.mMatrix.unsafe_set(i, j, a);
 			}
 		}
-
+		result.mMatrix.removeNegZero();
 		return result;
 	}
 
