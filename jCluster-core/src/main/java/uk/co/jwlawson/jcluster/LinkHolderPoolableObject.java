@@ -36,6 +36,10 @@ public class LinkHolderPoolableObject extends PoolableObjectBase<LinkHolder> {
 	}
 
 	public void activate(LinkHolder holder) throws PoolException {
+	}
+	
+	@Override
+	public void passivate(LinkHolder holder) {
 		holder.clear();
 	}
 

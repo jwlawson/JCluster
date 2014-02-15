@@ -14,6 +14,7 @@ public class LinkHolder {
 	
 	
 	private final boolean[] mList;
+	private QuiverMatrix mMatrix;
 	
 	public LinkHolder(int size) {
 		mList = new boolean[size];
@@ -21,6 +22,14 @@ public class LinkHolder {
 	
 	public boolean[] getLinksList() {
 		return mList;
+	}
+	
+	public void setMatrix(QuiverMatrix matrix){
+		mMatrix = matrix;
+	}
+	
+	public QuiverMatrix getQuiverMatrix(){
+		return mMatrix;
 	}
 	
 	public boolean hasLink(int index){
@@ -31,7 +40,7 @@ public class LinkHolder {
 		return mList[index];
 	}
 	
-	public void setLinkAt(int index, QuiverMatrix link){
+	public void setLinkAt(int index){
 		if(mList[index]!= false){
 			throw new RuntimeException("Link already set");
 		}
@@ -51,6 +60,7 @@ public class LinkHolder {
 		for(int i = 0; i < mList.length; i++){
 			mList[i] = false;
 		}
+		mMatrix = null;
 	}
 
 	@Override
