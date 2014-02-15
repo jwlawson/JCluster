@@ -3,23 +3,14 @@
  */
 package uk.co.jwlawson.jcluster;
 
-import nf.fr.eraasoft.pool.ObjectPool;
-import nf.fr.eraasoft.pool.PoolException;
-
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author John
  *
  */
 public class LinkHolder {
-	
-	private static final ObjectPool<EqualsBuilder> sBuilderPool = Pools.getEqualsBuilerPool();
-	
-	private final Logger log = LoggerFactory.getLogger(getClass());
 	
 	private final boolean[] mList;
 	private QuiverMatrix mMatrix;
@@ -83,18 +74,7 @@ public class LinkHolder {
 			return false;
 		}
 		LinkHolder rhs = (LinkHolder) obj;
-		EqualsBuilder builder = null;
-		try{
-			builder = sBuilderPool.getObj();
-			return builder.append(mMatrix, rhs.mMatrix).append(mList, rhs.mList).isEquals();
-		} catch (PoolException e) {
-			log.error("Error getting equals builder from pool" + e.getMessage(), e);
-			return new EqualsBuilder().append(mMatrix, rhs.mMatrix).append(mList, rhs.mList).isEquals();
-		} finally {
-			if(builder != null){
-				sBuilderPool.returnObj(builder);
-			}
-		}
+		return new EqualsBuilder().append(mMatrix, rhs.mMatrix).append(mList, rhs.mList).isEquals();
 	}
 	
 	@Override

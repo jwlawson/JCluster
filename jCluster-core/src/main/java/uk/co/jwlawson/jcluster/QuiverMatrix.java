@@ -18,13 +18,8 @@ package uk.co.jwlawson.jcluster;
 
 import java.util.Arrays;
 
-import nf.fr.eraasoft.pool.ObjectPool;
-import nf.fr.eraasoft.pool.PoolException;
-
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The basic quiver with methods to mutate the quiver at its vertices.
@@ -33,10 +28,8 @@ import org.slf4j.LoggerFactory;
  */
 public class QuiverMatrix {
 	
-	private static final ObjectPool<EqualsBuilder> sBuilderPool = Pools.getEqualsBuilerPool();
 
 	private final MatrixAdaptor mMatrix;
-	private final Logger log = LoggerFactory.getLogger(getClass());
 	private int mHashCode = Integer.MAX_VALUE;
 
 	private QuiverMatrix(MatrixAdaptor m) {
@@ -181,18 +174,7 @@ public class QuiverMatrix {
 			return false;
 		}
 		QuiverMatrix rhs = (QuiverMatrix) obj;
-		EqualsBuilder builder = null;
-		try{
-			builder = sBuilderPool.getObj();
-			return builder.append(mMatrix, rhs.mMatrix).isEquals();
-		} catch (PoolException e) {
-			log.error("Error getting equals builder from pool" + e.getMessage(), e);
-			return new EqualsBuilder().append(mMatrix, rhs.mMatrix).isEquals();
-		} finally {
-			if(builder != null){
-				sBuilderPool.returnObj(builder);
-			}
-		}
+		return new EqualsBuilder().append(mMatrix, rhs.mMatrix).isEquals();
 	}
 
 	@Override
