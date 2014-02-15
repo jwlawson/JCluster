@@ -18,7 +18,6 @@ package uk.co.jwlawson.jcluster;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
@@ -136,6 +135,7 @@ public class QuiverMatrix {
 	}
 	
 	public void reset() {
+		mMatrix.reset();
 		mHashCode = Integer.MAX_VALUE;
 	}
 
@@ -154,6 +154,7 @@ public class QuiverMatrix {
 	 * @param matrix The matrix to copy the values from.
 	 */
 	public void set(QuiverMatrix matrix) {
+		reset();
 		mMatrix.set(matrix.getNumRows(), matrix.getNumCols(), true, matrix.mMatrix.data);
 	}
 
@@ -174,7 +175,10 @@ public class QuiverMatrix {
 			return false;
 		}
 		QuiverMatrix rhs = (QuiverMatrix) obj;
-		return new EqualsBuilder().append(mMatrix, rhs.mMatrix).isEquals();
+		if(hashCode() != rhs.hashCode()){
+			return false;
+		}
+		return mMatrix.equals(rhs.mMatrix);
 	}
 
 	@Override

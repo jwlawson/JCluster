@@ -16,7 +16,6 @@
  */
 package uk.co.jwlawson.jcluster;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.ejml.data.DenseMatrix64F;
 import org.slf4j.Logger;
@@ -30,6 +29,7 @@ import org.slf4j.LoggerFactory;
 public class MatrixAdaptor extends DenseMatrix64F {
 	
 	private final Logger log = LoggerFactory.getLogger(getClass());
+	private int hashcode = Integer.MAX_VALUE;
 
 	public MatrixAdaptor(int numRows, int numCols, boolean rowMajor, double... data) {
 		super(numRows, numCols, rowMajor, data);
@@ -55,6 +55,7 @@ public class MatrixAdaptor extends DenseMatrix64F {
 	public void set(int numRows, int numCols, boolean rowMajor, double... data) {
 		super.set(numRows, numCols, rowMajor, data);
 		removeNegZero();
+		hashcode = Integer.MAX_VALUE;
 	}
 
 	@Override
@@ -69,7 +70,18 @@ public class MatrixAdaptor extends DenseMatrix64F {
 			return false;
 		}
 		MatrixAdaptor rhs = (MatrixAdaptor) obj;
-		return new EqualsBuilder().append(this.data, rhs.data).isEquals();
+		if(data.length != rhs.data.length){
+			return false;
+		}
+		if(hashCode() != rhs.hashCode()){
+			return false;
+		}
+		for(int i = 0; i < data.length; i++){
+			if(Double.doubleToLongBits(data[i]) != Double.doubleToLongBits(rhs.data[i])){
+				return false;
+			}
+		}
+		return true;
 	}
 
 	public void removeNegZero() {
@@ -79,9 +91,16 @@ public class MatrixAdaptor extends DenseMatrix64F {
 			}
 		}
 	}
+	
+	public void reset() {
+		hashcode = Integer.MAX_VALUE;
+	}
 
 	@Override
 	public int hashCode() {
-		return new HashCodeBuilder(17, 37).append(this.data).toHashCode();
+		if(hashcode == Integer.MAX_VALUE){
+			hashcode =  new HashCodeBuilder(17, 37).append(this.data).toHashCode();
+		}
+		return hashcode;
 	}
 }
