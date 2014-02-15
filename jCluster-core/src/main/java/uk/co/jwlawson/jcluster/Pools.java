@@ -45,7 +45,7 @@ public class Pools {
 			return sQuiverPoolMap.get(id);
 		} else {
 			logger.info("Creating new pool {}x{}", rows, cols);
-			PoolSettings<QuiverMatrix> settings = new PoolSettings<QuiverMatrix>(QuiverMatrixPoolableObject.getInstance(rows, cols));
+			PoolSettings<QuiverMatrix> settings = new PoolSettings<QuiverMatrix>(new QuiverMatrixPoolableObject(rows, cols));
 			settings.max(-1);
 			settings.maxIdle(500000);
 			PoolSettings.timeBetweenTwoControls(600);

@@ -49,7 +49,7 @@ public class NewFiniteTask implements Callable<Integer> {
 		log.debug("NewFiniteTask started for {}", mInitialMatrix);
 		int size = Math.min(mInitialMatrix.getNumRows(),mInitialMatrix.getNumCols());
 		for(int i = 0; i < 2; i++){
-			// 15^(size-1) is a rough estimate for how many matrices will be added at once.
+			// 10^(size-1) is a rough estimate for how many matrices will be added at once.
 			// ArrayList scales anyway, so it doesn't matter too much, but if we can avoid
 			// unnecessary allocations that is good
 			mNewVerticesArr[i] = new ArrayList<QuiverMatrix>((int) Math.pow(15, size-1));

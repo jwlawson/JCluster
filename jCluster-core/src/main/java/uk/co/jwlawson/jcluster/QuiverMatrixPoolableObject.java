@@ -16,8 +16,6 @@
  */
 package uk.co.jwlawson.jcluster;
 
-import java.util.HashMap;
-
 import nf.fr.eraasoft.pool.PoolException;
 import nf.fr.eraasoft.pool.PoolableObjectBase;
 
@@ -31,31 +29,12 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class QuiverMatrixPoolableObject extends PoolableObjectBase<QuiverMatrix> {
-	private static HashMap<Integer, QuiverMatrixPoolableObject> sFactoryMap = new HashMap<Integer, QuiverMatrixPoolableObject>();
 
 	private final int rows;
 	private final int cols;
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
-	public synchronized static QuiverMatrixPoolableObject getInstance(int rows, int cols) {
-		int id = getId(rows, cols);
-		if (sFactoryMap.containsKey(id)) {
-			return sFactoryMap.get(id);
-		} else {
-			QuiverMatrixPoolableObject factory = new QuiverMatrixPoolableObject(rows, cols);
-			sFactoryMap.put(id, factory);
-			return factory;
-		}
-	}
-
-	/*
-	 * Szudzik's function. See http://szudzik.com/ElegantPairing.pdf
-	 */
-	private static int getId(int a, int b) {
-		return a >= b ? a * a + a + b : a + b * b;
-	}
-
-	private QuiverMatrixPoolableObject(int rows, int cols) {
+	public QuiverMatrixPoolableObject(int rows, int cols) {
 		this.rows = rows;
 		this.cols = cols;
 	}
@@ -66,7 +45,7 @@ public class QuiverMatrixPoolableObject extends PoolableObjectBase<QuiverMatrix>
 	}
 
 	public void activate(QuiverMatrix arg0) throws PoolException {
-		
+		// Do nothing
 	}
 	
 	@Override

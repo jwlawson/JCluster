@@ -19,6 +19,7 @@ package uk.co.jwlawson.jcluster;
 import java.util.Arrays;
 
 import nf.fr.eraasoft.pool.ObjectPool;
+import nf.fr.eraasoft.pool.PoolException;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -180,18 +181,18 @@ public class QuiverMatrix {
 			return false;
 		}
 		QuiverMatrix rhs = (QuiverMatrix) obj;
-//		EqualsBuilder builder = null;
-//		try{
-//			builder = sBuilderPool.getObj();
-//			return builder.append(mMatrix, rhs.mMatrix).isEquals();
-//		} catch (PoolException e) {
-//			log.error("Error getting equals builder from pool" + e.getMessage(), e);
+		EqualsBuilder builder = null;
+		try{
+			builder = sBuilderPool.getObj();
+			return builder.append(mMatrix, rhs.mMatrix).isEquals();
+		} catch (PoolException e) {
+			log.error("Error getting equals builder from pool" + e.getMessage(), e);
 			return new EqualsBuilder().append(mMatrix, rhs.mMatrix).isEquals();
-//		} finally {
-//			if(builder != null){
-//				sBuilderPool.returnObj(builder);
-//			}
-//		}
+		} finally {
+			if(builder != null){
+				sBuilderPool.returnObj(builder);
+			}
+		}
 	}
 
 	@Override
