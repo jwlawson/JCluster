@@ -18,7 +18,6 @@ package uk.co.jwlawson.jcluster;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
@@ -27,8 +26,10 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  * 
  */
 public class QuiverMatrix {
+	
 
 	private final MatrixAdaptor mMatrix;
+	private int mHashCode = Integer.MAX_VALUE;
 
 	private QuiverMatrix(MatrixAdaptor m) {
 		mMatrix = m;
@@ -85,7 +86,7 @@ public class QuiverMatrix {
 				result.mMatrix.unsafe_set(i, j, a);
 			}
 		}
-
+		result.mMatrix.removeNegZero();
 		return result;
 	}
 
@@ -132,6 +133,11 @@ public class QuiverMatrix {
 	public int getNumCols() {
 		return mMatrix.numCols;
 	}
+	
+	public void reset() {
+		mMatrix.reset();
+		mHashCode = Integer.MAX_VALUE;
+	}
 
 	/**
 	 * Creates a copy of this matrix.
@@ -148,6 +154,7 @@ public class QuiverMatrix {
 	 * @param matrix The matrix to copy the values from.
 	 */
 	public void set(QuiverMatrix matrix) {
+		reset();
 		mMatrix.set(matrix.getNumRows(), matrix.getNumCols(), true, matrix.mMatrix.data);
 	}
 
@@ -168,12 +175,18 @@ public class QuiverMatrix {
 			return false;
 		}
 		QuiverMatrix rhs = (QuiverMatrix) obj;
-		return new EqualsBuilder().append(mMatrix, rhs.mMatrix).isEquals();
+		if(hashCode() != rhs.hashCode()){
+			return false;
+		}
+		return mMatrix.equals(rhs.mMatrix);
 	}
 
 	@Override
 	public int hashCode() {
-		return new HashCodeBuilder(19, 41).append(mMatrix).toHashCode();
+		if(mHashCode == Integer.MAX_VALUE){
+			mHashCode =  new HashCodeBuilder(19, 41).append(mMatrix).toHashCode();
+		}
+		return mHashCode;
 	}
 
 	public void zero() {

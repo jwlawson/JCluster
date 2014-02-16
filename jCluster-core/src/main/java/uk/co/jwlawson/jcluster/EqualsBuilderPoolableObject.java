@@ -1,7 +1,7 @@
 /**
  * Copyright 2014 John Lawson
  * 
- * LinkHolderPoolableObject.java is part of JCluster.
+ * EqualsBuilderPoolableObject.java is part of JCluster.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,28 +19,25 @@ package uk.co.jwlawson.jcluster;
 import nf.fr.eraasoft.pool.PoolException;
 import nf.fr.eraasoft.pool.PoolableObjectBase;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+
 /**
- * @author John Lawson
+ * @author John
  *
  */
-public class LinkHolderPoolableObject extends PoolableObjectBase<LinkHolder> {
-	
-	private final int mSize;
-	
-	public LinkHolderPoolableObject(int size) {
-		mSize = size;
+public class EqualsBuilderPoolableObject extends PoolableObjectBase<EqualsBuilder> {
+
+	public EqualsBuilder make() throws PoolException {
+		return new EqualsBuilder();
 	}
 
-	public LinkHolder make() throws PoolException {
-		return new LinkHolder(mSize);
-	}
-
-	public void activate(LinkHolder holder) throws PoolException {
+	public void activate(EqualsBuilder builder) throws PoolException {
+		// Do nothing
 	}
 	
 	@Override
-	public void passivate(LinkHolder holder) {
-		holder.clear();
+	public void passivate(EqualsBuilder builder) {
+		builder.reset();
 	}
 
 }

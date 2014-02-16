@@ -16,9 +16,10 @@
  */
 package uk.co.jwlawson.jcluster;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.ejml.data.DenseMatrix64F;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Adaptor class for DenseMatrix64F which provides equals and hashcode methods.
@@ -26,9 +27,13 @@ import org.ejml.data.DenseMatrix64F;
  * 
  */
 public class MatrixAdaptor extends DenseMatrix64F {
+	
+	private final Logger log = LoggerFactory.getLogger(getClass());
+	private int hashcode = Integer.MAX_VALUE;
 
 	public MatrixAdaptor(int numRows, int numCols, boolean rowMajor, double... data) {
 		super(numRows, numCols, rowMajor, data);
+		removeNegZero();
 	}
 
 	public MatrixAdaptor(int numRows, int numCols) {
@@ -37,12 +42,20 @@ public class MatrixAdaptor extends DenseMatrix64F {
 
 	private MatrixAdaptor(DenseMatrix64F m) {
 		super(m);
+		removeNegZero();
 	}
 
 	// This is a bit of a hack.
 	// TODO Do MatrixAdaptor copy better.
 	public MatrixAdaptor copyMatrix() {
 		return new MatrixAdaptor(((DenseMatrix64F) this).copy());
+	}
+	
+	@Override
+	public void set(int numRows, int numCols, boolean rowMajor, double... data) {
+		super.set(numRows, numCols, rowMajor, data);
+		removeNegZero();
+		hashcode = Integer.MAX_VALUE;
 	}
 
 	@Override
@@ -57,22 +70,37 @@ public class MatrixAdaptor extends DenseMatrix64F {
 			return false;
 		}
 		MatrixAdaptor rhs = (MatrixAdaptor) obj;
-		removeNegZero(this);
-		removeNegZero(rhs);
-		return new EqualsBuilder().append(this.data, rhs.data).isEquals();
-	}
-
-	private void removeNegZero(MatrixAdaptor matrix) {
-		for (int i = 0; i < matrix.data.length; i++) {
-			if (-0d == matrix.data[i]) {
-				matrix.data[i] = 0d;
+		if(data.length != rhs.data.length){
+			return false;
+		}
+		if(hashCode() != rhs.hashCode()){
+			return false;
+		}
+		for(int i = 0; i < data.length; i++){
+			if(Double.doubleToLongBits(data[i]) != Double.doubleToLongBits(rhs.data[i])){
+				return false;
 			}
 		}
+		return true;
+	}
+
+	public void removeNegZero() {
+		for (int i = 0; i < data.length; i++) {
+			if (-0d == data[i]) {
+				data[i] = 0d;
+			}
+		}
+	}
+	
+	public void reset() {
+		hashcode = Integer.MAX_VALUE;
 	}
 
 	@Override
 	public int hashCode() {
-		removeNegZero(this);
-		return new HashCodeBuilder(17, 37).append(this.data).toHashCode();
+		if(hashcode == Integer.MAX_VALUE){
+			hashcode =  new HashCodeBuilder(17, 37).append(this.data).toHashCode();
+		}
+		return hashcode;
 	}
 }
