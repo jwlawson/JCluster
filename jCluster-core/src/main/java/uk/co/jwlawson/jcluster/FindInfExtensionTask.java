@@ -54,7 +54,7 @@ public class FindInfExtensionTask implements Callable<Set<QuiverMatrix>> {
 		int size = mInitialMatrix.getNumRows();
 		ExecutorCompletionService<QuiverMatrix> pool = new ExecutorCompletionService<QuiverMatrix>(
 				mExecutor);
-		final ObjectPool<QuiverMatrix> matrixPool = QuiverPool.getInstance(
+		final ObjectPool<QuiverMatrix> matrixPool = Pools.getQuiverMatrixPool(
 				mEnlargedMatrix.getNumRows(), mEnlargedMatrix.getNumCols());
 
 		for (int num = 0; num < Math.pow(5, size); num++) {
@@ -82,7 +82,7 @@ public class FindInfExtensionTask implements Callable<Set<QuiverMatrix>> {
 	private CheckInfTask getEnlargedCheckInfTask(int size,
 			final ObjectPool<QuiverMatrix> matrixPool, int num) throws Exception {
 		QuiverMatrix matrix = addVertexToMatrix(size, matrixPool, num);
-		CheckInfTask task = new CheckInfTask(matrix, QuiverPool.getInstance(matrix.getNumRows(),
+		CheckInfTask task = new CheckInfTask(matrix, Pools.getQuiverMatrixPool(matrix.getNumRows(),
 				matrix.getNumCols()));
 		task.addListener(new CheckInfListener() {
 			public void matrixChecked(QuiverMatrix matrix) {
