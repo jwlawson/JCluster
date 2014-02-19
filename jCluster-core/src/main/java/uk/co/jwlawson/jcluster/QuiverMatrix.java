@@ -184,7 +184,7 @@ public class QuiverMatrix {
 	@Override
 	public int hashCode() {
 		if(mHashCode == Integer.MAX_VALUE){
-			mHashCode =  new HashCodeBuilder(19, 41).append(mMatrix).toHashCode();
+			mHashCode = mMatrix.hashCode();
 		}
 		return mHashCode;
 	}

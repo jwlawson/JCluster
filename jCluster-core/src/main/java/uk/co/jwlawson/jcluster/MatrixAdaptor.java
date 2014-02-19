@@ -20,6 +20,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.ejml.data.DenseMatrix64F;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.Arrays;
 
 /**
  * Adaptor class for DenseMatrix64F which provides equals and hashcode methods.
@@ -99,7 +100,11 @@ public class MatrixAdaptor extends DenseMatrix64F {
 	@Override
 	public int hashCode() {
 		if(hashcode == Integer.MAX_VALUE){
-			hashcode =  new HashCodeBuilder(17, 37).append(this.data).toHashCode();
+			hashcode = 113;
+			for(int i = 0; i < data.length; i++){
+				hashcode *= 523;
+				hashcode += (int)data[i];
+			}
 		}
 		return hashcode;
 	}

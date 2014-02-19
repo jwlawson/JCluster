@@ -6,6 +6,7 @@ package uk.co.jwlawson.jcluster;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -31,7 +32,8 @@ public class NewFiniteTask implements Callable<Integer> {
 		log.debug("Set up task to check if finite for {}", matrix);
 		mInitialMatrix = matrix;
 		
-		mMatrixSet = new ConcurrentHashMap<QuiverMatrix, LinkHolder>();
+		int size = Math.min(mInitialMatrix.getNumRows(),mInitialMatrix.getNumCols());
+		mMatrixSet = new ConcurrentHashMap<QuiverMatrix, LinkHolder>((int) Math.pow(2, 3*size-3), 0.7f);
 		
 		LinkHolder initial = new LinkHolder(getSize(matrix));
 		mMatrixSet.put(mInitialMatrix, initial);
@@ -52,7 +54,7 @@ public class NewFiniteTask implements Callable<Integer> {
 			// 10^(size-1) is a rough estimate for how many matrices will be added at once.
 			// ArrayList scales anyway, so it doesn't matter too much, but if we can avoid
 			// unnecessary allocations that is good
-			mNewVerticesArr[i] = new ArrayList<QuiverMatrix>((int) Math.pow(15, size-1));
+			mNewVerticesArr[i] = new ArrayList<QuiverMatrix>((int) Math.pow(12, size-1));
 		}
 		mNewVerticesArr[0].add(mInitialMatrix);
 		ObjectPool<QuiverMatrix> quiverPool = Pools.getQuiverMatrixPool(mInitialMatrix.getNumRows(),
