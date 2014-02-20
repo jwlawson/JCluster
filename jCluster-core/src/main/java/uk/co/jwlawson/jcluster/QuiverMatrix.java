@@ -32,6 +32,9 @@ public class QuiverMatrix {
 	private int mHashCode = Integer.MAX_VALUE;
 
 	private QuiverMatrix(MatrixAdaptor m) {
+		if(m == null){
+			throw new IllegalArgumentException("Cannot create matrix from null");
+		}
 		mMatrix = m;
 	}
 

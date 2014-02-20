@@ -16,6 +16,8 @@
  */
 package uk.co.jwlawson.jcluster;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -36,12 +38,14 @@ public class CheckFiniteTaskTest {
 	@Test
 	public void test() {
 		log.debug("Starting test");
-		CheckFiniteTask task = new CheckFiniteTask(DynkinDiagram.A3.getMatrix());
+		CheckFiniteTask task = new CheckFiniteTask(DynkinDiagram.A3
+				.getMatrix());
 		ExecutorService exec = Executors.newSingleThreadExecutor();
 
-		Future<QuiverMatrix> future = exec.submit(task);
+		Future<Integer> future = exec.submit(task);
 		try {
-			future.get();
+			int value = future.get();
+			assertEquals(14, value);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		} catch (ExecutionException e) {

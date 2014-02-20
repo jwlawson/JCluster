@@ -61,8 +61,11 @@ public class CheckInfTask implements Callable<QuiverMatrix> {
 	 * Check whether the quiver matrix is mutation infinite. Return the matrix if it is.
 	 */
 	public QuiverMatrix call() throws Exception {
-//		log.debug("Starting to check if infinite");
 		try {
+			// All 2x2 matrices are mutation finite
+			if(mMatrix.getNumRows() == 2 && mMatrix.getNumCols() == 2){
+				return null;
+			}
 			for (int i = 0; i < 2; i++) {
 				QuiverMatrix matrix = mMatrixPool.getObj();
 				matrix.set(mMatrix);

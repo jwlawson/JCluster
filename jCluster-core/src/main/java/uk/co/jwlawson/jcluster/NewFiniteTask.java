@@ -95,9 +95,9 @@ public class NewFiniteTask implements Callable<Integer> {
 				}
 				removeQuiver(mat, quiverPool, holderPool);
 				if(counter % 50000 == 0 && counter != 0){
-					log.debug("Handled {} matrices, now at {}, with {} in map. quiverpool {}. holderpool {}.", counter, 
+					log.debug("Handled {} matrices, now at {}, with {} in map.", counter, 
 							mNumMatrices + mNewVerticesArr[addIndex].size(), 
-							mMatrixSet.size(), quiverPool.toString(), holderPool.toString());
+							mMatrixSet.size());
 				}
 				counter++;
 			}
