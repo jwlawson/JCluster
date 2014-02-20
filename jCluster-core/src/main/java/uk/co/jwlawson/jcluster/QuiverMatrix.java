@@ -16,17 +16,17 @@
  */
 package uk.co.jwlawson.jcluster;
 
-import java.util.Arrays;
+import gnu.trove.list.TLinkableAdapter;
 
-import org.apache.commons.lang3.builder.HashCodeBuilder;
+import java.util.Arrays;
 
 /**
  * The basic quiver with methods to mutate the quiver at its vertices.
+ * 
  * @author John Lawson
  * 
  */
-public class QuiverMatrix {
-	
+public class QuiverMatrix extends TLinkableAdapter<QuiverMatrix> {
 
 	private final MatrixAdaptor mMatrix;
 	private int mHashCode = Integer.MAX_VALUE;
@@ -58,8 +58,9 @@ public class QuiverMatrix {
 	 * @return New mutated matrix.
 	 */
 	public QuiverMatrix mutate(int k, QuiverMatrix result) {
-		if(result == null){
-			throw new RuntimeException("Do not call this method with null - use the one parameter method.");
+		if (result == null) {
+			throw new RuntimeException(
+					"Do not call this method with null - use the one parameter method.");
 		}
 		int rows = getNumRows();
 		int cols = getNumCols();
@@ -106,6 +107,7 @@ public class QuiverMatrix {
 	 * Provides a new matrix which has added rows and columns filled with zeros.
 	 * 
 	 * This can be used to add vertices to the quiver.
+	 * 
 	 * @param extraRows Number of extra rows to add
 	 * @param extraCols Number of extra columns to add
 	 * @return The enlarged matrix
@@ -133,7 +135,7 @@ public class QuiverMatrix {
 	public int getNumCols() {
 		return mMatrix.numCols;
 	}
-	
+
 	public void reset() {
 		mMatrix.reset();
 		mHashCode = Integer.MAX_VALUE;
@@ -175,7 +177,7 @@ public class QuiverMatrix {
 			return false;
 		}
 		QuiverMatrix rhs = (QuiverMatrix) obj;
-		if(hashCode() != rhs.hashCode()){
+		if (hashCode() != rhs.hashCode()) {
 			return false;
 		}
 		return mMatrix.equals(rhs.mMatrix);
@@ -183,7 +185,7 @@ public class QuiverMatrix {
 
 	@Override
 	public int hashCode() {
-		if(mHashCode == Integer.MAX_VALUE){
+		if (mHashCode == Integer.MAX_VALUE) {
 			mHashCode = mMatrix.hashCode();
 		}
 		return mHashCode;
