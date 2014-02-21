@@ -1,43 +1,30 @@
-/**
- * 
- */
 package uk.co.jwlawson.jcluster;
 
 import java.util.ArrayDeque;
 import java.util.Map;
 import java.util.Queue;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
 
 import nf.fr.eraasoft.pool.ObjectPool;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * @author John
- * 
- */
-public class NewFiniteTask implements Callable<Integer> {
+public abstract class AbstractMutClassSizeTask {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
+
 	private final QuiverMatrix mInitialMatrix;
 
-	public NewFiniteTask(QuiverMatrix matrix) {
+	public AbstractMutClassSizeTask(QuiverMatrix matrix) {
 		mInitialMatrix = matrix;
 	}
 
-	private int getSize(QuiverMatrix matrix) {
-		return Math.min(matrix.getNumRows(), matrix.getNumCols());
-	}
-
 	public Integer call() throws Exception {
-		log.debug("NewFiniteTask started for {}", mInitialMatrix);
+		log.debug("MutClassSizeTask started for {}", mInitialMatrix);
 		int size = getSize(mInitialMatrix);
 		int numMatrices = 0;
 
-		Map<QuiverMatrix, LinkHolder> matrixSet = new ConcurrentHashMap<QuiverMatrix, LinkHolder>(
-				(int) Math.pow(2, 3 * size - 3), 0.7f);
+		Map<QuiverMatrix, LinkHolder> matrixSet = getMatrixMap(size);
 
 		LinkHolder initial = new LinkHolder(getSize(mInitialMatrix));
 		matrixSet.put(mInitialMatrix, initial);
@@ -61,7 +48,7 @@ public class NewFiniteTask implements Callable<Integer> {
 				if (shouldMutateAt(matrixSet, mat, i)) {
 					newMatrix = quiverPool.getObj();
 					newMatrix = mat.mutate(i, newMatrix);
-					if (matrixSet.containsKey(newMatrix)) {
+					if (matrixSeenBefore(newMatrix, matrixSet)) {
 						newHolder = matrixSet.get(newMatrix);
 						removeQuiver(newMatrix, quiverPool, holderPool,
 								matrixSet);
@@ -86,6 +73,15 @@ public class NewFiniteTask implements Callable<Integer> {
 		log.info("Graph completed. Vertices: {}", numMatrices);
 		return numMatrices;
 	}
+
+	private int getSize(QuiverMatrix matrix) {
+		return Math.min(matrix.getNumRows(), matrix.getNumCols());
+	}
+
+	protected abstract Map<QuiverMatrix, LinkHolder> getMatrixMap(int size);
+
+	protected abstract boolean matrixSeenBefore(QuiverMatrix newMatrix,
+			Map<QuiverMatrix, LinkHolder> matrixSet);
 
 	private void removeQuiver(QuiverMatrix remove,
 			ObjectPool<QuiverMatrix> quiverPool,

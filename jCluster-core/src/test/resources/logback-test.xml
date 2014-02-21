@@ -31,7 +31,7 @@
     <appender-ref ref="STDOUT" />
   </logger>
 
-	<logger name="uk.co.jwlawson.jcluster.NewFiniteTask" level="DEBUG"
+	<logger name="uk.co.jwlawson.jcluster.MutClassSizeTask" level="DEBUG"
 		additivity="false">
 		<appender-ref ref="FILE" />
 		<appender-ref ref="STDOUT" />

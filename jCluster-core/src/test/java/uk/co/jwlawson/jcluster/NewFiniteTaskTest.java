@@ -36,7 +36,7 @@ public class NewFiniteTaskTest {
 	@Test
 	public void test() {
 		log.debug("Starting test");
-		NewFiniteTask task = new NewFiniteTask(DynkinDiagram.A8.getMatrix());
+		MutClassSizeTask task = new MutClassSizeTask(DynkinDiagram.A8.getMatrix());
 		ExecutorService exec = Executors.newSingleThreadExecutor();
 
 		Future<Integer> future = exec.submit(task);

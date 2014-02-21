@@ -1,7 +1,7 @@
 /**
  * Copyright 2014 John Lawson
  * 
- * LinkHolderPoolableObject.java is part of JCluster.
+ * MutClassSizeTask.java is part of JCluster.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,31 +16,31 @@
  */
 package uk.co.jwlawson.jcluster;
 
-import nf.fr.eraasoft.pool.PoolException;
-import nf.fr.eraasoft.pool.PoolableObjectBase;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author John Lawson
- *
+ * 
  */
-public class LinkHolderPoolableObject extends PoolableObjectBase<LinkHolder> {
-	
-	private final int mSize;
-	
-	public LinkHolderPoolableObject(int size) {
-		mSize = size;
+public class MutClassSizeTask extends AbstractMutClassSizeTask implements
+		Callable<Integer> {
+
+	public MutClassSizeTask(QuiverMatrix matrix) {
+		super(matrix);
 	}
 
-	public LinkHolder make() throws PoolException {
-		return new LinkHolder(mSize);
-	}
-
-	public void activate(LinkHolder holder) throws PoolException {
-	}
-	
 	@Override
-	public void passivate(LinkHolder holder) {
-		holder.clear();
+	protected Map<QuiverMatrix, LinkHolder> getMatrixMap(int size) {
+		return new ConcurrentHashMap<QuiverMatrix, LinkHolder>((int) Math.pow(
+				2, 3 * size - 3), 0.7f);
+	}
+
+	@Override
+	protected boolean matrixSeenBefore(QuiverMatrix newMatrix,
+			Map<QuiverMatrix, LinkHolder> matrixSet) {
+		return matrixSet.containsKey(newMatrix);
 	}
 
 }
