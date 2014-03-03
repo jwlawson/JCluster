@@ -16,20 +16,22 @@
  */
 package uk.co.jwlawson.jcluster;
 
+import gnu.trove.list.TLinkableAdapter;
+
 import java.util.Arrays;
 
-import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.ejml.data.DenseMatrix64F;
 
 /**
  * The basic quiver with methods to mutate the quiver at its vertices.
+ * 
  * @author John Lawson
  * 
  */
-public class QuiverMatrix {
-	
+public class QuiverMatrix extends TLinkableAdapter<QuiverMatrix> {
 
 	private final MatrixAdaptor mMatrix;
-	private int mHashCode = Integer.MAX_VALUE;
+	private int mHashCode = 0;
 
 	private QuiverMatrix(MatrixAdaptor m) {
 		if(m == null){
@@ -38,14 +40,41 @@ public class QuiverMatrix {
 		mMatrix = m;
 	}
 
+	/**
+	 * Create a new QuiverMatrix with set number of rows and columns but no
+	 * data. The matrix will by default be filled with zeros.
+	 * 
+	 * @param rows Number of rows
+	 * @param cols Number of columns
+	 */
 	QuiverMatrix(int rows, int cols) {
-		mMatrix = new MatrixAdaptor(rows, cols);
+		this(new MatrixAdaptor(rows, cols));
 	}
 
+	/**
+	 * Create a new QuiverMatrix with set number of rows and columns. The
+	 * provided array must have the correct number of entries and be in
+	 * row-major form.
+	 * 
+	 * That is {@code row 1},{row 2}, ... } }.
+	 * 
+	 * @param rows Number of rows
+	 * @param cols Number of columns
+	 * @param values Array of entries in the matrix
+	 */
 	public QuiverMatrix(int rows, int cols, double... values) {
-		mMatrix = new MatrixAdaptor(rows, cols, true, values);
+		this(new MatrixAdaptor(rows, cols, true, values));
 	}
 
+	/**
+	 * Mutates the matrix at the k-th entry and returns the new mutated matrix.
+	 * This does not change the initial matrix.
+	 * 
+	 * Remember that the indexing starts at 0.
+	 * 
+	 * @param k Index to mutate on.
+	 * @return New mutated matrix.
+	 */
 	public QuiverMatrix mutate(int k) {
 		return mutate(k, new QuiverMatrix(mMatrix.numRows, mMatrix.numCols));
 	}
@@ -57,25 +86,45 @@ public class QuiverMatrix {
 	 * Remember that the indexing starts at 0.
 	 * 
 	 * @param k Index to mutate on.
-	 * @param result The matrix to insert the new matrix. Ensure it is the right size.
+	 * @param result The matrix to insert the new matrix. Ensure it is the right
+	 *            size.
 	 * @return New mutated matrix.
 	 */
 	public QuiverMatrix mutate(int k, QuiverMatrix result) {
-		if(result == null){
-			throw new RuntimeException("Do not call this method with null - use the one parameter method.");
+		if (result == null) {
+			throw new RuntimeException(
+					"Do not call this method with null - use the one parameter method.");
 		}
 		int rows = getNumRows();
 		int cols = getNumCols();
 		if (k < 0 || k > Math.min(rows, cols)) {
 			throw new IllegalArgumentException(
-					"Index needs to be within the unfrozen vaules of the matrix. Expected: " + 0
-							+ " to " + Math.min(rows, cols) + " Actual: " + k);
+					"Index needs to be within the unfrozen vaules of the matrix. Expected: "
+							+ 0 + " to " + Math.min(rows, cols) + " Actual: "
+							+ k);
 		}
 		if (rows != result.getNumRows() || cols != result.getNumCols()) {
-			throw new IllegalArgumentException("Incorrectly sized matrix passed. Expected: " + rows
-					+ " x " + cols + ". Actual: " + result.getNumRows() + " x "
-					+ result.getNumCols());
+			throw new IllegalArgumentException(
+					"Incorrectly sized matrix passed. Expected: " + rows
+							+ " x " + cols + ". Actual: " + result.getNumRows()
+							+ " x " + result.getNumCols());
 		}
+		unsafeMutate(k, result, rows, cols);
+		return result;
+	}
+
+	/**
+	 * Mutates this matrix at the k-th entry and put the result into the
+	 * provided matrix. No bound checks or size checks are performed.
+	 * 
+	 * Remember that the indexing starts at 0.
+	 * 
+	 * @param k Index to mutate on.
+	 * @param result The matrix to insert the new matrix. Ensure it is the right
+	 *            size as no checks are done.
+	 * @return New mutated matrix.
+	 */
+	private void unsafeMutate(int k, QuiverMatrix result, int rows, int cols) {
 		for (int i = 0; i < rows; i++) {
 			for (int j = 0; j < cols; j++) {
 				double a;
@@ -83,14 +132,13 @@ public class QuiverMatrix {
 					a = -1 * unsafeGet(i, j);
 				} else {
 					a = unsafeGet(i, j)
-							+ (Math.abs(unsafeGet(i, k)) * unsafeGet(k, j) + unsafeGet(i, k)
-									* Math.abs(unsafeGet(k, j))) / 2;
+							+ (Math.abs(unsafeGet(i, k)) * unsafeGet(k, j) + unsafeGet(
+									i, k) * Math.abs(unsafeGet(k, j))) / 2;
 				}
 				result.mMatrix.unsafe_set(i, j, a);
 			}
 		}
 		result.mMatrix.removeNegZero();
-		return result;
 	}
 
 	public double get(int row, int col) {
@@ -109,6 +157,7 @@ public class QuiverMatrix {
 	 * Provides a new matrix which has added rows and columns filled with zeros.
 	 * 
 	 * This can be used to add vertices to the quiver.
+	 * 
 	 * @param extraRows Number of extra rows to add
 	 * @param extraCols Number of extra columns to add
 	 * @return The enlarged matrix
@@ -136,10 +185,10 @@ public class QuiverMatrix {
 	public int getNumCols() {
 		return mMatrix.numCols;
 	}
-	
+
 	public void reset() {
 		mMatrix.reset();
-		mHashCode = Integer.MAX_VALUE;
+		mHashCode = 0;
 	}
 
 	/**
@@ -158,7 +207,8 @@ public class QuiverMatrix {
 	 */
 	public void set(QuiverMatrix matrix) {
 		reset();
-		mMatrix.set(matrix.getNumRows(), matrix.getNumCols(), true, matrix.mMatrix.data);
+		mMatrix.set(matrix.getNumRows(), matrix.getNumCols(), true,
+				matrix.mMatrix.data);
 	}
 
 	@Override
@@ -178,7 +228,7 @@ public class QuiverMatrix {
 			return false;
 		}
 		QuiverMatrix rhs = (QuiverMatrix) obj;
-		if(hashCode() != rhs.hashCode()){
+		if (hashCode() != rhs.hashCode()) {
 			return false;
 		}
 		return mMatrix.equals(rhs.mMatrix);
@@ -186,14 +236,42 @@ public class QuiverMatrix {
 
 	@Override
 	public int hashCode() {
-		if(mHashCode == Integer.MAX_VALUE){
-			mHashCode = mMatrix.hashCode();
+		int hash = mHashCode; // Extra variable makes this thread safe
+		if (hash == 0) {
+			hash = mMatrix.hashCode();
+			mHashCode = hash;
 		}
 		return mHashCode;
 	}
 
-	public void zero() {
-		mMatrix.zero();
-	}
+	public class EquivalenceChecker {
 
+		private DenseMatrix64F[] mPermMatrices;
+
+		// TODO Fancy checking of size and create specific checker for different
+		// sizes.
+
+		public EquivalenceChecker(int size) {
+			int fac = factorial(size);
+			mPermMatrices = new DenseMatrix64F[fac];
+			for (int i = 0; i < fac; i++) {
+				// Generate permutation matrices
+			}
+		}
+
+		private int factorial(int num) {
+			if (num == 1) {
+				return 1;
+			}
+			return num * factorial(num - 1);
+		}
+
+		public boolean areEquivalent(DenseMatrix64F a, DenseMatrix64F b) {
+			for (DenseMatrix64F p : mPermMatrices) {
+				// Check if PA == BP
+				// or PAP^(-1) == B
+			}
+			return false;
+		}
+	}
 }

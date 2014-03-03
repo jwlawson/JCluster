@@ -21,23 +21,22 @@ import java.util.HashMap;
 import nf.fr.eraasoft.pool.ObjectPool;
 import nf.fr.eraasoft.pool.PoolSettings;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Convenience class to provide an ObjectPool of QuiverMatrix objects.
  * Caches the instances so that the pools are always reused.
+ * 
  * @author John Lawson
  * 
  */
 public class Pools {
 
 	private final static Logger logger = LoggerFactory.getLogger(Pools.class);
-	
+
 	private static HashMap<Integer, ObjectPool<QuiverMatrix>> sQuiverPoolMap = new HashMap<Integer, ObjectPool<QuiverMatrix>>();
 	private static HashMap<Integer, ObjectPool<LinkHolder>> sHolderPoolMap = new HashMap<Integer, ObjectPool<LinkHolder>>();
-	private static ObjectPool<EqualsBuilder> sEqualsBuilderPool;
 
 	public static synchronized ObjectPool<QuiverMatrix> getQuiverMatrixPool(int rows, int cols) {
 		int id = getId(rows, cols);
@@ -45,7 +44,8 @@ public class Pools {
 			return sQuiverPoolMap.get(id);
 		} else {
 			logger.info("Creating new pool {}x{}", rows, cols);
-			PoolSettings<QuiverMatrix> settings = new PoolSettings<QuiverMatrix>(new QuiverMatrixPoolableObject(rows, cols));
+			PoolSettings<QuiverMatrix> settings = new PoolSettings<QuiverMatrix>(
+					new QuiverMatrixPoolableObject(rows, cols));
 			settings.max(-1);
 			settings.maxIdle(500000);
 			PoolSettings.timeBetweenTwoControls(600);
@@ -54,13 +54,14 @@ public class Pools {
 			return pool;
 		}
 	}
-	
-	public static synchronized ObjectPool<LinkHolder> getHolderPool(int size){
-		if(sHolderPoolMap.containsKey(size)){
+
+	public static synchronized ObjectPool<LinkHolder> getHolderPool(int size) {
+		if (sHolderPoolMap.containsKey(size)) {
 			return sHolderPoolMap.get(size);
 		} else {
 			logger.info("Creating new Holder pool of size {}", size);
-			PoolSettings<LinkHolder> settings = new PoolSettings<LinkHolder>(new LinkHolderPoolableObject(size));
+			PoolSettings<LinkHolder> settings = new PoolSettings<LinkHolder>(
+					new LinkHolderPoolableObject(size));
 			settings.max(-1);
 			settings.maxIdle(500000);
 			PoolSettings.timeBetweenTwoControls(600);
@@ -68,17 +69,6 @@ public class Pools {
 			sHolderPoolMap.put(size, pool);
 			return pool;
 		}
-	}
-	
-	public static synchronized ObjectPool<EqualsBuilder> getEqualsBuilerPool() {
-		if(sEqualsBuilderPool == null){
-			PoolSettings<EqualsBuilder> settings = new PoolSettings<EqualsBuilder>(new EqualsBuilderPoolableObject());
-			settings.max(-1);
-			settings.maxIdle(1000);
-			PoolSettings.timeBetweenTwoControls(600);
-			sEqualsBuilderPool = settings.pool();
-		}
-		return sEqualsBuilderPool;
 	}
 
 	/*
@@ -88,10 +78,10 @@ public class Pools {
 		return a >= b ? a * a + a + b : a + b * b;
 	}
 
-	/** 
+	/**
 	 * QuiverPool should not be instantiated itself.
 	 * Just use the getInstance method to get the ObjectPool.
 	 */
-	private Pools(){
+	private Pools() {
 	}
 }
