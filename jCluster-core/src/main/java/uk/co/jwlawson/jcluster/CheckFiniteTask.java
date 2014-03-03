@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * @author John Lawson
  * 
  */
-public class CheckFiniteTask implements Callable<QuiverMatrix> {
+public class CheckFiniteTask implements Callable<Integer> {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -46,7 +46,7 @@ public class CheckFiniteTask implements Callable<QuiverMatrix> {
 		mSize = Math.min(matrix.getNumCols(), matrix.getNumRows());
 	}
 
-	public QuiverMatrix call() throws Exception {
+	public Integer call() throws Exception {
 		log.debug("CheckFiniteTask started");
 		Graph<QuiverMatrix, MutationEdge> graph = new Multigraph<QuiverMatrix, MutationEdge>(
 				MutationEdge.class);
@@ -85,7 +85,7 @@ public class CheckFiniteTask implements Callable<QuiverMatrix> {
 			}
 			quiverPool.returnObj(m);
 		}
-		return null;
+		return graph.vertexSet().size();
 	}
 
 	private boolean shouldMutateAt(Graph<QuiverMatrix, MutationEdge> graph, final QuiverMatrix mat,

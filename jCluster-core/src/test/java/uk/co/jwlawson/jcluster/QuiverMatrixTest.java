@@ -61,5 +61,4 @@ public class QuiverMatrixTest {
 
 		assertEquals("Enlargin 3x3 to 4x4", exp, m.enlargeMatrix(2, 2));
 	}
-
 }
