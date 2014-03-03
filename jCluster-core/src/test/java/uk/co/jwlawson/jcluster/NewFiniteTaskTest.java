@@ -42,7 +42,7 @@ public class NewFiniteTaskTest {
 	@Test
 	public void test() {
 		log.debug("Starting test");
-		NewFiniteTask task = new NewFiniteTask(DynkinDiagram.A4.getMatrix());
+		MutClassSizeTask task = new MutClassSizeTask(DynkinDiagram.A4.getMatrix());
 		ExecutorService exec = Executors.newSingleThreadExecutor();
 
 		Future<Integer> future = exec.submit(task);
@@ -63,7 +63,7 @@ public class NewFiniteTaskTest {
 		CompletionService<Integer> pool = new
 				ExecutorCompletionService<Integer>(exec);
 		for(DynkinDiagram d : DynkinDiagram.TEST_SET){
-			NewFiniteTask task = new NewFiniteTask(d.getMatrix());
+			MutClassSizeTask task = new MutClassSizeTask(d.getMatrix());
 			pool.submit(task);
 		}
 		for(DynkinDiagram d : DynkinDiagram.TEST_SET) {
