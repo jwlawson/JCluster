@@ -45,7 +45,7 @@ public abstract class AbstractMutClassSizeTask {
 		do {
 			mat = incompleteQuivers.poll();
 			for (i = 0; i < size; i++) {
-				if (shouldMutateAt(matrixSet, mat, i)) {
+				if (shouldMutateAt(mat, i, matrixSet)) {
 					newMatrix = quiverPool.getObj();
 					newMatrix = mat.mutate(i, newMatrix);
 					if (matrixSeenBefore(newMatrix, matrixSet)) {
@@ -100,8 +100,8 @@ public abstract class AbstractMutClassSizeTask {
 		quiverPool.returnObj(remove);
 	}
 
-	private boolean shouldMutateAt(Map<QuiverMatrix, LinkHolder> matrixSet,
-			QuiverMatrix matrix, int i) {
+	private boolean shouldMutateAt(QuiverMatrix matrix,
+			int i, Map<QuiverMatrix, LinkHolder> matrixSet) {
 		LinkHolder holder = matrixSet.get(matrix);
 		return holder != null && !holder.hasLink(i);
 	}

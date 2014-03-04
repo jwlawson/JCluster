@@ -16,23 +16,23 @@
  */
 package uk.co.jwlawson.jcluster;
 
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.ejml.data.DenseMatrix64F;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.Arrays;
 
 /**
  * Adaptor class for DenseMatrix64F which provides equals and hashcode methods.
+ * 
  * @author John Lawson
  * 
  */
 public class MatrixAdaptor extends DenseMatrix64F {
-	
+
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private int hashcode = Integer.MAX_VALUE;
 
-	public MatrixAdaptor(int numRows, int numCols, boolean rowMajor, double... data) {
+	public MatrixAdaptor(int numRows, int numCols, boolean rowMajor,
+			double... data) {
 		super(numRows, numCols, rowMajor, data);
 		removeNegZero();
 	}
@@ -51,7 +51,7 @@ public class MatrixAdaptor extends DenseMatrix64F {
 	public MatrixAdaptor copyMatrix() {
 		return new MatrixAdaptor(((DenseMatrix64F) this).copy());
 	}
-	
+
 	@Override
 	public void set(int numRows, int numCols, boolean rowMajor, double... data) {
 		super.set(numRows, numCols, rowMajor, data);
@@ -71,14 +71,15 @@ public class MatrixAdaptor extends DenseMatrix64F {
 			return false;
 		}
 		MatrixAdaptor rhs = (MatrixAdaptor) obj;
-		if(data.length != rhs.data.length){
+		if (data.length != rhs.data.length) {
 			return false;
 		}
-		if(hashCode() != rhs.hashCode()){
+		if (hashCode() != rhs.hashCode()) {
 			return false;
 		}
-		for(int i = 0; i < data.length; i++){
-			if(Double.doubleToLongBits(data[i]) != Double.doubleToLongBits(rhs.data[i])){
+		for (int i = 0; i < data.length; i++) {
+			if (Double.doubleToLongBits(data[i]) != Double
+					.doubleToLongBits(rhs.data[i])) {
 				return false;
 			}
 		}
@@ -92,18 +93,18 @@ public class MatrixAdaptor extends DenseMatrix64F {
 			}
 		}
 	}
-	
+
 	public void reset() {
 		hashcode = Integer.MAX_VALUE;
 	}
 
 	@Override
 	public int hashCode() {
-		if(hashcode == Integer.MAX_VALUE){
+		if (hashcode == Integer.MAX_VALUE) {
 			hashcode = 113;
-			for(int i = 0; i < data.length; i++){
+			for (int i = 0; i < data.length; i++) {
 				hashcode *= 523;
-				hashcode += (int)data[i];
+				hashcode += (int) data[i];
 			}
 		}
 		return hashcode;
