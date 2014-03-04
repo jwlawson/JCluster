@@ -26,9 +26,10 @@ import org.slf4j.LoggerFactory;
  * Object factory required for pooling QuiverMatrix objects.
  * 
  * @author John
- *
+ * 
  */
-public class QuiverMatrixPoolableObject extends PoolableObjectBase<QuiverMatrix> {
+public class QuiverMatrixPoolableObject<T extends QuiverMatrix> extends
+		PoolableObjectBase<T> {
 
 	private final int rows;
 	private final int cols;
@@ -39,17 +40,17 @@ public class QuiverMatrixPoolableObject extends PoolableObjectBase<QuiverMatrix>
 		this.cols = cols;
 	}
 
-	public QuiverMatrix make() throws PoolException {
+	public T make() throws PoolException {
 		logger.debug("New QuiverMatrix created {}x{}", rows, cols);
-		return new QuiverMatrix(rows, cols);
+		return (T) T.getInstance(rows, cols);
 	}
 
-	public void activate(QuiverMatrix arg0) throws PoolException {
+	public void activate(T arg0) throws PoolException {
 		// Do nothing
 	}
-	
+
 	@Override
-	public void passivate(QuiverMatrix quiver) {
+	public void passivate(T quiver) {
 		quiver.reset();
 	}
 

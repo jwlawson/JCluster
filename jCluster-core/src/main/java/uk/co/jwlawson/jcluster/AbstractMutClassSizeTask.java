@@ -86,6 +86,11 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> {
 		return Math.min(matrix.getNumRows(), matrix.getNumCols());
 	}
 
+	@SuppressWarnings("unchecked")
+	protected Class<T> getMatrixClass() {
+		return (Class<T>) mInitialMatrix.getClass();
+	}
+
 	protected int getRows() {
 		return mInitialMatrix.getNumRows();
 	}

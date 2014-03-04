@@ -54,8 +54,9 @@ public class CheckFiniteTask implements Callable<Integer> {
 		boolean vertexAdded;
 		log.debug("Graph at start: {}", graph);
 		Collection<QuiverMatrix> matrices = new ArrayList<QuiverMatrix>(1000);
-		ObjectPool<QuiverMatrix> quiverPool = Pools.getQuiverMatrixPool(mInitialMatrix.getNumRows(),
-				mInitialMatrix.getNumCols());
+		ObjectPool<QuiverMatrix> quiverPool = Pools.getQuiverMatrixPool(
+				mInitialMatrix.getNumRows(), mInitialMatrix.getNumCols(),
+				QuiverMatrix.class);
 		do {
 			matrices.clear();
 			vertexAdded = false;
@@ -77,8 +78,8 @@ public class CheckFiniteTask implements Callable<Integer> {
 				}
 			}
 		} while (vertexAdded);
-		log.info("Graph complete: No. vertices: {}, No. edges: {}", graph.vertexSet().size(), graph
-				.edgeSet().size());
+		log.info("Graph complete: No. vertices: {}, No. edges: {}", graph
+				.vertexSet().size(), graph.edgeSet().size());
 		for (QuiverMatrix m : graph.vertexSet()) {
 			if (m == mInitialMatrix) {
 				continue;
@@ -88,8 +89,8 @@ public class CheckFiniteTask implements Callable<Integer> {
 		return graph.vertexSet().size();
 	}
 
-	private boolean shouldMutateAt(Graph<QuiverMatrix, MutationEdge> graph, final QuiverMatrix mat,
-			int i) {
+	private boolean shouldMutateAt(Graph<QuiverMatrix, MutationEdge> graph,
+			final QuiverMatrix mat, int i) {
 		Collection<MutationEdge> edges = graph.edgesOf(mat);
 		for (MutationEdge e : edges) {
 			if (i == e.getLabel()) {
@@ -126,17 +127,20 @@ public class CheckFiniteTask implements Callable<Integer> {
 				return false;
 			}
 			MutationEdge rhs = (MutationEdge) obj;
-			boolean res1 = new EqualsBuilder().append(mMat1, rhs.mMat1).append(mMat2, rhs.mMat2)
+			boolean res1 = new EqualsBuilder().append(mMat1, rhs.mMat1)
+					.append(mMat2, rhs.mMat2)
 					.append(mMutationLabel, rhs.mMutationLabel).isEquals();
-			boolean res2 = new EqualsBuilder().append(mMat1, rhs.mMat2).append(mMat2, rhs.mMat1)
+			boolean res2 = new EqualsBuilder().append(mMat1, rhs.mMat2)
+					.append(mMat2, rhs.mMat1)
 					.append(mMutationLabel, rhs.mMutationLabel).isEquals();
 			return res1 || res2;
 		}
 
 		@Override
 		public int hashCode() {
-			return new HashCodeBuilder(37, 51).append(mMat1).append(mMat2).append(mMat2)
-					.append(mMat1).append(mMutationLabel).toHashCode();
+			return new HashCodeBuilder(37, 51).append(mMat1).append(mMat2)
+					.append(mMat2).append(mMat1).append(mMutationLabel)
+					.toHashCode();
 		}
 
 		@Override

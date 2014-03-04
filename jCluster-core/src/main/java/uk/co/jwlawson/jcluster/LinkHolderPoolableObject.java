@@ -21,25 +21,26 @@ import nf.fr.eraasoft.pool.PoolableObjectBase;
 
 /**
  * @author John Lawson
- *
+ * 
  */
-public class LinkHolderPoolableObject extends PoolableObjectBase<LinkHolder> {
-	
+public class LinkHolderPoolableObject<T extends QuiverMatrix> extends
+		PoolableObjectBase<LinkHolder<T>> {
+
 	private final int mSize;
-	
+
 	public LinkHolderPoolableObject(int size) {
 		mSize = size;
 	}
 
-	public LinkHolder make() throws PoolException {
-		return new LinkHolder(mSize);
+	public LinkHolder<T> make() throws PoolException {
+		return new LinkHolder<T>(mSize);
 	}
 
-	public void activate(LinkHolder holder) throws PoolException {
+	public void activate(LinkHolder<T> holder) throws PoolException {
 	}
-	
+
 	@Override
-	public void passivate(LinkHolder holder) {
+	public void passivate(LinkHolder<T> holder) {
 		holder.clear();
 	}
 

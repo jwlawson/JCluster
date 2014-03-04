@@ -16,18 +16,18 @@
  */
 package uk.co.jwlawson.jcluster;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
-import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.junit.Test;
 import org.junit.Ignore;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +42,8 @@ public class NewFiniteTaskTest {
 	@Test
 	public void test() {
 		log.debug("Starting test");
-		MutClassSizeTask task = new MutClassSizeTask(DynkinDiagram.A4.getMatrix());
+		MutClassSizeTask<QuiverMatrix> task = new MutClassSizeTask<QuiverMatrix>(
+				DynkinDiagram.A4.getMatrix());
 		ExecutorService exec = Executors.newSingleThreadExecutor();
 
 		Future<Integer> future = exec.submit(task);
@@ -60,20 +61,19 @@ public class NewFiniteTaskTest {
 	@Test
 	public void testAllSmallMatrices() {
 		Executor exec = Executors.newSingleThreadExecutor();
-		CompletionService<Integer> pool = new
-				ExecutorCompletionService<Integer>(exec);
-		for(DynkinDiagram d : DynkinDiagram.TEST_SET){
-			MutClassSizeTask task = new MutClassSizeTask(d.getMatrix());
+		CompletionService<Integer> pool = new ExecutorCompletionService<Integer>(
+				exec);
+		for (DynkinDiagram d : DynkinDiagram.TEST_SET) {
+			MutClassSizeTask<QuiverMatrix> task = new MutClassSizeTask<QuiverMatrix>(
+					d.getMatrix());
 			pool.submit(task);
 		}
-		for(DynkinDiagram d : DynkinDiagram.TEST_SET) {
-			try{
+		for (DynkinDiagram d : DynkinDiagram.TEST_SET) {
+			try {
 				int value = pool.take().get();
-				log.info("Found {} quivers in class of {}", 
-						value,
-						d.toString());
-			} catch (ExecutionException e){
-			} catch (InterruptedException e){
+				log.info("Found {} quivers in class of {}", value, d.toString());
+			} catch (ExecutionException e) {
+			} catch (InterruptedException e) {
 			}
 		}
 	}

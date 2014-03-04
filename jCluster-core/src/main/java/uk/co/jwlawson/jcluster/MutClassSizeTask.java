@@ -26,7 +26,7 @@ import nf.fr.eraasoft.pool.ObjectPool;
  * @author John Lawson
  * 
  */
-public abstract class MutClassSizeTask<T extends QuiverMatrix> extends
+public class MutClassSizeTask<T extends QuiverMatrix> extends
 		AbstractMutClassSizeTask<T> implements Callable<Integer> {
 
 	public MutClassSizeTask(T matrix) {
@@ -70,13 +70,13 @@ public abstract class MutClassSizeTask<T extends QuiverMatrix> extends
 	}
 
 	@Override
-	protected abstract ObjectPool<T> getQuiverPool();
-
-//		return Pools.getQuiverMatrixPool(getRows(), getCols());
+	protected ObjectPool<T> getQuiverPool() {
+		return Pools
+				.getQuiverMatrixPool(getRows(), getCols(), getMatrixClass());
+	}
 
 	@Override
-	protected abstract ObjectPool<LinkHolder<T>> getHolderPool(int size);
-
-//		return Pools.getHolderPool(size);
-
+	protected ObjectPool<LinkHolder<T>> getHolderPool(int size) {
+		return Pools.getHolderPool(size, getMatrixClass());
+	}
 }

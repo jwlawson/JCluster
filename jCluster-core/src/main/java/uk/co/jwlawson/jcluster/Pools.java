@@ -21,6 +21,7 @@ import java.util.HashMap;
 import nf.fr.eraasoft.pool.ObjectPool;
 import nf.fr.eraasoft.pool.PoolSettings;
 
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,38 +36,44 @@ public class Pools {
 
 	private final static Logger logger = LoggerFactory.getLogger(Pools.class);
 
-	private static HashMap<Integer, ObjectPool<QuiverMatrix>> sQuiverPoolMap = new HashMap<Integer, ObjectPool<QuiverMatrix>>();
-	private static HashMap<Integer, ObjectPool<LinkHolder>> sHolderPoolMap = new HashMap<Integer, ObjectPool<LinkHolder>>();
+	private static HashMap<QuiverKey<?>, ObjectPool<?>> sQuiverPoolMap = new HashMap<QuiverKey<?>, ObjectPool<?>>();
+	private static HashMap<HolderKey<?>, ObjectPool<? extends LinkHolder<?>>> sHolderPoolMap = new HashMap<HolderKey<?>, ObjectPool<? extends LinkHolder<?>>>();
 
-	public static synchronized ObjectPool<QuiverMatrix> getQuiverMatrixPool(int rows, int cols) {
+	@SuppressWarnings("unchecked")
+	public static synchronized <T extends QuiverMatrix> ObjectPool<T> getQuiverMatrixPool(
+			int rows, int cols, Class<T> clazz) {
 		int id = getId(rows, cols);
+		QuiverKey<T> key = new QuiverKey<T>(id, clazz);
 		if (sQuiverPoolMap.containsKey(id)) {
-			return sQuiverPoolMap.get(id);
+			return (ObjectPool<T>) sQuiverPoolMap.get(key);
 		} else {
 			logger.info("Creating new pool {}x{}", rows, cols);
-			PoolSettings<QuiverMatrix> settings = new PoolSettings<QuiverMatrix>(
-					new QuiverMatrixPoolableObject(rows, cols));
+			PoolSettings<T> settings = new PoolSettings<T>(
+					new QuiverMatrixPoolableObject<T>(rows, cols));
 			settings.max(-1);
 			settings.maxIdle(500000);
 			PoolSettings.timeBetweenTwoControls(600);
-			ObjectPool<QuiverMatrix> pool = settings.pool();
-			sQuiverPoolMap.put(id, pool);
+			ObjectPool<T> pool = settings.pool();
+			sQuiverPoolMap.put(key, pool);
 			return pool;
 		}
 	}
 
-	public static synchronized ObjectPool<LinkHolder> getHolderPool(int size) {
-		if (sHolderPoolMap.containsKey(size)) {
-			return sHolderPoolMap.get(size);
+	@SuppressWarnings("unchecked")
+	public static synchronized <T extends QuiverMatrix> ObjectPool<LinkHolder<T>> getHolderPool(
+			int size, Class<T> quiverClass) {
+		HolderKey<T> key = new HolderKey<T>(size, quiverClass);
+		if (sHolderPoolMap.containsKey(key)) {
+			return (ObjectPool<LinkHolder<T>>) sHolderPoolMap.get(key);
 		} else {
 			logger.info("Creating new Holder pool of size {}", size);
-			PoolSettings<LinkHolder> settings = new PoolSettings<LinkHolder>(
-					new LinkHolderPoolableObject(size));
+			PoolSettings<LinkHolder<T>> settings = new PoolSettings<LinkHolder<T>>(
+					new LinkHolderPoolableObject<T>(size));
 			settings.max(-1);
 			settings.maxIdle(500000);
 			PoolSettings.timeBetweenTwoControls(600);
-			ObjectPool<LinkHolder> pool = settings.pool();
-			sHolderPoolMap.put(size, pool);
+			ObjectPool<LinkHolder<T>> pool = settings.pool();
+			sHolderPoolMap.put(key, pool);
 			return pool;
 		}
 	}
@@ -83,5 +90,57 @@ public class Pools {
 	 * Just use the getInstance method to get the ObjectPool.
 	 */
 	private Pools() {
+	}
+
+	private static class QuiverKey<V> {
+		private int id;
+		private Class<V> clazz;
+
+		public QuiverKey(int id, Class<V> clazz) {
+			this.id = id;
+			this.clazz = clazz;
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public boolean equals(Object obj) {
+			if (obj == null) return false;
+			if (this == obj) return true;
+			if (obj.getClass() != getClass()) return false;
+			QuiverKey<V> rhs = (QuiverKey<V>) obj;
+			return (id == rhs.id) && (clazz == rhs.clazz);
+		}
+
+		@Override
+		public int hashCode() {
+			return new HashCodeBuilder(57, 97).append(id).append(clazz)
+					.toHashCode();
+		}
+	}
+
+	private static class HolderKey<V> {
+		private int size;
+		private Class<V> clazz;
+
+		public HolderKey(int size, Class<V> clazz) {
+			this.size = size;
+			this.clazz = clazz;
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public boolean equals(Object obj) {
+			if (obj == null) return false;
+			if (this == obj) return true;
+			if (obj.getClass() != getClass()) return false;
+			HolderKey<V> rhs = (HolderKey<V>) obj;
+			return (size == rhs.size) && (clazz == rhs.clazz);
+		}
+
+		@Override
+		public int hashCode() {
+			return new HashCodeBuilder(57, 97).append(size).append(clazz)
+					.toHashCode();
+		}
 	}
 }

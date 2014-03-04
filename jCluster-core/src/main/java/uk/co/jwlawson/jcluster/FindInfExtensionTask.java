@@ -43,7 +43,8 @@ public class FindInfExtensionTask implements Callable<Set<QuiverMatrix>> {
 
 	public FindInfExtensionTask(QuiverMatrix initial, ExecutorService executor) {
 		if (initial.getNumCols() != initial.getNumRows()) {
-			throw new IllegalArgumentException("Task assumes that the matrix is square");
+			throw new IllegalArgumentException(
+					"Task assumes that the matrix is square");
 		}
 		mInitialMatrix = initial;
 		mEnlargedMatrix = initial.enlargeMatrix(1, 1);
@@ -55,20 +56,23 @@ public class FindInfExtensionTask implements Callable<Set<QuiverMatrix>> {
 		ExecutorCompletionService<QuiverMatrix> pool = new ExecutorCompletionService<QuiverMatrix>(
 				mExecutor);
 		final ObjectPool<QuiverMatrix> matrixPool = Pools.getQuiverMatrixPool(
-				mEnlargedMatrix.getNumRows(), mEnlargedMatrix.getNumCols());
+				mEnlargedMatrix.getNumRows(), mEnlargedMatrix.getNumCols(),
+				QuiverMatrix.class);
 
 		for (int num = 0; num < Math.pow(5, size); num++) {
 			CheckInfTask task = getEnlargedCheckInfTask(size, matrixPool, num);
 			pool.submit(task);
 			if (num % 100000 == 0) {
-				log.debug("{} CheckInfTasksSubmitted out of {}", num, Math.pow(5, size));
+				log.debug("{} CheckInfTasksSubmitted out of {}", num,
+						Math.pow(5, size));
 			}
 		}
 		log.info("All extensions queued up");
 		Set<QuiverMatrix> infiniteMatrices = new HashSet<QuiverMatrix>();
 		for (int num = 0; num < Math.pow(5, size); num++) {
 			if (num % 100000 == 0) {
-				log.debug("{} Infinite matrices found out of {}", num, Math.pow(5, size));
+				log.debug("{} Infinite matrices found out of {}", num,
+						Math.pow(5, size));
 			}
 			QuiverMatrix res = pool.take().get();
 			if (res != null) {
@@ -80,10 +84,11 @@ public class FindInfExtensionTask implements Callable<Set<QuiverMatrix>> {
 	}
 
 	private CheckInfTask getEnlargedCheckInfTask(int size,
-			final ObjectPool<QuiverMatrix> matrixPool, int num) throws Exception {
+			final ObjectPool<QuiverMatrix> matrixPool, int num)
+			throws Exception {
 		QuiverMatrix matrix = addVertexToMatrix(size, matrixPool, num);
-		CheckInfTask task = new CheckInfTask(matrix, Pools.getQuiverMatrixPool(matrix.getNumRows(),
-				matrix.getNumCols()));
+		CheckInfTask task = new CheckInfTask(matrix, Pools.getQuiverMatrixPool(
+				matrix.getNumRows(), matrix.getNumCols(), QuiverMatrix.class));
 		task.addListener(new CheckInfListener() {
 			public void matrixChecked(QuiverMatrix matrix) {
 				try {
@@ -96,8 +101,9 @@ public class FindInfExtensionTask implements Callable<Set<QuiverMatrix>> {
 		return task;
 	}
 
-	private QuiverMatrix addVertexToMatrix(int size, final ObjectPool<QuiverMatrix> matrixPool,
-			int num) throws Exception {
+	private QuiverMatrix addVertexToMatrix(int size,
+			final ObjectPool<QuiverMatrix> matrixPool, int num)
+			throws Exception {
 		QuiverMatrix matrix = matrixPool.getObj();
 		matrix.set(mEnlargedMatrix);
 		log.debug("Enlarged matrix: {} copied to {}", mEnlargedMatrix, matrix);

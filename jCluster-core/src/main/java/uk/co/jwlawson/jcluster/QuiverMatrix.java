@@ -38,6 +38,10 @@ public class QuiverMatrix extends TLinkableAdapter<QuiverMatrix> {
 		mMatrix = m;
 	}
 
+	static QuiverMatrix getInstance(int rows, int cols) {
+		return new QuiverMatrix(rows, cols);
+	}
+
 	/**
 	 * Create a new QuiverMatrix with set number of rows and columns but no
 	 * data. The matrix will by default be filled with zeros.

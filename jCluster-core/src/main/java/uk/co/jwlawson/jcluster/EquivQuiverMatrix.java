@@ -31,6 +31,10 @@ public class EquivQuiverMatrix extends QuiverMatrix {
 	private EquivalenceChecker mChecker;
 	private int mHashcode;
 
+	static QuiverMatrix getInstance(int rows, int cols) {
+		return new EquivQuiverMatrix(rows);
+	}
+
 	EquivQuiverMatrix(int size) {
 		super(size, size);
 		mChecker = EquivalenceChecker.getInstance(size);
