@@ -8,55 +8,55 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * @author John
- *
+ * 
  */
-public class LinkHolder {
-	
+public class LinkHolder<T extends QuiverMatrix> {
+
 	private final boolean[] mList;
-	private QuiverMatrix mMatrix;
-	
+	private T mMatrix;
+
 	public LinkHolder(int size) {
 		mList = new boolean[size];
 	}
-	
+
 	public boolean[] getLinksList() {
 		return mList;
 	}
-	
-	public void setMatrix(QuiverMatrix matrix){
+
+	public void setMatrix(T matrix) {
 		mMatrix = matrix;
 	}
-	
-	public QuiverMatrix getQuiverMatrix(){
+
+	public T getQuiverMatrix() {
 		return mMatrix;
 	}
-	
-	public boolean hasLink(int index){
+
+	public boolean hasLink(int index) {
 		return mList[index] != false;
 	}
-	
-	public boolean getLinkAt(int index){
+
+	public boolean getLinkAt(int index) {
 		return mList[index];
 	}
-	
-	public void setLinkAt(int index){
-		if(mList[index]!= false){
+
+	public void setLinkAt(int index) {
+		if (mList[index] != false) {
 			throw new RuntimeException("Link already set");
 		}
-		mList[index]= true;
+		mList[index] = true;
 	}
-	
+
 	public boolean isComplete() {
-		for(int i = 0; i < mList.length; i++){
-			if(mList[i] == false){
+		for (int i = 0; i < mList.length; i++) {
+			if (mList[i] == false) {
 				return false;
 			}
 		}
 		return true;
 	}
-	
+
 	public void clear() {
-		for(int i = 0; i < mList.length; i++){
+		for (int i = 0; i < mList.length; i++) {
 			mList[i] = false;
 		}
 		mMatrix = null;
@@ -74,19 +74,21 @@ public class LinkHolder {
 			return false;
 		}
 		LinkHolder rhs = (LinkHolder) obj;
-		return new EqualsBuilder().append(mMatrix, rhs.mMatrix).append(mList, rhs.mList).isEquals();
+		return new EqualsBuilder().append(mMatrix, rhs.mMatrix)
+				.append(mList, rhs.mList).isEquals();
 	}
-	
+
 	@Override
 	public int hashCode() {
-		return new HashCodeBuilder(43, 57).append(mMatrix).append(mList).toHashCode();
+		return new HashCodeBuilder(43, 57).append(mMatrix).append(mList)
+				.toHashCode();
 	}
-	
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(System.lineSeparator()).append("With links ");
-		for(int i = 0; i < mList.length; i ++){
+		for (int i = 0; i < mList.length; i++) {
 			sb.append(i).append("->").append(mList[i] != false);
 			sb.append(System.lineSeparator());
 		}

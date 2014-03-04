@@ -20,27 +20,63 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 
+import nf.fr.eraasoft.pool.ObjectPool;
+
 /**
  * @author John Lawson
  * 
  */
-public class MutClassSizeTask extends AbstractMutClassSizeTask implements
-		Callable<Integer> {
+public abstract class MutClassSizeTask<T extends QuiverMatrix> extends
+		AbstractMutClassSizeTask<T> implements Callable<Integer> {
 
-	public MutClassSizeTask(QuiverMatrix matrix) {
+	public MutClassSizeTask(T matrix) {
 		super(matrix);
 	}
 
 	@Override
-	protected Map<QuiverMatrix, LinkHolder> getMatrixMap(int size) {
-		return new ConcurrentHashMap<QuiverMatrix, LinkHolder>((int) Math.pow(
-				2, 3 * size - 3), 0.7f);
+	protected Map<T, LinkHolder<T>> getMatrixMap(int size) {
+		return new ConcurrentHashMap<T, LinkHolder<T>>((int) Math.pow(2,
+				3 * size - 3), 0.7f);
 	}
 
 	@Override
-	protected boolean matrixSeenBefore(QuiverMatrix newMatrix,
-			Map<QuiverMatrix, LinkHolder> matrixSet) {
+	protected boolean matrixSeenBefore(T newMatrix,
+			Map<T, LinkHolder<T>> matrixSet) {
 		return matrixSet.containsKey(newMatrix);
 	}
+
+	@Override
+	protected void removeQuiver(T remove, ObjectPool<T> quiverPool,
+			ObjectPool<LinkHolder<T>> holderPool,
+			Map<T, LinkHolder<T>> mMatrixSet) {
+		LinkHolder<T> holder = mMatrixSet.get(remove);
+		if (holder != null && holder.isComplete()) {
+			T key = holder.getQuiverMatrix();
+			holder = mMatrixSet.remove(remove);
+			if (key != remove) {
+				// So remove.equals(key), but they are not the same object
+				quiverPool.returnObj(key);
+			}
+			holderPool.returnObj(holder);
+		}
+		quiverPool.returnObj(remove);
+	}
+
+	@Override
+	protected void teardown(ObjectPool<T> quiverPool,
+			ObjectPool<LinkHolder<T>> holderPool,
+			Map<T, LinkHolder<T>> matrixSet) {
+		// Do nothing
+	}
+
+	@Override
+	protected abstract ObjectPool<T> getQuiverPool();
+
+//		return Pools.getQuiverMatrixPool(getRows(), getCols());
+
+	@Override
+	protected abstract ObjectPool<LinkHolder<T>> getHolderPool(int size);
+
+//		return Pools.getHolderPool(size);
 
 }
