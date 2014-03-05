@@ -44,7 +44,7 @@ public class Pools {
 			int rows, int cols, Class<T> clazz) {
 		int id = getId(rows, cols);
 		QuiverKey<T> key = new QuiverKey<T>(id, clazz);
-		if (sQuiverPoolMap.containsKey(id)) {
+		if (sQuiverPoolMap.containsKey(key)) {
 			return (ObjectPool<T>) sQuiverPoolMap.get(key);
 		} else {
 			logger.info("Creating new pool {}x{}", rows, cols);
@@ -101,13 +101,12 @@ public class Pools {
 			this.clazz = clazz;
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		public boolean equals(Object obj) {
 			if (obj == null) return false;
 			if (this == obj) return true;
 			if (obj.getClass() != getClass()) return false;
-			QuiverKey<V> rhs = (QuiverKey<V>) obj;
+			QuiverKey<?> rhs = (QuiverKey<?>) obj;
 			return (id == rhs.id) && (clazz == rhs.clazz);
 		}
 
@@ -127,13 +126,12 @@ public class Pools {
 			this.clazz = clazz;
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		public boolean equals(Object obj) {
 			if (obj == null) return false;
 			if (this == obj) return true;
 			if (obj.getClass() != getClass()) return false;
-			HolderKey<V> rhs = (HolderKey<V>) obj;
+			HolderKey<?> rhs = (HolderKey<?>) obj;
 			return (size == rhs.size) && (clazz == rhs.clazz);
 		}
 

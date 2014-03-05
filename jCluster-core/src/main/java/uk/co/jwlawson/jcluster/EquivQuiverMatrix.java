@@ -176,12 +176,7 @@ public class EquivQuiverMatrix extends QuiverMatrix {
 //				synchronized (this) {
 				a.multLeft(p, mMatrixPA);
 				b.multRight(p, mMatrixBP);
-				System.out.println("PA = " + mMatrixPA + " BP = " + mMatrixBP
-						+ "with P = " + p);
-				System.out.println(mMatrixBP.equals(mMatrixPA) + " and "
-						+ mMatrixPA.equals(mMatrixBP));
 				if (mMatrixBP.equals(mMatrixPA)) {
-					System.out.println("Equals!");
 					return true;
 				}
 //				}
