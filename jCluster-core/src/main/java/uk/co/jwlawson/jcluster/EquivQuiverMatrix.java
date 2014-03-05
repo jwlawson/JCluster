@@ -40,7 +40,7 @@ public class EquivQuiverMatrix extends QuiverMatrix {
 		mChecker = EquivalenceChecker.getInstance(size);
 	}
 
-	public EquivQuiverMatrix(int size, double[] values) {
+	public EquivQuiverMatrix(int size, double... values) {
 		super(size, size, values);
 		mChecker = EquivalenceChecker.getInstance(size);
 	}
@@ -51,7 +51,12 @@ public class EquivQuiverMatrix extends QuiverMatrix {
 
 	@Override
 	public boolean equals(Object obj) {
-		return super.equals(obj);
+		if (obj == null) return false;
+		if (this == obj) return true;
+		if (getClass() != obj.getClass()) return false;
+
+		EquivQuiverMatrix rhs = (EquivQuiverMatrix) obj;
+		return mChecker.areEquivalent(this, rhs);
 	}
 
 	/*
@@ -134,6 +139,17 @@ public class EquivQuiverMatrix extends QuiverMatrix {
 						vals[j]++;
 					}
 				}
+				// Ensure there are no clashes
+				boolean shifted = false;
+				do {
+					shifted = false;
+					for (int k = 0; k < j; k++) {
+						if (vals[j] == vals[k]) {
+							vals[j]++;
+							shifted = true;
+						}
+					}
+				} while (shifted);
 				id = id / (size - j);
 			}
 			return vals;
@@ -158,13 +174,20 @@ public class EquivQuiverMatrix extends QuiverMatrix {
 			for (DenseMatrix64F p : mPermMatrices) {
 				// Check if PA == BP
 				// or PAP^(-1) == B
-				synchronized (this) {
-					CommonOps.mult(p, a, mMatrixPA);
-					CommonOps.mult(b, p, mMatrixBP);
-					if (mMatrixBP.equals(mMatrixBP)) {
-						return true;
-					}
+//				synchronized (this) {
+				mMatrixBP.zero();
+				mMatrixPA.zero();
+				CommonOps.mult(p, a, mMatrixPA);
+				CommonOps.mult(b, p, mMatrixBP);
+				System.out.println("PA = " + mMatrixPA + " BP = " + mMatrixBP
+						+ "with P = " + p);
+				System.out.println(mMatrixBP.equals(mMatrixPA) + " and "
+						+ mMatrixPA.equals(mMatrixBP));
+				if (mMatrixBP.equals(mMatrixPA)) {
+					System.out.println("Equals!");
+					return true;
 				}
+//				}
 			}
 			return false;
 		}

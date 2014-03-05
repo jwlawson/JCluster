@@ -16,8 +16,6 @@
  */
 package uk.co.jwlawson.jcluster;
 
-import nf.fr.eraasoft.pool.ObjectPool;
-
 /**
  * @author John Lawson
  * 
@@ -31,17 +29,4 @@ public class EquivMutClassSizeTask extends MutClassSizeTask<EquivQuiverMatrix> {
 	public EquivMutClassSizeTask(QuiverMatrix matrix) {
 		this(new EquivQuiverMatrix(matrix));
 	}
-
-	@Override
-	protected ObjectPool<LinkHolder<EquivQuiverMatrix>> getHolderPool(int size) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	protected ObjectPool<EquivQuiverMatrix> getQuiverPool() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 }

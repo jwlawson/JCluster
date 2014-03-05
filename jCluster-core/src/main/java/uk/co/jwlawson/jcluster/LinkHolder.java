@@ -40,9 +40,9 @@ public class LinkHolder<T extends QuiverMatrix> {
 	}
 
 	public void setLinkAt(int index) {
-		if (mList[index] != false) {
-			throw new RuntimeException("Link already set");
-		}
+//		if (mList[index] != false) {
+//			throw new RuntimeException("Link already set");
+//		}
 		mList[index] = true;
 	}
 

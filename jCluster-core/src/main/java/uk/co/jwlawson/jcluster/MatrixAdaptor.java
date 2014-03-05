@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
  * @author John Lawson
  * 
  */
-public class MatrixAdaptor extends DenseMatrix64F {
+public class MatrixAdaptor extends DenseMatrix64F implements Matrix<Double> {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private int hashcode = Integer.MAX_VALUE;
@@ -48,10 +48,20 @@ public class MatrixAdaptor extends DenseMatrix64F {
 
 	// This is a bit of a hack.
 	// TODO Do MatrixAdaptor copy better.
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see uk.co.jwlawson.jcluster.Matrix#copyMatrix()
+	 */
 	public MatrixAdaptor copyMatrix() {
 		return new MatrixAdaptor(((DenseMatrix64F) this).copy());
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see uk.co.jwlawson.jcluster.Matrix#set(int, int, boolean, double)
+	 */
 	@Override
 	public void set(int numRows, int numCols, boolean rowMajor, double... data) {
 		super.set(numRows, numCols, rowMajor, data);
@@ -86,6 +96,11 @@ public class MatrixAdaptor extends DenseMatrix64F {
 		return true;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see uk.co.jwlawson.jcluster.Matrix#removeNegZero()
+	 */
 	public void removeNegZero() {
 		for (int i = 0; i < data.length; i++) {
 			if (-0d == data[i]) {
@@ -94,6 +109,11 @@ public class MatrixAdaptor extends DenseMatrix64F {
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see uk.co.jwlawson.jcluster.Matrix#reset()
+	 */
 	public void reset() {
 		hashcode = Integer.MAX_VALUE;
 	}
@@ -108,5 +128,10 @@ public class MatrixAdaptor extends DenseMatrix64F {
 			}
 		}
 		return hashcode;
+	}
+
+	public void unsafe_set(int row, int col, Double a) {
+		// TODO Auto-generated method stub
+
 	}
 }
