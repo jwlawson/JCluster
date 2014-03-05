@@ -42,18 +42,15 @@ public class FindInfExtensionTaskTest {
 	@Test
 	public void test() {
 		ExecutorService threadPool = getThreadPool();
-		FindInfExtensionTask task = new FindInfExtensionTask(DynkinDiagram.A4.getMatrix(),
-				threadPool);
+		FindInfExtensionTask task = new FindInfExtensionTask(
+				DynkinDiagram.A4.getMatrix(), threadPool);
 
 		log.info("Starting test on matrix");
 		ExecutorService thread = Executors.newSingleThreadExecutor();
 		Future<Set<QuiverMatrix>> future = thread.submit(task);
 		try {
-			Set<QuiverMatrix> set = future.get();
+			future.get();
 			log.debug("Infinite extensions found:");
-//			for (QuiverMatrix m : set) {
-//				log.debug("{}", m);
-//			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		} catch (ExecutionException e) {
@@ -65,8 +62,8 @@ public class FindInfExtensionTaskTest {
 	}
 
 	private ExecutorService getThreadPool() {
-		return new ThreadPoolExecutor(NUM_THREADS, NUM_THREADS, 0, TimeUnit.MILLISECONDS,
-				new LinkedBlockingQueue<Runnable>(QUEUE_SIZE),
-				new ThreadPoolExecutor.CallerRunsPolicy());
+		return new ThreadPoolExecutor(NUM_THREADS, NUM_THREADS, 0,
+				TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(
+						QUEUE_SIZE), new ThreadPoolExecutor.CallerRunsPolicy());
 	}
 }

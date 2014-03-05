@@ -8,7 +8,7 @@ public interface Matrix<T extends Number> {
 	 * 
 	 * @return A copy of this matrix.
 	 */
-	public Matrix<T> copyMatrix();
+	Matrix<T> copyMatrix();
 
 	/**
 	 * Set all values in this matrix. Assumes that the data is provided with
@@ -18,17 +18,17 @@ public interface Matrix<T extends Number> {
 	 * @param numCols Number of columns
 	 * @param data The numbers to enter into the matrix
 	 */
-	public void set(int numRows, int numCols, T... data);
+	void set(int numRows, int numCols, T... data);
 
 	/**
 	 * Remove any instances of -0 in the matrix.
 	 */
-	public void removeNegZero();
+	void removeNegZero();
 
 	/**
 	 * Flush the matrix.
 	 */
-	public void reset();
+	void reset();
 
 	/**
 	 * Get the value stored in the matrix at the specified position.
@@ -37,7 +37,7 @@ public interface Matrix<T extends Number> {
 	 * @param col
 	 * @return Value in the matrix
 	 */
-	public T get(int row, int col);
+	T get(int row, int col);
 
 	/**
 	 * Same as get(int, int) but no bounds checking is done. This should be a
@@ -56,7 +56,7 @@ public interface Matrix<T extends Number> {
 	 * @param col Column
 	 * @param a New value to store
 	 */
-	public void set(int row, int col, T a);
+	void set(int row, int col, T a);
 
 	/**
 	 * Same as set(int, int, T) but no bounds check is done. Ensure that row and
@@ -71,12 +71,12 @@ public interface Matrix<T extends Number> {
 	/**
 	 * @return The number of rows in the matrix.
 	 */
-	public int getNumRows();
+	int getNumRows();
 
 	/**
 	 * @return The number of columns in the matrix.
 	 */
-	public int getNumCols();
+	int getNumCols();
 
 	/**
 	 * Multiply this matrix on the left with mat.
@@ -84,7 +84,7 @@ public interface Matrix<T extends Number> {
 	 * @param mat Matrix to multiply by
 	 * @return this * mat
 	 */
-	public Matrix<T> multLeft(Matrix<?> mat);
+	Matrix<T> multLeft(Matrix<?> mat);
 
 	/**
 	 * Multiply this matrix on the right with mat.
@@ -92,7 +92,7 @@ public interface Matrix<T extends Number> {
 	 * @param mat Matrix to multiply by. (not modified)
 	 * @return mat * this
 	 */
-	public Matrix<T> multRight(Matrix<?> mat);
+	Matrix<T> multRight(Matrix<?> mat);
 
 	/**
 	 * Multiply this matrix on the left with mat. The result is stored in the
@@ -102,7 +102,7 @@ public interface Matrix<T extends Number> {
 	 * @param container The matrix to store the result in. (modified)
 	 * @return this * mat
 	 */
-	public <V extends Number, S extends Matrix<V>> S multLeft(Matrix<?> mat,
+	<V extends Number, S extends Matrix<V>> S multLeft(Matrix<?> mat,
 			S container);
 
 	/**
@@ -113,6 +113,6 @@ public interface Matrix<T extends Number> {
 	 * @param container The matrix to store the result in. (modified)
 	 * @return mat * this
 	 */
-	public <V extends Number, S extends Matrix<V>> S multRight(Matrix<?> mat,
+	<V extends Number, S extends Matrix<V>> S multRight(Matrix<?> mat,
 			S container);
 }
