@@ -218,7 +218,7 @@ public enum DynkinDiagram {
 	//@formatter:on
 	private final QuiverMatrix matrix;
 
-	private DynkinDiagram(int size, double... data) {
+	private DynkinDiagram(int size, int... data) {
 		matrix = new QuiverMatrix(size, size, data);
 	}
 
@@ -231,11 +231,8 @@ public enum DynkinDiagram {
 	public static EnumSet<DynkinDiagram> C_SET = EnumSet.range(C3, C9);
 	public static EnumSet<DynkinDiagram> D_SET = EnumSet.range(D4, D8);
 	public static EnumSet<DynkinDiagram> E_SET = EnumSet.range(E6, E8);
-	/*Note: these finite/infinte labels are wrong - all should be finite*/
-	public static EnumSet<DynkinDiagram> MUT_INFINITE = EnumSet.range(B2, C9);
-	public static EnumSet<DynkinDiagram> MUT_FINITE = EnumSet.complementOf(MUT_INFINITE);
 
 	/** Variety of diagrams to use for testing */
-	public static EnumSet<DynkinDiagram> TEST_SET = EnumSet.of(A2,A3,A4,A5,A6,
-			A7,A8,D4,D5,D6,D7,D8,E6,E7,E8,G2);
+	public static EnumSet<DynkinDiagram> TEST_SET = EnumSet.of(A2, A3, A4, A5,
+			A6, A7, A8, D4, D5, D6, D7, D8, E6, E7, E8, G2);
 }

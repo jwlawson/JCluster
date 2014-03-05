@@ -22,7 +22,9 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
- * Quiver which has numeric values at each vertex which get mutated along with the matrix.
+ * Quiver which has numeric values at each vertex which get mutated along with
+ * the matrix.
+ * 
  * @author John Lawson
  * 
  */
@@ -31,7 +33,7 @@ public class NumericQuiver extends Quiver {
 	private final QuiverMatrix mMatrix;
 	private final double[] mValues;
 
-	public NumericQuiver(int rows, int cols, double... data) {
+	public NumericQuiver(int rows, int cols, int... data) {
 		mMatrix = new QuiverMatrix(rows, cols, data);
 
 		int max = Math.max(rows, cols);
@@ -55,7 +57,8 @@ public class NumericQuiver extends Quiver {
 	}
 
 	/**
-	 * Mutate the quiver at the specified vertex. Remember that the indices start at 0.
+	 * Mutate the quiver at the specified vertex. Remember that the indices
+	 * start at 0.
 	 * 
 	 * @return A new quiver which is the mutation of this one.
 	 */
@@ -89,12 +92,13 @@ public class NumericQuiver extends Quiver {
 			return false;
 		}
 		NumericQuiver rhs = (NumericQuiver) obj;
-		return new EqualsBuilder().append(mMatrix, rhs.mMatrix).append(mValues, rhs.mValues)
-				.isEquals();
+		return new EqualsBuilder().append(mMatrix, rhs.mMatrix)
+				.append(mValues, rhs.mValues).isEquals();
 	}
 
 	@Override
 	public int hashCode() {
-		return new HashCodeBuilder(23, 43).append(mMatrix).append(mValues).toHashCode();
+		return new HashCodeBuilder(23, 43).append(mMatrix).append(mValues)
+				.toHashCode();
 	}
 }

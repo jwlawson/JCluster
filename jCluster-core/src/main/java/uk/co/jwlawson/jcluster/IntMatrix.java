@@ -29,11 +29,23 @@ public class IntMatrix {
 	private int mCols;
 	private int mHashCode = 0;
 
-	@SuppressWarnings("unchecked")
 	public IntMatrix(int rows, int cols) {
 		mData = new int[rows * cols];
 		mRows = rows;
 		mCols = cols;
+	}
+
+	public IntMatrix(int rows, int cols, int... data) {
+		if (data.length != rows * cols) {
+			throw new IllegalArgumentException(
+					"Number of entries must match the size of the matrix");
+		}
+		mData = new int[rows * cols];
+		mRows = rows;
+		mCols = cols;
+		for (int i = 0; i < data.length; i++) {
+			mData[i] = data[i];
+		}
 	}
 
 	public int getNumCols() {
@@ -66,7 +78,15 @@ public class IntMatrix {
 		return row * mCols + col;
 	}
 
-	@SuppressWarnings("unchecked")
+	public void set(IntMatrix matrix) {
+		mData = new int[matrix.mRows * matrix.mCols];
+		mRows = matrix.mRows;
+		mCols = matrix.mCols;
+		for (int i = 0; i < matrix.mData.length; i++) {
+			mData[i] = matrix.mData[i];
+		}
+	}
+
 	public void set(int rows, int cols, int... data) {
 		if (data.length != rows * cols) {
 			throw new IllegalArgumentException(

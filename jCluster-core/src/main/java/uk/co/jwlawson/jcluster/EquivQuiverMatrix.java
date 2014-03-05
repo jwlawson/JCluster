@@ -19,9 +19,6 @@ package uk.co.jwlawson.jcluster;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.ejml.data.DenseMatrix64F;
-import org.ejml.ops.CommonOps;
-
 /**
  * @author John Lawson
  * 
@@ -40,7 +37,7 @@ public class EquivQuiverMatrix extends QuiverMatrix {
 		mChecker = EquivalenceChecker.getInstance(size);
 	}
 
-	public EquivQuiverMatrix(int size, double... values) {
+	public EquivQuiverMatrix(int size, int... values) {
 		super(size, size, values);
 		mChecker = EquivalenceChecker.getInstance(size);
 	}
@@ -72,8 +69,10 @@ public class EquivQuiverMatrix extends QuiverMatrix {
 		int hash = mHashcode;
 		if (hash == 0) {
 			hash = 137;
-			for (int i = 0; i < mMatrix.data.length; i++) {
-				hash += Math.abs((int) mMatrix.data[i]);
+			for (int i = 0; i < mMatrix.getNumRows(); i++) {
+				for (int j = 0; j < mMatrix.getNumCols(); j++) {
+					hash += Math.abs(mMatrix.unsafe_get(i, j));
+				}
 			}
 		}
 		return mHashcode;
@@ -83,9 +82,9 @@ public class EquivQuiverMatrix extends QuiverMatrix {
 
 		private static Map<Integer, EquivalenceChecker> mInstanceMap = new HashMap<Integer, EquivalenceChecker>();
 
-		private DenseMatrix64F[] mPermMatrices;
-		private MatrixAdaptor mMatrixPA;
-		private MatrixAdaptor mMatrixBP;
+		private IntMatrix[] mPermMatrices;
+		private IntMatrix mMatrixPA;
+		private IntMatrix mMatrixBP;
 
 		// TODO Fancy checking of size and create specific checker for different
 		// sizes.
@@ -111,16 +110,16 @@ public class EquivQuiverMatrix extends QuiverMatrix {
 		private EquivalenceChecker(int size) {
 			setPermutations(size);
 
-			mMatrixPA = new MatrixAdaptor(size, size);
-			mMatrixBP = new MatrixAdaptor(size, size);
+			mMatrixPA = new IntMatrix(size, size);
+			mMatrixBP = new IntMatrix(size, size);
 		}
 
 		private void setPermutations(int size) {
 			int fac = factorial(size);
-			mPermMatrices = new DenseMatrix64F[fac];
+			mPermMatrices = new IntMatrix[fac];
 			for (int i = 0; i < fac; i++) {
 				int[] vals = getPermutationValues(size, i);
-				mPermMatrices[i] = new DenseMatrix64F(size, size);
+				mPermMatrices[i] = new IntMatrix(size, size);
 				for (int j = 0; j < size; j++) {
 					mPermMatrices[i].set(j, vals[j], 1);
 				}
@@ -170,15 +169,13 @@ public class EquivQuiverMatrix extends QuiverMatrix {
 		 * @param b The second matrix
 		 * @return Whether the two are equivalent
 		 */
-		public boolean areEquivalent(DenseMatrix64F a, DenseMatrix64F b) {
-			for (DenseMatrix64F p : mPermMatrices) {
+		public boolean areEquivalent(IntMatrix a, IntMatrix b) {
+			for (IntMatrix p : mPermMatrices) {
 				// Check if PA == BP
 				// or PAP^(-1) == B
 //				synchronized (this) {
-				mMatrixBP.zero();
-				mMatrixPA.zero();
-				CommonOps.mult(p, a, mMatrixPA);
-				CommonOps.mult(b, p, mMatrixBP);
+				a.multLeft(p, mMatrixPA);
+				b.multRight(p, mMatrixBP);
 				System.out.println("PA = " + mMatrixPA + " BP = " + mMatrixBP
 						+ "with P = " + p);
 				System.out.println(mMatrixBP.equals(mMatrixPA) + " and "

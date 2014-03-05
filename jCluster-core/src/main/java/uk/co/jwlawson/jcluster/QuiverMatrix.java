@@ -28,10 +28,10 @@ import java.util.Arrays;
  */
 public class QuiverMatrix extends TLinkableAdapter<QuiverMatrix> {
 
-	protected final MatrixAdaptor mMatrix;
+	protected final IntMatrix mMatrix;
 	private int mHashCode = 0;
 
-	private QuiverMatrix(MatrixAdaptor m) {
+	private QuiverMatrix(IntMatrix m) {
 		if (m == null) {
 			throw new IllegalArgumentException("Cannot create matrix from null");
 		}
@@ -50,7 +50,7 @@ public class QuiverMatrix extends TLinkableAdapter<QuiverMatrix> {
 	 * @param cols Number of columns
 	 */
 	QuiverMatrix(int rows, int cols) {
-		this(new MatrixAdaptor(rows, cols));
+		this(new IntMatrix(rows, cols));
 	}
 
 	/**
@@ -64,12 +64,12 @@ public class QuiverMatrix extends TLinkableAdapter<QuiverMatrix> {
 	 * @param cols Number of columns
 	 * @param values Array of entries in the matrix
 	 */
-	public QuiverMatrix(int rows, int cols, double... values) {
-		this(new MatrixAdaptor(rows, cols, true, values));
+	public QuiverMatrix(int rows, int cols, int... values) {
+		this(new IntMatrix(rows, cols, values));
 	}
 
 	protected QuiverMatrix(QuiverMatrix copy) {
-		this(copy.getNumRows(), copy.getNumCols(), copy.mMatrix.data);
+		this(copy.mMatrix.copyMatrix());
 	}
 
 	/**
@@ -82,7 +82,8 @@ public class QuiverMatrix extends TLinkableAdapter<QuiverMatrix> {
 	 * @return New mutated matrix.
 	 */
 	public QuiverMatrix mutate(int k) {
-		return mutate(k, new QuiverMatrix(mMatrix.numRows, mMatrix.numCols));
+		return mutate(k,
+				new QuiverMatrix(mMatrix.getNumRows(), mMatrix.getNumCols()));
 	}
 
 	/**
@@ -133,7 +134,7 @@ public class QuiverMatrix extends TLinkableAdapter<QuiverMatrix> {
 	private void unsafeMutate(int k, QuiverMatrix result, int rows, int cols) {
 		for (int i = 0; i < rows; i++) {
 			for (int j = 0; j < cols; j++) {
-				double a;
+				int a;
 				if (i == k || j == k) {
 					a = -1 * unsafeGet(i, j);
 				} else {
@@ -147,15 +148,15 @@ public class QuiverMatrix extends TLinkableAdapter<QuiverMatrix> {
 		result.mMatrix.removeNegZero();
 	}
 
-	public double get(int row, int col) {
+	public int get(int row, int col) {
 		return mMatrix.get(row, col);
 	}
 
-	double unsafeGet(int i, int j) {
+	int unsafeGet(int i, int j) {
 		return mMatrix.unsafe_get(i, j);
 	}
 
-	void unsafeSet(int i, int j, double val) {
+	void unsafeSet(int i, int j, int val) {
 		mMatrix.unsafe_set(i, j, val);
 	}
 
@@ -169,12 +170,12 @@ public class QuiverMatrix extends TLinkableAdapter<QuiverMatrix> {
 	 * @return The enlarged matrix
 	 */
 	public QuiverMatrix enlargeMatrix(int extraRows, int extraCols) {
-		int rows = mMatrix.numRows;
-		int cols = mMatrix.numCols;
+		int rows = mMatrix.getNumRows();
+		int cols = mMatrix.getNumCols();
 		int newRows = rows + extraRows;
 		int newCols = cols + extraCols;
-		double[] values = new double[newRows * newCols];
-		Arrays.fill(values, 0d);
+		int[] values = new int[newRows * newCols];
+		Arrays.fill(values, 0);
 		for (int i = 0; i < rows; i++) {
 			for (int j = 0; j < cols; j++) {
 				values[i * newCols + j] = mMatrix.unsafe_get(i, j);
@@ -185,11 +186,11 @@ public class QuiverMatrix extends TLinkableAdapter<QuiverMatrix> {
 	}
 
 	public int getNumRows() {
-		return mMatrix.numRows;
+		return mMatrix.getNumRows();
 	}
 
 	public int getNumCols() {
-		return mMatrix.numCols;
+		return mMatrix.getNumCols();
 	}
 
 	public void reset() {
@@ -213,8 +214,7 @@ public class QuiverMatrix extends TLinkableAdapter<QuiverMatrix> {
 	 */
 	public void set(QuiverMatrix matrix) {
 		reset();
-		mMatrix.set(matrix.getNumRows(), matrix.getNumCols(), true,
-				matrix.mMatrix.data);
+		mMatrix.set(matrix.mMatrix);
 	}
 
 	@Override

@@ -28,6 +28,7 @@ import com.perisic.ring.RingElt;
 
 /**
  * A quiver which has polynomials at each vertex.
+ * 
  * @author John Lawson
  * 
  */
@@ -37,7 +38,7 @@ public class PolynomialQuiver extends Quiver {
 	private Ring mRing;
 	private RingElt[] mPolynomials;
 
-	public PolynomialQuiver(int rows, int cols, double... data) {
+	public PolynomialQuiver(int rows, int cols, int... data) {
 		mMatrix = new QuiverMatrix(rows, cols, data);
 
 		int min = Math.min(rows, cols);
@@ -45,15 +46,15 @@ public class PolynomialQuiver extends Quiver {
 
 		initPolynomials(min, max);
 	}
-	
-	public PolynomialQuiver(QuiverMatrix matrix){
+
+	public PolynomialQuiver(QuiverMatrix matrix) {
 		mMatrix = matrix;
 		int rows = mMatrix.getNumRows();
 		int cols = mMatrix.getNumCols();
-		
+
 		int unFrozenVars = Math.min(rows, cols);
 		int totalVars = Math.max(rows, cols);
-		
+
 		initPolynomials(unFrozenVars, totalVars);
 	}
 
@@ -76,7 +77,8 @@ public class PolynomialQuiver extends Quiver {
 		}
 	}
 
-	public PolynomialQuiver(QuiverMatrix matrix, RingElt[] polynomials, Ring ring) {
+	public PolynomialQuiver(QuiverMatrix matrix, RingElt[] polynomials,
+			Ring ring) {
 		int max = Math.max(matrix.getNumRows(), matrix.getNumCols());
 		if (max != polynomials.length) {
 			throw new IllegalArgumentException();
@@ -87,7 +89,8 @@ public class PolynomialQuiver extends Quiver {
 	}
 
 	/**
-	 * Provides ring for testing, so that the expected polynomials can be created.
+	 * Provides ring for testing, so that the expected polynomials can be
+	 * created.
 	 */
 	Ring getRing() {
 		return mRing;
@@ -95,6 +98,7 @@ public class PolynomialQuiver extends Quiver {
 
 	/**
 	 * Get the polynomial at the specified vertex.
+	 * 
 	 * @param k The vertex at which the required polynomial is
 	 * @return The polynomial at vertex k
 	 */
@@ -103,24 +107,25 @@ public class PolynomialQuiver extends Quiver {
 	}
 
 	/**
-	 * Mutate the quiver at the specified vertex. Remember that the indices start at 0.
+	 * Mutate the quiver at the specified vertex. Remember that the indices
+	 * start at 0.
 	 * 
 	 * @return A new quiver which is the mutation of this one.
 	 */
 	@Override
 	public Quiver mutate(int k) {
 		QuiverMatrix newMatrix = mMatrix.mutate(k);
-		RingElt[] newPolynomials = Arrays.copyOf(mPolynomials, mPolynomials.length);
+		RingElt[] newPolynomials = Arrays.copyOf(mPolynomials,
+				mPolynomials.length);
 		RingElt pos = mRing.one();
 		RingElt neg = mRing.one();
 		for (int i = 0; i < mPolynomials.length; i++) {
 			if (mMatrix.get(k, i) > 0) {
-				RingElt mul = mRing.pow(mPolynomials[i], 
-						(int) (mMatrix.get(k,i)));
-				pos = mRing.mult(pos,mul);
+				RingElt mul = mRing.pow(mPolynomials[i], (mMatrix.get(k, i)));
+				pos = mRing.mult(pos, mul);
 			} else if (mMatrix.get(k, i) < 0) {
-				RingElt mul = mRing.pow(mPolynomials[i], 
-						(int) -(1*mMatrix.get(k,i)));
+				RingElt mul = mRing.pow(mPolynomials[i],
+						-(1 * mMatrix.get(k, i)));
 				neg = mRing.mult(neg, mul);
 			}
 		}
@@ -147,7 +152,8 @@ public class PolynomialQuiver extends Quiver {
 
 	@Override
 	public int hashCode() {
-		return new HashCodeBuilder(23, 43).append(mMatrix).append(mPolynomials).toHashCode();
+		return new HashCodeBuilder(23, 43).append(mMatrix).append(mPolynomials)
+				.toHashCode();
 	}
 
 	@Override
@@ -156,10 +162,10 @@ public class PolynomialQuiver extends Quiver {
 		sb.append(mMatrix);
 		sb.append(System.lineSeparator());
 		sb.append(" { ");
-		for(int i = 0; i < mPolynomials.length; i++){
+		for (int i = 0; i < mPolynomials.length; i++) {
 			sb.append(mPolynomials[i]).append(", ");
 		}
-		sb.deleteCharAt(sb.length()-2);
+		sb.deleteCharAt(sb.length() - 2);
 		sb.append("} ");
 		return sb.toString();
 	}
