@@ -23,9 +23,6 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import nf.fr.eraasoft.pool.ObjectPool;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * @author John Lawson
  * 
@@ -33,7 +30,6 @@ import org.slf4j.LoggerFactory;
 public class CheckInfTask implements Callable<QuiverMatrix> {
 
 	private static final int MAX_NUMBER_MUTATIONS = 3000;
-	private final Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private QuiverMatrix mMatrix;
 	private QuiverMatrix[] mMutated;
@@ -58,12 +54,13 @@ public class CheckInfTask implements Callable<QuiverMatrix> {
 	}
 
 	/**
-	 * Check whether the quiver matrix is mutation infinite. Return the matrix if it is.
+	 * Check whether the quiver matrix is mutation infinite. Return the matrix
+	 * if it is.
 	 */
 	public QuiverMatrix call() throws Exception {
 		try {
 			// All 2x2 matrices are mutation finite
-			if(mMatrix.getNumRows() == 2 && mMatrix.getNumCols() == 2){
+			if (mMatrix.getNumRows() == 2 && mMatrix.getNumCols() == 2) {
 				return null;
 			}
 			for (int i = 0; i < 2; i++) {
@@ -73,7 +70,8 @@ public class CheckInfTask implements Callable<QuiverMatrix> {
 			}
 			while (mCounter < MAX_NUMBER_MUTATIONS) {
 				do {
-					mRand = ThreadLocalRandom.current().nextInt(0, mMatrix.getNumRows());
+					mRand = ThreadLocalRandom.current().nextInt(0,
+							mMatrix.getNumRows());
 				} while (mRand == mLastMutation);
 
 				/* Alternate between mutating the two matrices in the array. */
@@ -109,6 +107,6 @@ public class CheckInfTask implements Callable<QuiverMatrix> {
 	}
 
 	public interface CheckInfListener {
-		public void matrixChecked(QuiverMatrix matrix);
+		void matrixChecked(QuiverMatrix matrix);
 	}
 }
