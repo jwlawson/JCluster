@@ -57,6 +57,22 @@ public class NewFiniteTaskTest {
 		}
 	}
 
+	@Test
+	public void test1() {
+		log.debug("Starting test");
+		MutClassSizeTask<QuiverMatrix> task = new MutClassSizeTask<QuiverMatrix>(
+				DynkinDiagram.A9.getMatrix());
+		ExecutorService exec = Executors.newSingleThreadExecutor();
+
+		Future<Integer> future = exec.submit(task);
+		try {
+			int value = future.get();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			e.printStackTrace();
+		}
+	}
 	@Ignore("Takes ages and not really a test")
 	@Test
 	public void testAllSmallMatrices() {

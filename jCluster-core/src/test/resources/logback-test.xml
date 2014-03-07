@@ -29,31 +29,29 @@
       <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{35} - %msg%n</pattern>
     </encoder>
   </appender>
-    <appender name="TESTFILE" class="ch.qos.logback.core.FileAppender">
+<!--    <appender name="TESTFILE" class="ch.qos.logback.core.FileAppender">
     <file>log-${bySecond}-test.log</file>
     <append>true</append>
-    <!-- encoders are assigned the type
-         ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
     <encoder>
       <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{35} - %msg%n</pattern>
     </encoder>
-  </appender>
+  </appender> -->
   
 
-  <logger name="uk.co.jwlawson.jcluster" level="DEBUG" additivity="false">
+  <logger name="uk.co.jwlawson.jcluster" level="INFO" additivity="false">
       <appender-ref ref="FILE" />
     <appender-ref ref="STDOUT" />
   </logger>
 
-<!-- 	<logger name="uk.co.jwlawson.jcluster.NewFiniteTask" level="INFO"
+	<logger name="uk.co.jwlawson.jcluster.MutClassSizeTask" level="INFO"
 		additivity="false">
 		<appender-ref ref="STDOUT" />
 	</logger>
 	
-	<logger name="uk.co.jwlawson.jcluster.NewFiniteTask" level="DEBUG"
+	<logger name="uk.co.jwlawson.jcluster.MutClassSizeTask" level="DEBUG"
 		additivity="false">
 		<appender-ref ref="FILE" />
-	</logger> -->
+	</logger>
 	
 <!-- 	<logger name="uk.co.jwlawson.jcluster" level="DEBUG"
 		additivity="false">

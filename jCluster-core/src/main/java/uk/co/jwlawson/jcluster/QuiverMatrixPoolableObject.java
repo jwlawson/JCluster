@@ -16,6 +16,8 @@
  */
 package uk.co.jwlawson.jcluster;
 
+import java.lang.SuppressWarnings;
+
 import nf.fr.eraasoft.pool.PoolException;
 import nf.fr.eraasoft.pool.PoolableObjectBase;
 
@@ -39,7 +41,8 @@ public class QuiverMatrixPoolableObject<T extends QuiverMatrix> extends
 		this.rows = rows;
 		this.cols = cols;
 	}
-
+	
+	@SuppressWarnings("unchecked")
 	public T make() throws PoolException {
 		logger.debug("New QuiverMatrix created {}x{}", rows, cols);
 		return (T) T.getInstance(rows, cols);
