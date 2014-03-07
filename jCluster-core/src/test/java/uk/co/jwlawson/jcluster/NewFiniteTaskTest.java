@@ -16,7 +16,7 @@
  */
 package uk.co.jwlawson.jcluster;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
@@ -51,26 +51,28 @@ public class NewFiniteTaskTest {
 			int value = future.get();
 			assertEquals(144, value);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		} catch (ExecutionException e) {
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 	}
 
+	
 	@Test
 	public void test1() {
 		log.debug("Starting test");
 		MutClassSizeTask<QuiverMatrix> task = new MutClassSizeTask<QuiverMatrix>(
-				DynkinDiagram.A9.getMatrix());
+				DynkinDiagram.A3.getMatrix());
 		ExecutorService exec = Executors.newSingleThreadExecutor();
 
 		Future<Integer> future = exec.submit(task);
 		try {
 			int value = future.get();
+			assertEquals(14, value);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		} catch (ExecutionException e) {
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 	}
 	@Ignore("Takes ages and not really a test")
@@ -89,7 +91,9 @@ public class NewFiniteTaskTest {
 				int value = pool.take().get();
 				log.info("Found {} quivers in class of {}", value, d.toString());
 			} catch (ExecutionException e) {
+				throw new RuntimeException(e);
 			} catch (InterruptedException e) {
+				throw new RuntimeException(e);
 			}
 		}
 	}

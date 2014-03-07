@@ -16,7 +16,8 @@
  */
 package uk.co.jwlawson.jcluster;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -53,6 +54,19 @@ public class IntMatrixTest {
 		b.multRight(p, bp);
 
 		assertEquals(pa, bp);
+		assertTrue(pa.equals(bp));
+		assertTrue(bp.equals(pa));
+	}
+	
+	@Test
+	public void test3Equals() {
+		IntMatrix p = new IntMatrix(3, 3, 0,1,0, 0,0,1, 1,0,0);
+		IntMatrix m1 = new IntMatrix(3, 3, 0,1,0, -1,0,1, 0,-1,0);
+		IntMatrix m2 = new IntMatrix(3, 3,0,1,-1, -1,0,0, 1,0,0);
+
+		IntMatrix pa = p.multRight(m1);
+		IntMatrix bp = p.multLeft(m2);
+		
 		assertTrue(pa.equals(bp));
 		assertTrue(bp.equals(pa));
 	}

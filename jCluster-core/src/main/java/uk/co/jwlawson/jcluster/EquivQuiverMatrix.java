@@ -28,8 +28,8 @@ public class EquivQuiverMatrix extends QuiverMatrix {
 	private EquivalenceChecker mChecker;
 	private int mHashcode;
 
-	static QuiverMatrix getInstance(int rows, int cols) {
-		return new EquivQuiverMatrix(rows);
+	public EquivQuiverMatrix(int rows, int cols) {
+		this(rows);
 	}
 
 	EquivQuiverMatrix(int size) {
@@ -44,6 +44,7 @@ public class EquivQuiverMatrix extends QuiverMatrix {
 
 	public EquivQuiverMatrix(QuiverMatrix matrix) {
 		super(matrix);
+		mChecker = EquivalenceChecker.getInstance(matrix.getNumRows());
 	}
 
 	@Override
@@ -85,9 +86,6 @@ public class EquivQuiverMatrix extends QuiverMatrix {
 		private IntMatrix[] mPermMatrices;
 		private IntMatrix mMatrixPA;
 		private IntMatrix mMatrixBP;
-
-		// TODO Fancy checking of size and create specific checker for different
-		// sizes.
 
 		public static synchronized EquivalenceChecker getInstance(int size) {
 			EquivalenceChecker result = mInstanceMap.get(size);
@@ -173,13 +171,13 @@ public class EquivQuiverMatrix extends QuiverMatrix {
 			for (IntMatrix p : mPermMatrices) {
 				// Check if PA == BP
 				// or PAP^(-1) == B
-//				synchronized (this) {
-				a.multLeft(p, mMatrixPA);
-				b.multRight(p, mMatrixBP);
-				if (mMatrixBP.equals(mMatrixPA)) {
-					return true;
+				synchronized (this) {
+					a.multLeft(p, mMatrixPA);
+					b.multRight(p, mMatrixBP);
+					if (mMatrixBP.equals(mMatrixPA)) {
+						return true;
 				}
-//				}
+				}
 			}
 			return false;
 		}

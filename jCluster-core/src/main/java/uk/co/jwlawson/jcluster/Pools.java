@@ -49,7 +49,7 @@ public class Pools {
 		} else {
 			logger.info("Creating new pool {}x{}", rows, cols);
 			PoolSettings<T> settings = new PoolSettings<T>(
-					new QuiverMatrixPoolableObject<T>(rows, cols));
+					new QuiverMatrixPoolableObject<T>(rows, cols, clazz));
 			settings.max(-1);
 			settings.maxIdle(500000);
 			PoolSettings.timeBetweenTwoControls(600);

@@ -38,10 +38,6 @@ public class QuiverMatrix extends TLinkableAdapter<QuiverMatrix> {
 		mMatrix = m;
 	}
 
-	static QuiverMatrix getInstance(int rows, int cols) {
-		return new QuiverMatrix(rows, cols);
-	}
-
 	/**
 	 * Create a new QuiverMatrix with set number of rows and columns but no
 	 * data. The matrix will by default be filled with zeros.
@@ -49,7 +45,7 @@ public class QuiverMatrix extends TLinkableAdapter<QuiverMatrix> {
 	 * @param rows Number of rows
 	 * @param cols Number of columns
 	 */
-	QuiverMatrix(int rows, int cols) {
+	public QuiverMatrix(int rows, int cols) {
 		this(new IntMatrix(rows, cols));
 	}
 
@@ -131,7 +127,7 @@ public class QuiverMatrix extends TLinkableAdapter<QuiverMatrix> {
 	 *            size as no checks are done.
 	 * @return New mutated matrix.
 	 */
-	private void unsafeMutate(int k, QuiverMatrix result, int rows, int cols) {
+	private <S extends QuiverMatrix> void unsafeMutate(int k, S result, int rows, int cols) {
 		for (int i = 0; i < rows; i++) {
 			for (int j = 0; j < cols; j++) {
 				int a;
@@ -219,7 +215,7 @@ public class QuiverMatrix extends TLinkableAdapter<QuiverMatrix> {
 
 	@Override
 	public String toString() {
-		return mMatrix.toString();
+		return getClass() + mMatrix.toString();
 	}
 
 	@Override
@@ -250,4 +246,16 @@ public class QuiverMatrix extends TLinkableAdapter<QuiverMatrix> {
 		return mHashCode;
 	}
 
+	/**
+	 * Explicitly check whether two matrices which extend {@link QuiverMatrix} are equal as QuiverMatrices
+	 * @param lhs
+	 * @param rhs
+	 * @return Whether the two matrices are equal as QuiverMatrices
+	 */
+	public static boolean areEqual(QuiverMatrix lhs, QuiverMatrix rhs){
+		if (lhs.hashCode() != rhs.hashCode()) {
+			return false;
+		}
+		return lhs.mMatrix.equals(rhs.mMatrix);
+	}
 }

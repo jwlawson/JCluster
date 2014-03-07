@@ -16,17 +16,99 @@
  */
 package uk.co.jwlawson.jcluster;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import nf.fr.eraasoft.pool.ObjectPool;
+
 /**
  * @author John Lawson
  * 
  */
 public class EquivMutClassSizeTask extends MutClassSizeTask<EquivQuiverMatrix> {
+	
+	private List<EquivQuiverMatrix> mList;
 
 	public EquivMutClassSizeTask(EquivQuiverMatrix matrix) {
 		super(matrix);
+		mList = new ArrayList<EquivQuiverMatrix>();
 	}
 
 	public EquivMutClassSizeTask(QuiverMatrix matrix) {
 		this(new EquivQuiverMatrix(matrix));
+	}
+	
+	@Override
+	protected boolean matrixSeenBefore(EquivQuiverMatrix newMatrix,
+			Map<EquivQuiverMatrix, LinkHolder<EquivQuiverMatrix>> matrixSet) {
+		boolean result = super.matrixSeenBefore(newMatrix, matrixSet);
+		result = result || mList.contains(newMatrix);
+		return result;
+	}
+	
+	@Override
+	protected void handleSeenMatrix(
+			Map<EquivQuiverMatrix, LinkHolder<EquivQuiverMatrix>> matrixSet,
+			EquivQuiverMatrix mat, EquivQuiverMatrix newMatrix, int i) {
+		LinkHolder<EquivQuiverMatrix> newHolder = matrixSet.get(newMatrix);
+		if(newHolder == null){
+			// Matrix seen before, but no longer in map as all links mutated
+			return;
+		}
+		if(QuiverMatrix.areEqual(newMatrix, newHolder.getQuiverMatrix())){
+			// Matrices are equal, not just equivalent so update the stored matrix link
+			LinkHolder<EquivQuiverMatrix> oldHolder = matrixSet.get(mat);
+			oldHolder.setLinkAt(i);
+		}
+		newHolder.setLinkAt(i);
+	}
+	
+	@Override
+	protected void checkRemoveQuiver(EquivQuiverMatrix remove,
+			ObjectPool<EquivQuiverMatrix> quiverPool,
+			ObjectPool<LinkHolder<EquivQuiverMatrix>> holderPool,
+			Map<EquivQuiverMatrix, LinkHolder<EquivQuiverMatrix>> mMatrixSet) {
+		boolean removeQ = true;
+		LinkHolder<EquivQuiverMatrix> holder = mMatrixSet.get(remove);
+		if (holder != null && holder.isComplete()) {
+			EquivQuiverMatrix key = holder.getQuiverMatrix();
+			holder = mMatrixSet.remove(remove);
+			if (key == remove) {
+				removeQ = false;
+			}
+			mList.add(key);
+			holderPool.returnObj(holder);
+		}
+		if(removeQ){
+		quiverPool.returnObj(remove);
+		}
+	}
+	
+	@Override
+	protected void removeFromMap(EquivQuiverMatrix remove,
+			ObjectPool<EquivQuiverMatrix> quiverPool,
+			ObjectPool<LinkHolder<EquivQuiverMatrix>> holderPool,
+			Map<EquivQuiverMatrix, LinkHolder<EquivQuiverMatrix>> mMatrixSet,
+			LinkHolder<EquivQuiverMatrix> holder) {
+		EquivQuiverMatrix key = holder.getQuiverMatrix();
+		holder = mMatrixSet.remove(remove);
+		if (key != remove) {
+			// So remove.equals(key), but they are not the same object
+			mList.add(key);
+		} else {
+			throw new RuntimeException("It did a oops");
+		}
+		holderPool.returnObj(holder);
+	}
+	
+	@Override
+	protected void teardown(ObjectPool<EquivQuiverMatrix> quiverPool,
+			ObjectPool<LinkHolder<EquivQuiverMatrix>> holderPool,
+			Map<EquivQuiverMatrix, LinkHolder<EquivQuiverMatrix>> matrixSet) {
+		for(EquivQuiverMatrix m : mList){
+			quiverPool.returnObj(m);
+		}
+		mList.clear();
 	}
 }

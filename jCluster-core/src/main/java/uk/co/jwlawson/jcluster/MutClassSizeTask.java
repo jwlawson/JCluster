@@ -17,10 +17,12 @@
 package uk.co.jwlawson.jcluster;
 
 import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 
 import nf.fr.eraasoft.pool.ObjectPool;
+import nf.fr.eraasoft.pool.PoolException;
 
 /**
  * @author John Lawson
@@ -31,6 +33,28 @@ public class MutClassSizeTask<T extends QuiverMatrix> extends
 
 	public MutClassSizeTask(T matrix) {
 		super(matrix);
+	}
+	
+	@Override
+	protected void handleUnseenMatrix(Map<T, LinkHolder<T>> matrixSet,
+			Queue<T> incompleteQuivers, ObjectPool<LinkHolder<T>> holderPool,
+			T mat, T newMatrix, int i) throws PoolException {
+		incompleteQuivers.add(newMatrix);
+		LinkHolder<T> newHolder = holderPool.getObj();
+		newHolder.setMatrix(newMatrix);
+		newHolder.setLinkAt(i);
+		LinkHolder<T> oldHolder = matrixSet.get(mat);
+		oldHolder.setLinkAt(i);
+		matrixSet.put(newMatrix, newHolder);
+	}
+
+	@Override
+	protected void handleSeenMatrix(Map<T, LinkHolder<T>> matrixSet, T mat,
+			T newMatrix, int i) {
+		LinkHolder<T> newHolder = matrixSet.get(newMatrix);
+		newHolder.setLinkAt(i);
+		LinkHolder<T> oldHolder = matrixSet.get(mat);
+		oldHolder.setLinkAt(i);
 	}
 
 	@Override
@@ -46,20 +70,26 @@ public class MutClassSizeTask<T extends QuiverMatrix> extends
 	}
 
 	@Override
-	protected void removeQuiver(T remove, ObjectPool<T> quiverPool,
+	protected void checkRemoveQuiver(T remove, ObjectPool<T> quiverPool,
 			ObjectPool<LinkHolder<T>> holderPool,
 			Map<T, LinkHolder<T>> mMatrixSet) {
 		LinkHolder<T> holder = mMatrixSet.get(remove);
 		if (holder != null && holder.isComplete()) {
-			T key = holder.getQuiverMatrix();
-			holder = mMatrixSet.remove(remove);
-			if (key != remove) {
-				// So remove.equals(key), but they are not the same object
-				quiverPool.returnObj(key);
-			}
-			holderPool.returnObj(holder);
+			removeFromMap(remove, quiverPool, holderPool, mMatrixSet, holder);
 		}
 		quiverPool.returnObj(remove);
+	}
+
+	protected void removeFromMap(T remove, ObjectPool<T> quiverPool,
+			ObjectPool<LinkHolder<T>> holderPool,
+			Map<T, LinkHolder<T>> mMatrixSet, LinkHolder<T> holder) {
+		T key = holder.getQuiverMatrix();
+		holder = mMatrixSet.remove(remove);
+		if (key != remove) {
+			// So remove.equals(key), but they are not the same object
+			quiverPool.returnObj(key);
+		}
+		holderPool.returnObj(holder);
 	}
 
 	@Override
@@ -67,16 +97,5 @@ public class MutClassSizeTask<T extends QuiverMatrix> extends
 			ObjectPool<LinkHolder<T>> holderPool,
 			Map<T, LinkHolder<T>> matrixSet) {
 		// Do nothing
-	}
-
-	@Override
-	protected ObjectPool<T> getQuiverPool() {
-		return Pools
-				.getQuiverMatrixPool(getRows(), getCols(), getMatrixClass());
-	}
-
-	@Override
-	protected ObjectPool<LinkHolder<T>> getHolderPool(int size) {
-		return Pools.getHolderPool(size, getMatrixClass());
 	}
 }

@@ -16,7 +16,8 @@
  */
 package uk.co.jwlawson.jcluster;
 
-import java.lang.SuppressWarnings;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 
 import nf.fr.eraasoft.pool.PoolException;
 import nf.fr.eraasoft.pool.PoolableObjectBase;
@@ -35,17 +36,37 @@ public class QuiverMatrixPoolableObject<T extends QuiverMatrix> extends
 
 	private final int rows;
 	private final int cols;
+	private Class<T> clazz;
+	private Constructor<T> constructor;
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
-	public QuiverMatrixPoolableObject(int rows, int cols) {
+	public QuiverMatrixPoolableObject(int rows, int cols, Class<T> clazz) {
 		this.rows = rows;
 		this.cols = cols;
+		this.clazz = clazz;
+		
+		try {
+			constructor = clazz.getConstructor(Integer.TYPE, Integer.TYPE);
+		} catch (NoSuchMethodException e) {
+			throw new RuntimeException("No constructor found for class " + clazz, e);
+		} catch (SecurityException e) {
+			throw new RuntimeException("Cannot access construcotr for class " + clazz, e);
+		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	public T make() throws PoolException {
-		logger.debug("New QuiverMatrix created {}x{}", rows, cols);
-		return (T) T.getInstance(rows, cols);
+		try {
+			T inst = constructor.newInstance(rows, cols);
+			return inst;
+		} catch (InstantiationException e) {
+			throw new RuntimeException("Error instantiating class " + clazz, e);
+		} catch (IllegalAccessException e) {
+			throw new RuntimeException("Error instantiating class " + clazz, e);
+		} catch (IllegalArgumentException e) {
+			throw new RuntimeException("Error instantiating class " + clazz, e);
+		} catch (InvocationTargetException e) {
+			throw new RuntimeException("Error instantiating class " + clazz, e);
+		}
 	}
 
 	public void activate(T arg0) throws PoolException {

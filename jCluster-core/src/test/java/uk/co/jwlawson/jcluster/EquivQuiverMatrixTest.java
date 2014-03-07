@@ -16,9 +16,13 @@
  */
 package uk.co.jwlawson.jcluster;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
+
+import uk.co.jwlawson.jcluster.EquivQuiverMatrix.EquivalenceChecker;
 
 /**
  * @author John Lawson
@@ -78,6 +82,23 @@ public class EquivQuiverMatrixTest {
 				0, 0, 3, 0, 0, 0, 0, 4);
 
 		assertFalse("Matrices not equivalent", m1.equals(m2));
+	}
+	
+	@Test
+	public void testQuivers() {
+		EquivQuiverMatrix m1 = new EquivQuiverMatrix(3, 0,1,0, -1,0,1, 0,-1,0);
+		EquivQuiverMatrix m2 = new EquivQuiverMatrix(3, 0,1,-1, -1,0,0, 1,0,0);
+		
+		assertEquals(m1,  m2);
+	}
+	
+	@Test
+	public void testChecker() {
+		EquivQuiverMatrix m1 = new EquivQuiverMatrix(3, 0,1,0, -1,0,1, 0,-1,0);
+		EquivQuiverMatrix m2 = new EquivQuiverMatrix(3, 0,1,-1, -1,0,0, 1,0,0);
+		
+		EquivalenceChecker ch = EquivalenceChecker.getInstance(3);
+		assertTrue(ch.areEquivalent(m1, m2));
 	}
 
 }

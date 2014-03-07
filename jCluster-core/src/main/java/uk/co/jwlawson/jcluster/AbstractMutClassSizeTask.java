@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Queue;
 
 import nf.fr.eraasoft.pool.ObjectPool;
+import nf.fr.eraasoft.pool.PoolException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +28,7 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> {
 		Map<T, LinkHolder<T>> matrixSet = getMatrixMap(size);
 
 		LinkHolder<T> initial = new LinkHolder<T>(getSize(mInitialMatrix));
+		initial.setMatrix(mInitialMatrix);
 		matrixSet.put(mInitialMatrix, initial);
 
 		Queue<T> incompleteQuivers = new ArrayDeque<T>((int) Math.pow(2,
@@ -34,10 +36,9 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> {
 		incompleteQuivers.add(mInitialMatrix);
 
 		ObjectPool<T> quiverPool = getQuiverPool();
+		System.out.println("pool: "+ quiverPool);
 		ObjectPool<LinkHolder<T>> holderPool = getHolderPool(size);
 		try {
-			LinkHolder<T> newHolder;
-			LinkHolder<T> oldHolder;
 			T mat;
 			T newMatrix;
 			int i;
@@ -48,21 +49,16 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> {
 						newMatrix = quiverPool.getObj();
 						newMatrix = mat.mutate(i, newMatrix);
 						if (matrixSeenBefore(newMatrix, matrixSet)) {
-							newHolder = matrixSet.get(newMatrix);
-							removeQuiver(newMatrix, quiverPool, holderPool,
+							handleSeenMatrix(matrixSet, mat, newMatrix, i);
+							checkRemoveQuiver(newMatrix, quiverPool, holderPool,
 									matrixSet);
 						} else {
-							incompleteQuivers.add(newMatrix);
-							newHolder = holderPool.getObj();
-							newHolder.setMatrix(newMatrix);
-							matrixSet.put(newMatrix, newHolder);
+							handleUnseenMatrix(matrixSet, incompleteQuivers,
+									holderPool, mat, newMatrix, i);
 						}
-						newHolder.setLinkAt(i);
-						oldHolder = matrixSet.get(mat);
-						oldHolder.setLinkAt(i);
 					}
 				}
-				removeQuiver(mat, quiverPool, holderPool, matrixSet);
+				checkRemoveQuiver(mat, quiverPool, holderPool, matrixSet);
 				if (numMatrices % 50000 == 0) {
 					log.debug(
 							"Handled {} matrices, now at {}, with {} in map.",
@@ -78,9 +74,21 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> {
 		}
 	}
 
-	protected abstract ObjectPool<LinkHolder<T>> getHolderPool(int size);
+	protected abstract void handleUnseenMatrix(Map<T, LinkHolder<T>> matrixSet,
+			Queue<T> incompleteQuivers, ObjectPool<LinkHolder<T>> holderPool,
+			T mat, T newMatrix, int i) throws PoolException;
 
-	protected abstract ObjectPool<T> getQuiverPool();
+	protected abstract void handleSeenMatrix(Map<T, LinkHolder<T>> matrixSet, T mat,
+			T newMatrix, int i);
+
+	protected ObjectPool<T> getQuiverPool() {
+		return Pools
+				.getQuiverMatrixPool(getRows(), getCols(), getMatrixClass());
+	}
+
+	protected ObjectPool<LinkHolder<T>> getHolderPool(int size) {
+		return Pools.getHolderPool(size, getMatrixClass());
+	}
 
 	private int getSize(QuiverMatrix matrix) {
 		return Math.min(matrix.getNumRows(), matrix.getNumCols());
@@ -104,7 +112,7 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> {
 	protected abstract boolean matrixSeenBefore(T newMatrix,
 			Map<T, LinkHolder<T>> matrixSet);
 
-	protected abstract void removeQuiver(T remove, ObjectPool<T> quiverPool,
+	protected abstract void checkRemoveQuiver(T remove, ObjectPool<T> quiverPool,
 			ObjectPool<LinkHolder<T>> holderPool,
 			Map<T, LinkHolder<T>> matrixSet);
 

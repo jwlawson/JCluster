@@ -86,7 +86,7 @@ public class LinkHolder<T extends QuiverMatrix> {
 
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
+		StringBuilder sb = new StringBuilder(mMatrix.toString());
 		sb.append(System.lineSeparator()).append("With links ");
 		for (int i = 0; i < mList.length; i++) {
 			sb.append(i).append("->").append(mList[i] != false);

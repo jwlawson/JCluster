@@ -144,11 +144,11 @@ public class IntMatrix {
 		if (obj.getClass() != getClass()) {
 			return false;
 		}
-		IntMatrix rhs = (IntMatrix) obj;
-		if (mData.length != rhs.mData.length) {
+		if(hashCode() != obj.hashCode()){
 			return false;
 		}
-		if (hashCode() != rhs.hashCode()) {
+		IntMatrix rhs = (IntMatrix) obj;
+		if (mData.length != rhs.mData.length) {
 			return false;
 		}
 		for (int i = 0; i < mData.length; i++) {
@@ -189,6 +189,7 @@ public class IntMatrix {
 
 	private IntMatrix unsafeMult(IntMatrix left, IntMatrix right,
 			IntMatrix container) {
+		container.reset();
 		int tmp;
 		for (int i = 0; i < left.getNumRows(); i++) {
 			for (int j = 0; j < right.getNumCols(); j++) {
@@ -203,4 +204,18 @@ public class IntMatrix {
 		return container;
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		for(int i = 0; i < mRows; i++) {
+			for(int j = 0; j < mCols; j++) {
+				sb.append(mData[getIndex(i, j)]);
+				sb.append(" ");
+			}
+			if(i != mRows-1) {
+				sb.append(System.lineSeparator());
+			}
+		}
+		return sb.toString();
+	}
 }
