@@ -40,6 +40,7 @@ public class LinkHolder<T extends QuiverMatrix> {
 	}
 
 	public void setLinkAt(int index) {
+		// TODO track down what throws these errors in EquivMutClassSizeTask
 //		if (mList[index] != false) {
 //			throw new RuntimeException("Link already set");
 //		}
@@ -73,7 +74,7 @@ public class LinkHolder<T extends QuiverMatrix> {
 		if (obj.getClass() != getClass()) {
 			return false;
 		}
-		LinkHolder rhs = (LinkHolder) obj;
+		LinkHolder<T> rhs = (LinkHolder<T>) obj;
 		return new EqualsBuilder().append(mMatrix, rhs.mMatrix)
 				.append(mList, rhs.mList).isEquals();
 	}

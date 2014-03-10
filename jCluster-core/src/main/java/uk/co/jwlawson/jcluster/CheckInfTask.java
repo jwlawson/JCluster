@@ -76,7 +76,7 @@ public class CheckInfTask implements Callable<QuiverMatrix> {
 
 				/* Alternate between mutating the two matrices in the array. */
 				mMutated[mCounter % 2].mutate(mRand, mMutated[++mCounter % 2]);
-				if (isInfinite(mMutated[mCounter % 2])) {
+				if (mMutated[mCounter % 2].isInfinite()) {
 					return mMatrix;
 				}
 				mLastMutation = mRand;
@@ -94,17 +94,6 @@ public class CheckInfTask implements Callable<QuiverMatrix> {
 		return null;
 	}
 
-	private boolean isInfinite(QuiverMatrix matrix) {
-
-		for (int i = 0; i < matrix.getNumRows(); i++) {
-			for (int j = 0; j < matrix.getNumCols(); j++) {
-				if (matrix.unsafeGet(i, j) >= 3) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
 
 	public interface CheckInfListener {
 		void matrixChecked(QuiverMatrix matrix);

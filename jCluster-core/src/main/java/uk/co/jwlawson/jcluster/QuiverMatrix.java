@@ -16,8 +16,6 @@
  */
 package uk.co.jwlawson.jcluster;
 
-import gnu.trove.list.TLinkableAdapter;
-
 import java.util.Arrays;
 
 /**
@@ -26,16 +24,10 @@ import java.util.Arrays;
  * @author John Lawson
  * 
  */
-public class QuiverMatrix extends TLinkableAdapter<QuiverMatrix> {
-
-	protected final IntMatrix mMatrix;
-	private int mHashCode = 0;
+public class QuiverMatrix extends IntMatrix {
 
 	private QuiverMatrix(IntMatrix m) {
-		if (m == null) {
-			throw new IllegalArgumentException("Cannot create matrix from null");
-		}
-		mMatrix = m;
+		super(m);
 	}
 
 	/**
@@ -65,7 +57,7 @@ public class QuiverMatrix extends TLinkableAdapter<QuiverMatrix> {
 	}
 
 	protected QuiverMatrix(QuiverMatrix copy) {
-		this(copy.mMatrix.copyMatrix());
+		this(copy.copyMatrix());
 	}
 
 	/**
@@ -79,7 +71,7 @@ public class QuiverMatrix extends TLinkableAdapter<QuiverMatrix> {
 	 */
 	public QuiverMatrix mutate(int k) {
 		return mutate(k,
-				new QuiverMatrix(mMatrix.getNumRows(), mMatrix.getNumCols()));
+				new QuiverMatrix(this.getNumRows(), this.getNumCols()));
 	}
 
 	/**
@@ -138,22 +130,10 @@ public class QuiverMatrix extends TLinkableAdapter<QuiverMatrix> {
 							+ (Math.abs(unsafeGet(i, k)) * unsafeGet(k, j) + unsafeGet(
 									i, k) * Math.abs(unsafeGet(k, j))) / 2;
 				}
-				result.mMatrix.unsafe_set(i, j, a);
+				result.unsafeSet(i, j, a);
 			}
 		}
-		result.mMatrix.removeNegZero();
-	}
-
-	public int get(int row, int col) {
-		return mMatrix.get(row, col);
-	}
-
-	int unsafeGet(int i, int j) {
-		return mMatrix.unsafe_get(i, j);
-	}
-
-	void unsafeSet(int i, int j, int val) {
-		mMatrix.unsafe_set(i, j, val);
+		result.removeNegZero();
 	}
 
 	/**
@@ -166,32 +146,19 @@ public class QuiverMatrix extends TLinkableAdapter<QuiverMatrix> {
 	 * @return The enlarged matrix
 	 */
 	public QuiverMatrix enlargeMatrix(int extraRows, int extraCols) {
-		int rows = mMatrix.getNumRows();
-		int cols = mMatrix.getNumCols();
+		int rows = this.getNumRows();
+		int cols = this.getNumCols();
 		int newRows = rows + extraRows;
 		int newCols = cols + extraCols;
 		int[] values = new int[newRows * newCols];
 		Arrays.fill(values, 0);
 		for (int i = 0; i < rows; i++) {
 			for (int j = 0; j < cols; j++) {
-				values[i * newCols + j] = mMatrix.unsafe_get(i, j);
+				values[i * newCols + j] = this.unsafeGet(i, j);
 			}
 		}
 		QuiverMatrix result = new QuiverMatrix(newRows, newCols, values);
 		return result;
-	}
-
-	public int getNumRows() {
-		return mMatrix.getNumRows();
-	}
-
-	public int getNumCols() {
-		return mMatrix.getNumCols();
-	}
-
-	public void reset() {
-		mMatrix.reset();
-		mHashCode = 0;
 	}
 
 	/**
@@ -200,51 +167,21 @@ public class QuiverMatrix extends TLinkableAdapter<QuiverMatrix> {
 	 * @return A new matrix which contains the same entries as the first.
 	 */
 	public QuiverMatrix copy() {
-		return new QuiverMatrix(mMatrix.copyMatrix());
+		return new QuiverMatrix(copyMatrix());
 	}
 
-	/**
-	 * Set this matrix to match the values in the provided matrix.
-	 * 
-	 * @param matrix The matrix to copy the values from.
-	 */
-	public void set(QuiverMatrix matrix) {
-		reset();
-		mMatrix.set(matrix.mMatrix);
+	public boolean isInfinite() {
+		for (int i = 0; i < getNumRows(); i++) {
+			for (int j = 0; j < getNumCols(); j++) {
+				int val = unsafeGet(i, j);
+				if (val >= 3 || val <= -3) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
-	@Override
-	public String toString() {
-		return getClass() + mMatrix.toString();
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (obj == null) {
-			return false;
-		}
-		if (obj == this) {
-			return true;
-		}
-		if (obj.getClass() != getClass()) {
-			return false;
-		}
-		QuiverMatrix rhs = (QuiverMatrix) obj;
-		if (hashCode() != rhs.hashCode()) {
-			return false;
-		}
-		return mMatrix.equals(rhs.mMatrix);
-	}
-
-	@Override
-	public int hashCode() {
-		int hash = mHashCode; // Extra variable makes this thread safe
-		if (hash == 0) {
-			hash = mMatrix.hashCode();
-			mHashCode = hash;
-		}
-		return mHashCode;
-	}
 
 	/**
 	 * Explicitly check whether two matrices which extend {@link QuiverMatrix} are equal as QuiverMatrices
@@ -256,6 +193,6 @@ public class QuiverMatrix extends TLinkableAdapter<QuiverMatrix> {
 		if (lhs.hashCode() != rhs.hashCode()) {
 			return false;
 		}
-		return lhs.mMatrix.equals(rhs.mMatrix);
+		return IntMatrix.areEqual(lhs, rhs);
 	}
 }

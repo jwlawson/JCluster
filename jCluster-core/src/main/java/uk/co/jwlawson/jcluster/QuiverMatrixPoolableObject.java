@@ -48,9 +48,11 @@ public class QuiverMatrixPoolableObject<T extends QuiverMatrix> extends
 		try {
 			constructor = clazz.getConstructor(Integer.TYPE, Integer.TYPE);
 		} catch (NoSuchMethodException e) {
+			logger.error("No constructor found for class ", e);
 			throw new RuntimeException("No constructor found for class " + clazz, e);
 		} catch (SecurityException e) {
-			throw new RuntimeException("Cannot access construcotr for class " + clazz, e);
+			logger.error("Cannot access constructor for class ", e);
+			throw new RuntimeException("Cannot access constructor for class " + clazz, e);
 		}
 	}
 	

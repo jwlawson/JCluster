@@ -20,6 +20,11 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> {
 		mInitialMatrix = matrix;
 	}
 
+	/**
+	 * Find the number of matrices in the mutation class of the initial matrix. If the matrix is mutation-infinite then -1 is returned.
+	 * @return The size of the mutation class, or -1 if infinite
+	 * @throws Exception
+	 */
 	public Integer call() throws Exception {
 		log.debug("MutClassSizeTask started for {}", mInitialMatrix);
 		int size = getSize(mInitialMatrix);
@@ -53,6 +58,9 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> {
 							checkRemoveQuiver(newMatrix, quiverPool, holderPool,
 									matrixSet);
 						} else {
+							if(newMatrix.isInfinite()){
+								return -1;
+							}
 							handleUnseenMatrix(matrixSet, incompleteQuivers,
 									holderPool, mat, newMatrix, i);
 						}

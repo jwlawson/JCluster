@@ -70,9 +70,9 @@ public class EquivQuiverMatrix extends QuiverMatrix {
 		int hash = mHashcode;
 		if (hash == 0) {
 			hash = 137;
-			for (int i = 0; i < mMatrix.getNumRows(); i++) {
-				for (int j = 0; j < mMatrix.getNumCols(); j++) {
-					hash += Math.abs(mMatrix.unsafe_get(i, j));
+			for (int i = 0; i < getNumRows(); i++) {
+				for (int j = 0; j < getNumCols(); j++) {
+					hash += Math.abs(unsafeGet(i, j));
 				}
 			}
 		}
@@ -182,9 +182,6 @@ public class EquivQuiverMatrix extends QuiverMatrix {
 			return false;
 		}
 
-		public boolean areEquivalent(QuiverMatrix a, QuiverMatrix b) {
-			return areEquivalent(a.mMatrix, b.mMatrix);
-		}
 	}
 
 }
