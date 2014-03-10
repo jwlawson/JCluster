@@ -36,8 +36,20 @@ public class EquivMutClassSizeTaskTest {
 			result = task.call();
 			assertEquals(4, result);
 		} catch (Exception e) {
-			e.printStackTrace();
-			fail();
+			throw new RuntimeException(e);
+		}
+	}
+	
+	@Test
+	public void testA4() {
+		QuiverMatrix matrix = DynkinDiagram.A4.getMatrix();
+		EquivMutClassSizeTask task = new EquivMutClassSizeTask(matrix);
+		int result;
+		try {
+			result = task.call();
+			assertEquals(6, result);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
 		}
 	}
 }
