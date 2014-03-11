@@ -7,8 +7,8 @@ public class IntMatrixPair {
 	public IntMatrixPair() {}
 
 	public void reset() {
-		// a = null;
-		// b = null;
+		a = null;
+		b = null;
 	}
 
 	public void set(IntMatrix a, IntMatrix b) {
@@ -37,11 +37,4 @@ public class IntMatrixPair {
 		return IntMatrix.hashCode(a) + 137 * IntMatrix.hashCode(b);
 	}
 
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder(getClass().getSimpleName());
-		sb.append(a).append(" - ").append(b);
-		sb.append(System.lineSeparator());
-		return sb.toString();
-	}
 }

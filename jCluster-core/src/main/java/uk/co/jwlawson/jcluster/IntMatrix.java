@@ -35,8 +35,7 @@ public class IntMatrix {
 
 	public IntMatrix(int rows, int cols, int... data) {
 		if (data.length != rows * cols) {
-			throw new IllegalArgumentException(
-					"Number of entries must match the size of the matrix");
+			throw new IllegalArgumentException("Number of entries must match the size of the matrix");
 		}
 		mData = new int[rows * cols];
 		mRows = rows;
@@ -61,13 +60,11 @@ public class IntMatrix {
 	public int get(int row, int col) {
 		if (row < 0 || row > mRows) {
 			throw new IllegalArgumentException(
-					"row must be non-negative and within the bounds. Expected <" + mRows
-							+ " but got " + row);
+					"row must be non-negative and within the bounds. Expected <" + mRows + " but got " + row);
 		}
 		if (col < 0 || col > mCols) {
 			throw new IllegalArgumentException(
-					"col must be non-negative and within the bounds. Expected <" + mCols
-							+ " but got " + col);
+					"col must be non-negative and within the bounds. Expected <" + mCols + " but got " + col);
 		}
 		return unsafeGet(row, col);
 	}
@@ -91,8 +88,7 @@ public class IntMatrix {
 
 	public void set(int rows, int cols, int... data) {
 		if (data.length != rows * cols) {
-			throw new IllegalArgumentException(
-					"Number of entries must match the size of the matrix");
+			throw new IllegalArgumentException("Number of entries must match the size of the matrix");
 		}
 		mData = new int[rows * cols];
 		mRows = rows;
@@ -105,13 +101,11 @@ public class IntMatrix {
 	public void set(int row, int col, int a) {
 		if (row < 0 || row > mRows) {
 			throw new IllegalArgumentException(
-					"row must be non-negative and within the bounds. Expected <" + mRows
-							+ " but got " + row);
+					"row must be non-negative and within the bounds. Expected <" + mRows + " but got " + row);
 		}
 		if (col < 0 || col > mCols) {
 			throw new IllegalArgumentException(
-					"col must be non-negative and within the bounds. Expected <" + mCols
-							+ " but got " + col);
+					"col must be non-negative and within the bounds. Expected <" + mCols + " but got " + col);
 		}
 		unsafeSet(row, col, a);
 	}
@@ -184,16 +178,14 @@ public class IntMatrix {
 		}
 		if (mat.getNumCols() != this.getNumRows()) {
 			String error =
-					String.format(
-							"Matrix to multiply is wrong size. Expected %d columns but have %d",
+					String.format("Matrix to multiply is wrong size. Expected %d columns but have %d",
 							getNumRows(), mat.getNumCols());
 			throw new IllegalArgumentException(error);
 		}
 		if (container.getNumRows() != mat.getNumRows() || container.getNumCols() != getNumCols()) {
 			String error =
 					String.format("Container is wrong size. Expected %d x %d but have %d x %d",
-							mat.getNumRows(), getNumCols(), container.getNumRows(),
-							container.getNumCols());
+							mat.getNumRows(), getNumCols(), container.getNumRows(), container.getNumCols());
 			throw new IllegalArgumentException(error);
 		}
 		return unsafeMult(mat, this, container);
@@ -211,9 +203,8 @@ public class IntMatrix {
 		}
 		if (container.getNumRows() != getNumRows() || container.getNumCols() != mat.getNumCols()) {
 			String error =
-					String.format("Container is wrong size. Expected %d x %d but have %d x %d",
-							getNumRows(), mat.getNumCols(), container.getNumRows(),
-							container.getNumCols());
+					String.format("Container is wrong size. Expected %d x %d but have %d x %d", getNumRows(),
+							mat.getNumCols(), container.getNumRows(), container.getNumCols());
 			throw new IllegalArgumentException(error);
 		}
 		return unsafeMult(this, mat, container);
@@ -221,17 +212,25 @@ public class IntMatrix {
 
 	private IntMatrix unsafeMult(IntMatrix left, IntMatrix right, IntMatrix container) {
 		container.reset();
-		int tmp;
+		int colIncrement = right.getNumRows();
+		int leftInd;
+		int leftIndStart = 0;
+		int rightInd;
+		int calcInd = 0;
 		for (int i = 0; i < left.getNumRows(); i++) {
 			for (int j = 0; j < right.getNumCols(); j++) {
-				tmp = 0;
-				for (int k = 0; k < left.getNumCols(); k++) {
-					tmp += left.unsafeGet(i, k) * right.unsafeGet(k, j);
+				leftInd = leftIndStart;
+				rightInd = j;
+				container.mData[calcInd] = 0;
+				while (leftInd < leftIndStart + left.getNumCols()) {
+					container.mData[calcInd] += left.mData[leftInd] * right.mData[rightInd];
+					leftInd++;
+					rightInd += colIncrement;
 				}
-				container.unsafeSet(i, j, tmp);
+				calcInd++;
 			}
+			leftIndStart += left.getNumCols();
 		}
-
 		return container;
 	}
 

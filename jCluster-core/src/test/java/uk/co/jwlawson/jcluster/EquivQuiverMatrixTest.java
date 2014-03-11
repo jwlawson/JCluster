@@ -20,8 +20,6 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import uk.co.jwlawson.jcluster.EquivQuiverMatrix.EquivalenceChecker;
-
 /**
  * @author John Lawson
  * 
@@ -55,30 +53,24 @@ public class EquivQuiverMatrixTest {
 
 	@Test
 	public void test4x4() {
-		EquivQuiverMatrix m1 =
-				new EquivQuiverMatrix(4, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-		EquivQuiverMatrix m2 =
-				new EquivQuiverMatrix(4, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+		EquivQuiverMatrix m1 = new EquivQuiverMatrix(4, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+		EquivQuiverMatrix m2 = new EquivQuiverMatrix(4, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 
 		assertTrue("Simple 4x4 example", m1.equals(m2));
 	}
 
 	@Test
 	public void test4() {
-		EquivQuiverMatrix m1 =
-				new EquivQuiverMatrix(4, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1);
-		EquivQuiverMatrix m2 =
-				new EquivQuiverMatrix(4, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1);
+		EquivQuiverMatrix m1 = new EquivQuiverMatrix(4, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1);
+		EquivQuiverMatrix m2 = new EquivQuiverMatrix(4, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1);
 
 		assertEquals("Permuted 4x4 matrices", m1, m2);
 	}
 
 	@Test
 	public void testNotEquivalent() {
-		EquivQuiverMatrix m1 =
-				new EquivQuiverMatrix(4, 1, 0, 0, 0, 0, 2, 0, 0, 0, 0, 3, 0, 0, 0, 0, 4);
-		EquivQuiverMatrix m2 =
-				new EquivQuiverMatrix(4, 5, 0, 0, 1, 0, 2, 0, 0, 0, 0, 3, 0, 0, 0, 0, 4);
+		EquivQuiverMatrix m1 = new EquivQuiverMatrix(4, 1, 0, 0, 0, 0, 2, 0, 0, 0, 0, 3, 0, 0, 0, 0, 4);
+		EquivQuiverMatrix m2 = new EquivQuiverMatrix(4, 5, 0, 0, 1, 0, 2, 0, 0, 0, 0, 3, 0, 0, 0, 0, 4);
 
 		assertFalse("Matrices not equivalent", m1.equals(m2));
 	}
@@ -120,17 +112,17 @@ public class EquivQuiverMatrixTest {
 	@Test
 	public void test5x5() {
 		EquivQuiverMatrix m1 =
-				new EquivQuiverMatrix(5, 0, -1, 0, 0, 0, 1, 0, 0, -1, 1, 0, 0, 0, 1, -1, 0, 1, -1,
-						0, 0, 0, -1, 1, 0, 0);
+				new EquivQuiverMatrix(5, 0, -1, 0, 0, 0, 1, 0, 0, -1, 1, 0, 0, 0, 1, -1, 0, 1, -1, 0, 0, 0,
+						-1, 1, 0, 0);
 		EquivQuiverMatrix m2 =
-				new EquivQuiverMatrix(5, 0, 0, 0, -1, 1, 0, 0, 1, 1, -1, 0, -1, 0, 0, 0, 1, -1, 0,
-						0, 0, -1, 1, 0, 0, 0);
+				new EquivQuiverMatrix(5, 0, 0, 0, -1, 1, 0, 0, 1, 1, -1, 0, -1, 0, 0, 0, 1, -1, 0, 0, 0,
+						-1, 1, 0, 0, 0);
 
 		assertTrue(m1.equals(m2));
 
 		IntMatrix perm =
-				new IntMatrix(5, 5, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-						0, 0, 1, 0);
+				new IntMatrix(5, 5, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1,
+						0);
 		assertEquals(m1.multRight(perm), m2.multLeft(perm));
 	}
 }
