@@ -17,11 +17,24 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> {
 	private final T mInitialMatrix;
 
 	public AbstractMutClassSizeTask(T matrix) {
-		mInitialMatrix = matrix;
+		@SuppressWarnings("unchecked")
+		ObjectPool<T> pool =
+				Pools.getQuiverMatrixPool(matrix.getNumRows(), matrix.getNumCols(),
+						(Class<T>) matrix.getClass());
+		T first;
+		try {
+			first = pool.getObj();
+			first.set(matrix);
+			mInitialMatrix = first;
+		} catch (PoolException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	/**
-	 * Find the number of matrices in the mutation class of the initial matrix. If the matrix is mutation-infinite then -1 is returned.
+	 * Find the number of matrices in the mutation class of the initial matrix. If the matrix is
+	 * mutation-infinite then -1 is returned.
+	 * 
 	 * @return The size of the mutation class, or -1 if infinite
 	 * @throws Exception
 	 */
@@ -36,12 +49,10 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> {
 		initial.setMatrix(mInitialMatrix);
 		matrixSet.put(mInitialMatrix, initial);
 
-		Queue<T> incompleteQuivers = new ArrayDeque<T>((int) Math.pow(2,
-				3 * size - 3));
+		Queue<T> incompleteQuivers = new ArrayDeque<T>((int) Math.pow(2, 3 * size - 3));
 		incompleteQuivers.add(mInitialMatrix);
 
 		ObjectPool<T> quiverPool = getQuiverPool();
-		System.out.println("pool: "+ quiverPool);
 		ObjectPool<LinkHolder<T>> holderPool = getHolderPool(size);
 		try {
 			T mat;
@@ -54,24 +65,28 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> {
 						newMatrix = quiverPool.getObj();
 						newMatrix = mat.mutate(i, newMatrix);
 						if (matrixSeenBefore(newMatrix, matrixSet)) {
-							handleSeenMatrix(matrixSet, mat, newMatrix, i);
-							checkRemoveQuiver(newMatrix, quiverPool, holderPool,
-									matrixSet);
+							try {
+//								log.debug("Matrix seen before {}, index {}, holder:{}", newMatrix,
+//										i, matrixSet.get(newMatrix));
+								handleSeenMatrix(matrixSet, mat, newMatrix, i);
+							} catch (RuntimeException e) {
+								log.error("seen matrix", e);
+							}
+							checkRemoveQuiver(newMatrix, quiverPool, holderPool, matrixSet);
 						} else {
-							if(newMatrix.isInfinite()){
+							if (newMatrix.isInfinite()) {
 								return -1;
 							}
-							handleUnseenMatrix(matrixSet, incompleteQuivers,
-									holderPool, mat, newMatrix, i);
+							log.debug("Adding new matrix: {}, index {}", newMatrix, i);
+							handleUnseenMatrix(matrixSet, incompleteQuivers, holderPool, mat,
+									newMatrix, i);
 						}
 					}
 				}
 				checkRemoveQuiver(mat, quiverPool, holderPool, matrixSet);
 				if (numMatrices % 50000 == 0) {
-					log.debug(
-							"Handled {} matrices, now at {}, with {} in map.",
-							numMatrices, incompleteQuivers.size(),
-							matrixSet.size());
+					log.debug("Handled {} matrices, now at {}, with {} in map.", numMatrices,
+							incompleteQuivers.size(), matrixSet.size());
 				}
 				numMatrices++;
 			} while (!incompleteQuivers.isEmpty());
@@ -83,15 +98,14 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> {
 	}
 
 	protected abstract void handleUnseenMatrix(Map<T, LinkHolder<T>> matrixSet,
-			Queue<T> incompleteQuivers, ObjectPool<LinkHolder<T>> holderPool,
-			T mat, T newMatrix, int i) throws PoolException;
+			Queue<T> incompleteQuivers, ObjectPool<LinkHolder<T>> holderPool, T mat, T newMatrix,
+			int i) throws PoolException;
 
-	protected abstract void handleSeenMatrix(Map<T, LinkHolder<T>> matrixSet, T mat,
-			T newMatrix, int i);
+	protected abstract void handleSeenMatrix(Map<T, LinkHolder<T>> matrixSet, T mat, T newMatrix,
+			int i);
 
 	protected ObjectPool<T> getQuiverPool() {
-		return Pools
-				.getQuiverMatrixPool(getRows(), getCols(), getMatrixClass());
+		return Pools.getQuiverMatrixPool(getRows(), getCols(), getMatrixClass());
 	}
 
 	protected ObjectPool<LinkHolder<T>> getHolderPool(int size) {
@@ -117,19 +131,15 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> {
 
 	protected abstract Map<T, LinkHolder<T>> getMatrixMap(int size);
 
-	protected abstract boolean matrixSeenBefore(T newMatrix,
-			Map<T, LinkHolder<T>> matrixSet);
+	protected abstract boolean matrixSeenBefore(T newMatrix, Map<T, LinkHolder<T>> matrixSet);
 
 	protected abstract void checkRemoveQuiver(T remove, ObjectPool<T> quiverPool,
-			ObjectPool<LinkHolder<T>> holderPool,
-			Map<T, LinkHolder<T>> matrixSet);
+			ObjectPool<LinkHolder<T>> holderPool, Map<T, LinkHolder<T>> matrixSet);
 
 	protected abstract void teardown(ObjectPool<T> quiverPool,
-			ObjectPool<LinkHolder<T>> holderPool,
-			Map<T, LinkHolder<T>> matrixSet);
+			ObjectPool<LinkHolder<T>> holderPool, Map<T, LinkHolder<T>> matrixSet);
 
-	private boolean shouldMutateAt(T matrix, int i,
-			Map<T, LinkHolder<T>> matrixSet) {
+	private boolean shouldMutateAt(T matrix, int i, Map<T, LinkHolder<T>> matrixSet) {
 		LinkHolder<T> holder = matrixSet.get(matrix);
 		return holder != null && !holder.hasLink(i);
 	}

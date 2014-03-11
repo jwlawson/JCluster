@@ -1,69 +1,72 @@
 /**
  * Copyright 2014 John Lawson
  * 
- * EquivMutClassSizeTask.java is part of JCluster.
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * EquivMutClassSizeTask.java is part of JCluster. Licensed under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the License. You may obtain
+ * a copy of the License at
  * 
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package uk.co.jwlawson.jcluster;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
 
 import nf.fr.eraasoft.pool.ObjectPool;
+import nf.fr.eraasoft.pool.PoolException;
 
 /**
  * @author John Lawson
  * 
  */
 public class EquivMutClassSizeTask extends MutClassSizeTask<EquivQuiverMatrix> {
-	
-	private List<EquivQuiverMatrix> mList;
+
+	private final Set<EquivQuiverMatrix> mList;
 
 	public EquivMutClassSizeTask(EquivQuiverMatrix matrix) {
 		super(matrix);
-		mList = new ArrayList<EquivQuiverMatrix>();
+		mList = new HashSet<EquivQuiverMatrix>();
+		mList.add(matrix);
 	}
 
 	public EquivMutClassSizeTask(QuiverMatrix matrix) {
 		this(new EquivQuiverMatrix(matrix));
 	}
-	
+
 	@Override
 	protected boolean matrixSeenBefore(EquivQuiverMatrix newMatrix,
 			Map<EquivQuiverMatrix, LinkHolder<EquivQuiverMatrix>> matrixSet) {
-		boolean result = super.matrixSeenBefore(newMatrix, matrixSet);
+		boolean result = false;
 		result = result || mList.contains(newMatrix);
+		result = result || super.matrixSeenBefore(newMatrix, matrixSet);
 		return result;
 	}
-	
+
 	@Override
 	protected void handleSeenMatrix(
-			Map<EquivQuiverMatrix, LinkHolder<EquivQuiverMatrix>> matrixSet,
-			EquivQuiverMatrix mat, EquivQuiverMatrix newMatrix, int i) {
+			Map<EquivQuiverMatrix, LinkHolder<EquivQuiverMatrix>> matrixSet, EquivQuiverMatrix mat,
+			EquivQuiverMatrix newMatrix, int i) {
+		// System.out.println("Handling seen matrix: " + newMatrix);
 		LinkHolder<EquivQuiverMatrix> newHolder = matrixSet.get(newMatrix);
-		if(newHolder == null){
+		LinkHolder<EquivQuiverMatrix> oldHolder = matrixSet.get(mat);
+		oldHolder.setLinkAt(i);
+		if (newHolder == null) {
 			// Matrix seen before, but no longer in map as all links mutated
 			return;
 		}
-		if(QuiverMatrix.areEqual(newMatrix, newHolder.getQuiverMatrix())){
+		if (IntMatrix.areEqual(newMatrix, newHolder.getQuiverMatrix())) {
 			// Matrices are equal, not just equivalent so update the stored matrix link
-			LinkHolder<EquivQuiverMatrix> oldHolder = matrixSet.get(mat);
-			oldHolder.setLinkAt(i);
+			newHolder.setLinkAt(i);
 		}
-		newHolder.setLinkAt(i);
 	}
-	
+
 	@Override
 	protected void checkRemoveQuiver(EquivQuiverMatrix remove,
 			ObjectPool<EquivQuiverMatrix> quiverPool,
@@ -77,14 +80,24 @@ public class EquivMutClassSizeTask extends MutClassSizeTask<EquivQuiverMatrix> {
 			if (key == remove) {
 				removeQ = false;
 			}
-			mList.add(key);
 			holderPool.returnObj(holder);
 		}
-		if(removeQ){
-		quiverPool.returnObj(remove);
+		if (removeQ) {
+			quiverPool.returnObj(remove);
 		}
 	}
-	
+
+	@Override
+	protected void handleUnseenMatrix(
+			Map<EquivQuiverMatrix, LinkHolder<EquivQuiverMatrix>> matrixSet,
+			Queue<EquivQuiverMatrix> incompleteQuivers,
+			ObjectPool<LinkHolder<EquivQuiverMatrix>> holderPool, EquivQuiverMatrix mat,
+			EquivQuiverMatrix newMatrix, int i) throws PoolException {
+		mList.add(newMatrix);
+		super.handleUnseenMatrix(matrixSet, incompleteQuivers, holderPool, mat, newMatrix, i);
+	}
+
+
 	@Override
 	protected void removeFromMap(EquivQuiverMatrix remove,
 			ObjectPool<EquivQuiverMatrix> quiverPool,
@@ -97,16 +110,16 @@ public class EquivMutClassSizeTask extends MutClassSizeTask<EquivQuiverMatrix> {
 			// So remove.equals(key), but they are not the same object
 			mList.add(key);
 		} else {
-			throw new RuntimeException("It did a oops");
+			throw new RuntimeException("Error with algorithm in EquivMutCLassSizeTask");
 		}
 		holderPool.returnObj(holder);
 	}
-	
+
 	@Override
 	protected void teardown(ObjectPool<EquivQuiverMatrix> quiverPool,
 			ObjectPool<LinkHolder<EquivQuiverMatrix>> holderPool,
 			Map<EquivQuiverMatrix, LinkHolder<EquivQuiverMatrix>> matrixSet) {
-		for(EquivQuiverMatrix m : mList){
+		for (EquivQuiverMatrix m : mList) {
 			quiverPool.returnObj(m);
 		}
 		mList.clear();

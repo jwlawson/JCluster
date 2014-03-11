@@ -1,23 +1,31 @@
 /**
  * Copyright 2014 John Lawson
  * 
- * EquivQuiverMatrix.java is part of JCluster.
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * EquivQuiverMatrix.java is part of JCluster. Licensed under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  * 
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package uk.co.jwlawson.jcluster;
 
-import java.util.HashMap;
-import java.util.Map;
+import nf.fr.eraasoft.pool.ObjectPool;
+import nf.fr.eraasoft.pool.PoolException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.google.common.cache.RemovalListener;
+import com.google.common.cache.RemovalNotification;
+import com.google.common.cache.Weigher;
 
 /**
  * @author John Lawson
@@ -25,7 +33,8 @@ import java.util.Map;
  */
 public class EquivQuiverMatrix extends QuiverMatrix {
 
-	private EquivalenceChecker mChecker;
+	private final Logger log = LoggerFactory.getLogger(getClass());
+	private final EquivalenceChecker mChecker;
 	private int mHashcode;
 
 	public EquivQuiverMatrix(int rows, int cols) {
@@ -49,17 +58,20 @@ public class EquivQuiverMatrix extends QuiverMatrix {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj == null) return false;
-		if (this == obj) return true;
-		if (getClass() != obj.getClass()) return false;
+		if (obj == null)
+			return false;
+		if (this == obj)
+			return true;
+		if (getClass() != obj.getClass())
+			return false;
 
 		EquivQuiverMatrix rhs = (EquivQuiverMatrix) obj;
 		return mChecker.areEquivalent(this, rhs);
 	}
 
 	/*
-	 * Because the hashcode must be the same for each matrix with permuted rows,
-	 * this method will likely create lots of hash collisions.
+	 * Because the hashcode must be the same for each matrix with permuted rows, this method will
+	 * likely create lots of hash collisions.
 	 * 
 	 * (non-Javadoc)
 	 * 
@@ -81,75 +93,100 @@ public class EquivQuiverMatrix extends QuiverMatrix {
 
 	public static class EquivalenceChecker {
 
-		private static Map<Integer, EquivalenceChecker> mInstanceMap = new HashMap<Integer, EquivalenceChecker>();
+		private final Logger log = LoggerFactory.getLogger(getClass());
+		private final int[] NO_PERMUTATION = new int[0];
+
+		private static LoadingCache<Integer, EquivalenceChecker> sInstanceCache = CacheBuilder
+				.newBuilder().maximumWeight(10000)
+				.weigher(new Weigher<Integer, EquivalenceChecker>() {
+
+					public int weigh(Integer key, EquivalenceChecker value) {
+						return value.mPermMatrices.length * value.mPermMatrices[0].getNumRows();
+					}
+				}).build(new CacheLoader<Integer, EquivalenceChecker>() {
+
+					@Override
+					public EquivalenceChecker load(Integer key) throws Exception {
+						return new EquivalenceChecker(key);
+					}
+
+				});
+
+		private final LoadingCache<IntMatrixPair, Boolean> mPermCache = CacheBuilder.newBuilder()
+				.maximumSize(500000).removalListener(new RemovalListener<IntMatrixPair, Boolean>() {
+
+					public void onRemoval(RemovalNotification<IntMatrixPair, Boolean> notification) {
+						if (notification.wasEvicted()) {
+							mPairPool.returnObj(notification.getKey());
+						}
+					}
+				}).build(new CacheLoader<IntMatrixPair, Boolean>() {
+
+					@Override
+					public Boolean load(IntMatrixPair key) throws Exception {
+						return areUncachedEquivalent(key.a, key.b);
+					}
+
+				});
 
 		private IntMatrix[] mPermMatrices;
-		private IntMatrix mMatrixPA;
-		private IntMatrix mMatrixBP;
+		private final IntMatrix mMatrixPA;
+		private final IntMatrix mMatrixBP;
+		private final ObjectPool<IntMatrixPair> mPairPool;
 
-		public static synchronized EquivalenceChecker getInstance(int size) {
-			EquivalenceChecker result = mInstanceMap.get(size);
-			if (result == null) {
-				result = new EquivalenceChecker(size);
-				mInstanceMap.put(size, result);
-			}
-			return result;
+		public static EquivalenceChecker getInstance(int size) {
+			return sInstanceCache.getUnchecked(size);
 		}
 
 		/**
-		 * Class to test whether matrices are equivalent up to permutation of
-		 * their rows and columns. Constructor creates all permutation matrices
-		 * of the required size, so should not be instantiated many times but
-		 * rather cached.
+		 * Class to test whether matrices are equivalent up to permutation of their rows and
+		 * columns. Constructor creates all permutation matrices of the required size, so should not
+		 * be instantiated many times but rather cached.
 		 * 
-		 * @param size The size of the matrices which will be checked for
-		 *            equivalence
+		 * @param size The size of the matrices which will be checked for equivalence
 		 */
 		private EquivalenceChecker(int size) {
 			setPermutations(size);
 
 			mMatrixPA = new IntMatrix(size, size);
 			mMatrixBP = new IntMatrix(size, size);
+			mPairPool = Pools.getIntMatrixPairPool();
 		}
 
 		private void setPermutations(int size) {
 			int fac = factorial(size);
 			mPermMatrices = new IntMatrix[fac];
-			for (int i = 0; i < fac; i++) {
-				int[] vals = getPermutationValues(size, i);
-				mPermMatrices[i] = new IntMatrix(size, size);
-				for (int j = 0; j < size; j++) {
-					mPermMatrices[i].set(j, vals[j], 1);
+			int count = 0;
+			for (int i = 0; i < Math.pow(size, size); i++) {
+				int[] vals = getPermValues(size, i);
+				if (vals == NO_PERMUTATION) {
+					continue;
 				}
+				mPermMatrices[count] = new IntMatrix(size, size);
+				for (int j = 0; j < size; j++) {
+					mPermMatrices[count].set(j, vals[j], 1);
+				}
+				log.debug("" + mPermMatrices[count]);
+				count++;
+			}
+			if (count != fac) {
+				throw new RuntimeException("Wrong number of permutations");
 			}
 		}
 
-		private int[] getPermutationValues(int size, int i) {
-			int[] vals = new int[size];
+		private int[] getPermValues(int size, int i) {
+			int[] result = new int[size];
 			int id = i;
 			for (int j = 0; j < size; j++) {
-				vals[j] = id % (size - j);
-				// Want to prevent having 1 twice in a column, so shift
-				// the value across dependent on the previous values.
+				result[j] = id % (size);
 				for (int k = 0; k < j; k++) {
-					if (vals[j] >= vals[k]) {
-						vals[j]++;
+					if (result[j] == result[k]) {
+						return NO_PERMUTATION;
 					}
 				}
-				// Ensure there are no clashes
-				boolean shifted = false;
-				do {
-					shifted = false;
-					for (int k = 0; k < j; k++) {
-						if (vals[j] == vals[k]) {
-							vals[j]++;
-							shifted = true;
-						}
-					}
-				} while (shifted);
-				id = id / (size - j);
+				id /= size;
 			}
-			return vals;
+			return result;
 		}
 
 		private int factorial(int num) {
@@ -159,29 +196,39 @@ public class EquivQuiverMatrix extends QuiverMatrix {
 			return num * factorial(num - 1);
 		}
 
-		/**
-		 * Check whether two matrices are equivalent up to permutations of the
-		 * rows and columns.
-		 * 
-		 * @param a The first matrix
-		 * @param b The second matrix
-		 * @return Whether the two are equivalent
-		 */
-		public boolean areEquivalent(IntMatrix a, IntMatrix b) {
+		private Boolean areUncachedEquivalent(IntMatrix a, IntMatrix b) {
 			for (IntMatrix p : mPermMatrices) {
 				// Check if PA == BP
 				// or PAP^(-1) == B
 				synchronized (this) {
 					a.multLeft(p, mMatrixPA);
 					b.multRight(p, mMatrixBP);
-					if (mMatrixBP.equals(mMatrixPA)) {
+					if (IntMatrix.areEqual(mMatrixBP, mMatrixPA)) {
 						return true;
-				}
+					}
 				}
 			}
 			return false;
 		}
 
+		/**
+		 * Check whether two matrices are equivalent up to permutations of the rows and columns.
+		 * 
+		 * @param a The first matrix
+		 * @param b The second matrix
+		 * @return Whether the two are equivalent
+		 */
+		public boolean areEquivalent(IntMatrix a, IntMatrix b) {
+			IntMatrixPair pair;
+			try {
+				pair = mPairPool.getObj();
+			} catch (PoolException e) {
+				log.error("Error getting IntMatrixPair instance", e);
+				pair = new IntMatrixPair();
+			}
+			pair.set(a, b);
+			return mPermCache.getUnchecked(pair);
+//			return areUncachedEquivalent(a, b);
+		}
 	}
-
 }
