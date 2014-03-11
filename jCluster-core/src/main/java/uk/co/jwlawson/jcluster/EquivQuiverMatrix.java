@@ -14,6 +14,8 @@
  */
 package uk.co.jwlawson.jcluster;
 
+import java.util.Arrays;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,14 +49,25 @@ public class EquivQuiverMatrix extends QuiverMatrix {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (obj == null)
-			return false;
-		if (this == obj)
-			return true;
-		if (getClass() != obj.getClass())
-			return false;
+	public void reset() {
+		mHashcode = 0;
+		super.reset();
+	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
+		if (this == obj) {
+			return true;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		if (hashCode() != obj.hashCode()) {
+			return false;
+		}
 		EquivQuiverMatrix rhs = (EquivQuiverMatrix) obj;
 		return mChecker.areEquivalent(this, rhs);
 	}
@@ -72,11 +85,19 @@ public class EquivQuiverMatrix extends QuiverMatrix {
 		int hash = mHashcode;
 		if (hash == 0) {
 			hash = 137;
+			int[] rowSum = new int[getNumRows()];
+			int[] colSum = new int[getNumCols()];
 			for (int i = 0; i < getNumRows(); i++) {
 				for (int j = 0; j < getNumCols(); j++) {
-					hash += Math.abs(unsafeGet(i, j));
+					rowSum[i] += unsafeGet(i, j);
+					colSum[j] += unsafeGet(i, j);
 				}
 			}
+			Arrays.sort(rowSum);
+			Arrays.sort(colSum);
+			hash += 57 * Arrays.hashCode(rowSum);
+			hash += 73 * Arrays.hashCode(colSum);
+			mHashcode = hash;
 		}
 		return mHashcode;
 	}
