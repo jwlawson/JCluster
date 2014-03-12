@@ -36,7 +36,6 @@ public class MutClassSizeTask<T extends QuiverMatrix> extends AbstractMutClassSi
 	@Override
 	protected void handleUnseenMatrix(Map<T, LinkHolder<T>> matrixSet, Queue<T> incompleteQuivers,
 			ObjectPool<LinkHolder<T>> holderPool, T mat, T newMatrix, int i) throws PoolException {
-		// System.out.println("unseen matrix added: " + newMatrix);
 		incompleteQuivers.add(newMatrix);
 		LinkHolder<T> newHolder = holderPool.getObj();
 		newHolder.setMatrix(newMatrix);
@@ -75,8 +74,7 @@ public class MutClassSizeTask<T extends QuiverMatrix> extends AbstractMutClassSi
 	}
 
 	protected void removeFromMap(T remove, ObjectPool<T> quiverPool,
-			ObjectPool<LinkHolder<T>> holderPool, Map<T, LinkHolder<T>> mMatrixSet,
-			LinkHolder<T> holder) {
+			ObjectPool<LinkHolder<T>> holderPool, Map<T, LinkHolder<T>> mMatrixSet, LinkHolder<T> holder) {
 		T key = holder.getQuiverMatrix();
 		holder = mMatrixSet.remove(remove);
 		if (key != remove) {

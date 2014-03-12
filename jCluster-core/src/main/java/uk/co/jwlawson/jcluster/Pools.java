@@ -48,7 +48,7 @@ public class Pools {
 		if (sQuiverPoolMap.containsKey(key)) {
 			return (ObjectPool<T>) sQuiverPoolMap.get(key);
 		} else {
-			logger.info("Creating new pool {}x{}", rows, cols);
+			logger.info("Creating new {} pool {}x{}", clazz.getSimpleName(), rows, cols);
 			PoolSettings<T> settings =
 					new PoolSettings<T>(new QuiverMatrixPoolableObject<T>(rows, cols, clazz));
 			settings.max(-1);
@@ -98,7 +98,7 @@ public class Pools {
 	}
 
 	/**
-	 * QuiverPool should not be instantiated itself. Just use the getInstance method to get the
+	 * Pools should not be instantiated itself. Just use the getInstance method to get the required
 	 * ObjectPool.
 	 */
 	private Pools() {}

@@ -50,10 +50,8 @@ public class EquivMutClassSizeTask extends MutClassSizeTask<EquivQuiverMatrix> {
 	}
 
 	@Override
-	protected void handleSeenMatrix(
-			Map<EquivQuiverMatrix, LinkHolder<EquivQuiverMatrix>> matrixSet, EquivQuiverMatrix mat,
-			EquivQuiverMatrix newMatrix, int i) {
-		// System.out.println("Handling seen matrix: " + newMatrix);
+	protected void handleSeenMatrix(Map<EquivQuiverMatrix, LinkHolder<EquivQuiverMatrix>> matrixSet,
+			EquivQuiverMatrix mat, EquivQuiverMatrix newMatrix, int i) {
 		LinkHolder<EquivQuiverMatrix> newHolder = matrixSet.get(newMatrix);
 		LinkHolder<EquivQuiverMatrix> oldHolder = matrixSet.get(mat);
 		oldHolder.setLinkAt(i);
@@ -95,24 +93,6 @@ public class EquivMutClassSizeTask extends MutClassSizeTask<EquivQuiverMatrix> {
 			EquivQuiverMatrix newMatrix, int i) throws PoolException {
 		mList.add(newMatrix);
 		super.handleUnseenMatrix(matrixSet, incompleteQuivers, holderPool, mat, newMatrix, i);
-	}
-
-
-	@Override
-	protected void removeFromMap(EquivQuiverMatrix remove,
-			ObjectPool<EquivQuiverMatrix> quiverPool,
-			ObjectPool<LinkHolder<EquivQuiverMatrix>> holderPool,
-			Map<EquivQuiverMatrix, LinkHolder<EquivQuiverMatrix>> mMatrixSet,
-			LinkHolder<EquivQuiverMatrix> holder) {
-		EquivQuiverMatrix key = holder.getQuiverMatrix();
-		holder = mMatrixSet.remove(remove);
-		if (key != remove) {
-			// So remove.equals(key), but they are not the same object
-			mList.add(key);
-		} else {
-			throw new RuntimeException("Error with algorithm in EquivMutCLassSizeTask");
-		}
-		holderPool.returnObj(holder);
 	}
 
 	@Override
