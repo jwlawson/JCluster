@@ -1,5 +1,20 @@
+/**
+ * Copyright 2014 John Lawson
+ * 
+ * AbstractMutClassSizeTask.java is part of JCluster. Licensed under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the License. You may obtain
+ * a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
 package uk.co.jwlawson.jcluster;
 
+import java.lang.reflect.Type;
 import java.util.ArrayDeque;
 import java.util.Map;
 import java.util.Queue;
@@ -65,13 +80,7 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> {
 						newMatrix = quiverPool.getObj();
 						newMatrix = mat.mutate(i, newMatrix);
 						if (matrixSeenBefore(newMatrix, matrixSet)) {
-							try {
-//								log.debug("Matrix seen before {}, index {}, holder:{}", newMatrix,
-//										i, matrixSet.get(newMatrix));
-								handleSeenMatrix(matrixSet, mat, newMatrix, i);
-							} catch (RuntimeException e) {
-								log.error("seen matrix", e);
-							}
+							handleSeenMatrix(matrixSet, mat, newMatrix, i);
 							checkRemoveQuiver(newMatrix, quiverPool, holderPool, matrixSet);
 						} else {
 							if (newMatrix.isInfinite()) {
@@ -97,25 +106,70 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> {
 		}
 	}
 
+	/**
+	 * Handle matrix not yet seen before in the mutation process.
+	 * 
+	 * @param matrixSet {@link Map} containing the matrices and which mutations from them have been
+	 *        considered
+	 * @param incompleteQuivers {@link Queue} containing quivers not yet handled
+	 * @param holderPool {@link ObjectPool} providing {@link LinkHolder} objects
+	 * @param mat Matrix mutated to get the unseen matrix
+	 * @param newMatrix Unseen matrix
+	 * @param i Index mutated at to get unseen matrix
+	 * @throws PoolException Thrown if there is some problem taking objects from the
+	 *         {@link LinkHolder} pool
+	 */
 	protected abstract void handleUnseenMatrix(Map<T, LinkHolder<T>> matrixSet,
 			Queue<T> incompleteQuivers, ObjectPool<LinkHolder<T>> holderPool, T mat, T newMatrix,
 			int i) throws PoolException;
 
+	/**
+	 * Handle a matrix which has been seen before in the mutation process.
+	 * 
+	 * @param matrixSet {@link Map} containing the matrices and which mutations from them have been
+	 *        considered
+	 * @param mat Matrix mutated to get the seen before matrix
+	 * @param newMatrix Matrix which has been seen before
+	 * @param i Index mutated at to get to newMatrix
+	 */
 	protected abstract void handleSeenMatrix(Map<T, LinkHolder<T>> matrixSet, T mat, T newMatrix,
 			int i);
 
+	/**
+	 * Get the {@link ObjectPool} which provides {@link QuiverMatrix} objects of type T.
+	 * 
+	 * @return Pool of quiver objects
+	 */
 	protected ObjectPool<T> getQuiverPool() {
 		return Pools.getQuiverMatrixPool(getRows(), getCols(), getMatrixClass());
 	}
 
+	/**
+	 * Get the {@link ObjectPool} which provides {@link LinkHolder} objects which expect matrices of
+	 * Type T.
+	 * 
+	 * @param size Number of links in each {@link LinkHolder}
+	 * @return Pool of {@link LinkHolder} objects
+	 */
 	protected ObjectPool<LinkHolder<T>> getHolderPool(int size) {
 		return Pools.getHolderPool(size, getMatrixClass());
 	}
 
+	/**
+	 * Convenience method to get the number of unfrozen vertices in the quiver.
+	 * 
+	 * @param matrix Matrix to get the size of
+	 * @return Number of unfrozen vertices in the quiver
+	 */
 	private int getSize(QuiverMatrix matrix) {
 		return Math.min(matrix.getNumRows(), matrix.getNumCols());
 	}
 
+	/**
+	 * Get the {@link Type} of {@link QuiverMatrix} which is being used.
+	 * 
+	 * @return the {@link Type} of {@link QuiverMatrix}
+	 */
 	@SuppressWarnings("unchecked")
 	protected Class<T> getMatrixClass() {
 		return (Class<T>) mInitialMatrix.getClass();
@@ -129,16 +183,56 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> {
 		return mInitialMatrix.getNumCols();
 	}
 
+	/**
+	 * Get the {@link Map} which holds the {@link QuiverMatrix} objects which have been seen before
+	 * and the {@link LinkHolder} associated to them.
+	 * 
+	 * @param size Size of the matrices which will be stored in the map
+	 * @return Map between matrices and link holders
+	 */
 	protected abstract Map<T, LinkHolder<T>> getMatrixMap(int size);
 
+	/**
+	 * Check whether the matrix has been seen before in the mutation process.
+	 * 
+	 * @param newMatrix Matrix to check
+	 * @param matrixSet Map containing the seen matrices which are currently incomplete
+	 * @return true if the matrix has been seen before
+	 */
 	protected abstract boolean matrixSeenBefore(T newMatrix, Map<T, LinkHolder<T>> matrixSet);
 
+	/**
+	 * Check whether the matrix should be removed from the map. If so it is removed and returned to
+	 * the pools.
+	 * 
+	 * @param remove Matrix to check
+	 * @param quiverPool Pool to return the quiver to
+	 * @param holderPool Pool to return the link holder to
+	 * @param matrixSet Map to remove the quiver from
+	 */
 	protected abstract void checkRemoveQuiver(T remove, ObjectPool<T> quiverPool,
 			ObjectPool<LinkHolder<T>> holderPool, Map<T, LinkHolder<T>> matrixSet);
 
+	/**
+	 * Called after the calculation is complete. Can be used to clean up and return objects to their
+	 * pools.
+	 * 
+	 * @param quiverPool Pool of quiver objects
+	 * @param holderPool Pool of link holder objects
+	 * @param matrixSet Map containing quivers and holders
+	 */
 	protected abstract void teardown(ObjectPool<T> quiverPool,
 			ObjectPool<LinkHolder<T>> holderPool, Map<T, LinkHolder<T>> matrixSet);
 
+	/**
+	 * Check whether we need to mutate the vertex at the specified index, or whether that mutation
+	 * has already been considered.
+	 * 
+	 * @param matrix Matrix to check
+	 * @param i Index to mutate at
+	 * @param matrixSet Map containing {@link LinkHolder} objects
+	 * @return true if should mutate at the index
+	 */
 	private boolean shouldMutateAt(T matrix, int i, Map<T, LinkHolder<T>> matrixSet) {
 		LinkHolder<T> holder = matrixSet.get(matrix);
 		return holder != null && !holder.hasLink(i);

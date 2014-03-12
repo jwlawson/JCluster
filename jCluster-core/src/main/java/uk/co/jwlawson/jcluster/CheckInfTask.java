@@ -1,18 +1,16 @@
 /**
  * Copyright 2014 John Lawson
  * 
- * CheckInfTask.java is part of JCluster.
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * CheckInfTask.java is part of JCluster. Licensed under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  * 
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package uk.co.jwlawson.jcluster;
 
@@ -24,6 +22,9 @@ import java.util.concurrent.ThreadLocalRandom;
 import nf.fr.eraasoft.pool.ObjectPool;
 
 /**
+ * Checks whether the initial matrix is infinite. This can prove that the matrix is infinite, but
+ * cannot prove it is finite, rather that it is probably finite.
+ * 
  * @author John Lawson
  * 
  */
@@ -31,13 +32,13 @@ public class CheckInfTask implements Callable<QuiverMatrix> {
 
 	private static final int MAX_NUMBER_MUTATIONS = 3000;
 
-	private QuiverMatrix mMatrix;
-	private QuiverMatrix[] mMutated;
+	private final QuiverMatrix mMatrix;
+	private final QuiverMatrix[] mMutated;
 	private int mLastMutation;
 	private int mCounter;
 	private int mRand;
-	private ObjectPool<QuiverMatrix> mMatrixPool;
-	private List<CheckInfListener> mListeners;
+	private final ObjectPool<QuiverMatrix> mMatrixPool;
+	private final List<CheckInfListener> mListeners;
 
 	public CheckInfTask(QuiverMatrix matrix, ObjectPool<QuiverMatrix> pool) {
 		mMatrix = matrix;
@@ -54,8 +55,7 @@ public class CheckInfTask implements Callable<QuiverMatrix> {
 	}
 
 	/**
-	 * Check whether the quiver matrix is mutation infinite. Return the matrix
-	 * if it is.
+	 * Check whether the quiver matrix is mutation infinite. Return the matrix if it is.
 	 */
 	public QuiverMatrix call() throws Exception {
 		try {
@@ -70,8 +70,7 @@ public class CheckInfTask implements Callable<QuiverMatrix> {
 			}
 			while (mCounter < MAX_NUMBER_MUTATIONS) {
 				do {
-					mRand = ThreadLocalRandom.current().nextInt(0,
-							mMatrix.getNumRows());
+					mRand = ThreadLocalRandom.current().nextInt(0, mMatrix.getNumRows());
 				} while (mRand == mLastMutation);
 
 				/* Alternate between mutating the two matrices in the array. */

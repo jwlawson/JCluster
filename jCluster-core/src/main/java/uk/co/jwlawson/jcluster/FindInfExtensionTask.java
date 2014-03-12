@@ -1,18 +1,16 @@
 /**
  * Copyright 2014 John Lawson
  * 
- * FindInfExtensionTask.java is part of JCluster.
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * FindInfExtensionTask.java is part of JCluster. Licensed under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the License. You may obtain
+ * a copy of the License at
  * 
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package uk.co.jwlawson.jcluster;
 
@@ -30,6 +28,8 @@ import org.slf4j.LoggerFactory;
 import uk.co.jwlawson.jcluster.CheckInfTask.CheckInfListener;
 
 /**
+ * Task to find all mutation-infinite quivers achieved by adding vertices to the initial quiver.
+ * 
  * @author John Lawson
  * 
  */
@@ -37,14 +37,13 @@ public class FindInfExtensionTask implements Callable<Set<QuiverMatrix>> {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private QuiverMatrix mInitialMatrix;
-	private QuiverMatrix mEnlargedMatrix;
-	private ExecutorService mExecutor;
+	private final QuiverMatrix mInitialMatrix;
+	private final QuiverMatrix mEnlargedMatrix;
+	private final ExecutorService mExecutor;
 
 	public FindInfExtensionTask(QuiverMatrix initial, ExecutorService executor) {
 		if (initial.getNumCols() != initial.getNumRows()) {
-			throw new IllegalArgumentException(
-					"Task assumes that the matrix is square");
+			throw new IllegalArgumentException("Task assumes that the matrix is square");
 		}
 		mInitialMatrix = initial;
 		mEnlargedMatrix = initial.enlargeMatrix(1, 1);
@@ -53,26 +52,24 @@ public class FindInfExtensionTask implements Callable<Set<QuiverMatrix>> {
 
 	public Set<QuiverMatrix> call() throws Exception {
 		int size = mInitialMatrix.getNumRows();
-		ExecutorCompletionService<QuiverMatrix> pool = new ExecutorCompletionService<QuiverMatrix>(
-				mExecutor);
-		final ObjectPool<QuiverMatrix> matrixPool = Pools.getQuiverMatrixPool(
-				mEnlargedMatrix.getNumRows(), mEnlargedMatrix.getNumCols(),
-				QuiverMatrix.class);
+		ExecutorCompletionService<QuiverMatrix> pool =
+				new ExecutorCompletionService<QuiverMatrix>(mExecutor);
+		final ObjectPool<QuiverMatrix> matrixPool =
+				Pools.getQuiverMatrixPool(mEnlargedMatrix.getNumRows(),
+						mEnlargedMatrix.getNumCols(), QuiverMatrix.class);
 
 		for (int num = 0; num < Math.pow(5, size); num++) {
 			CheckInfTask task = getEnlargedCheckInfTask(size, matrixPool, num);
 			pool.submit(task);
 			if (num % 100000 == 0) {
-				log.debug("{} CheckInfTasksSubmitted out of {}", num,
-						Math.pow(5, size));
+				log.debug("{} CheckInfTasksSubmitted out of {}", num, Math.pow(5, size));
 			}
 		}
 		log.info("All extensions queued up");
 		Set<QuiverMatrix> infiniteMatrices = new HashSet<QuiverMatrix>();
 		for (int num = 0; num < Math.pow(5, size); num++) {
 			if (num % 100000 == 0) {
-				log.debug("{} Infinite matrices found out of {}", num,
-						Math.pow(5, size));
+				log.debug("{} Infinite matrices found out of {}", num, Math.pow(5, size));
 			}
 			QuiverMatrix res = pool.take().get();
 			if (res != null) {
@@ -84,11 +81,11 @@ public class FindInfExtensionTask implements Callable<Set<QuiverMatrix>> {
 	}
 
 	private CheckInfTask getEnlargedCheckInfTask(int size,
-			final ObjectPool<QuiverMatrix> matrixPool, int num)
-			throws Exception {
+			final ObjectPool<QuiverMatrix> matrixPool, int num) throws Exception {
 		QuiverMatrix matrix = addVertexToMatrix(size, matrixPool, num);
-		CheckInfTask task = new CheckInfTask(matrix, Pools.getQuiverMatrixPool(
-				matrix.getNumRows(), matrix.getNumCols(), QuiverMatrix.class));
+		CheckInfTask task =
+				new CheckInfTask(matrix, Pools.getQuiverMatrixPool(matrix.getNumRows(),
+						matrix.getNumCols(), QuiverMatrix.class));
 		task.addListener(new CheckInfListener() {
 			public void matrixChecked(QuiverMatrix matrix) {
 				try {
@@ -101,9 +98,8 @@ public class FindInfExtensionTask implements Callable<Set<QuiverMatrix>> {
 		return task;
 	}
 
-	private QuiverMatrix addVertexToMatrix(int size,
-			final ObjectPool<QuiverMatrix> matrixPool, int num)
-			throws Exception {
+	private QuiverMatrix addVertexToMatrix(int size, final ObjectPool<QuiverMatrix> matrixPool,
+			int num) throws Exception {
 		QuiverMatrix matrix = matrixPool.getObj();
 		matrix.set(mEnlargedMatrix);
 		log.debug("Enlarged matrix: {} copied to {}", mEnlargedMatrix, matrix);

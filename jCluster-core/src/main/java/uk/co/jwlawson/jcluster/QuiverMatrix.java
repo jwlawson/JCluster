@@ -1,18 +1,16 @@
 /**
  * Copyright 2014 John Lawson
  * 
- * QuiverMatrix.java is part of JCluster.
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * QuiverMatrix.java is part of JCluster. Licensed under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  * 
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package uk.co.jwlawson.jcluster;
 
@@ -31,8 +29,8 @@ public class QuiverMatrix extends IntMatrix {
 	}
 
 	/**
-	 * Create a new QuiverMatrix with set number of rows and columns but no
-	 * data. The matrix will by default be filled with zeros.
+	 * Create a new QuiverMatrix with set number of rows and columns but no data. The matrix will by
+	 * default be filled with zeros.
 	 * 
 	 * @param rows Number of rows
 	 * @param cols Number of columns
@@ -42,9 +40,8 @@ public class QuiverMatrix extends IntMatrix {
 	}
 
 	/**
-	 * Create a new QuiverMatrix with set number of rows and columns. The
-	 * provided array must have the correct number of entries and be in
-	 * row-major form.
+	 * Create a new QuiverMatrix with set number of rows and columns. The provided array must have
+	 * the correct number of entries and be in row-major form.
 	 * 
 	 * That is {@code row 1},{row 2}, ... } }.
 	 * 
@@ -61,8 +58,8 @@ public class QuiverMatrix extends IntMatrix {
 	}
 
 	/**
-	 * Mutates the matrix at the k-th entry and returns the new mutated matrix.
-	 * This does not change the initial matrix.
+	 * Mutates the matrix at the k-th entry and returns the new mutated matrix. This does not change
+	 * the initial matrix.
 	 * 
 	 * Remember that the indexing starts at 0.
 	 * 
@@ -70,19 +67,17 @@ public class QuiverMatrix extends IntMatrix {
 	 * @return New mutated matrix.
 	 */
 	public QuiverMatrix mutate(int k) {
-		return mutate(k,
-				new QuiverMatrix(this.getNumRows(), this.getNumCols()));
+		return mutate(k, new QuiverMatrix(this.getNumRows(), this.getNumCols()));
 	}
 
 	/**
-	 * Mutates the matrix at the k-th entry and returns the new mutated matrix.
-	 * This does not change the initial matrix.
+	 * Mutates the matrix at the k-th entry and returns the new mutated matrix. This does not change
+	 * the initial matrix.
 	 * 
 	 * Remember that the indexing starts at 0.
 	 * 
 	 * @param k Index to mutate on.
-	 * @param result The matrix to insert the new matrix. Ensure it is the right
-	 *            size.
+	 * @param result The matrix to insert the new matrix. Ensure it is the right size.
 	 * @return New mutated matrix.
 	 */
 	public <T extends QuiverMatrix> T mutate(int k, T result) {
@@ -94,29 +89,27 @@ public class QuiverMatrix extends IntMatrix {
 		int cols = getNumCols();
 		if (k < 0 || k > Math.min(rows, cols)) {
 			throw new IllegalArgumentException(
-					"Index needs to be within the unfrozen vaules of the matrix. Expected: "
-							+ 0 + " to " + Math.min(rows, cols) + " Actual: "
-							+ k);
+					"Index needs to be within the unfrozen vaules of the matrix. Expected: " + 0
+							+ " to " + Math.min(rows, cols) + " Actual: " + k);
 		}
 		if (rows != result.getNumRows() || cols != result.getNumCols()) {
-			throw new IllegalArgumentException(
-					"Incorrectly sized matrix passed. Expected: " + rows
-							+ " x " + cols + ". Actual: " + result.getNumRows()
-							+ " x " + result.getNumCols());
+			throw new IllegalArgumentException("Incorrectly sized matrix passed. Expected: " + rows
+					+ " x " + cols + ". Actual: " + result.getNumRows() + " x "
+					+ result.getNumCols());
 		}
 		unsafeMutate(k, result, rows, cols);
 		return result;
 	}
 
 	/**
-	 * Mutates this matrix at the k-th entry and put the result into the
-	 * provided matrix. No bound checks or size checks are performed.
+	 * Mutates this matrix at the k-th entry and put the result into the provided matrix. No bound
+	 * checks or size checks are performed.
 	 * 
 	 * Remember that the indexing starts at 0.
 	 * 
 	 * @param k Index to mutate on.
-	 * @param result The matrix to insert the new matrix. Ensure it is the right
-	 *            size as no checks are done.
+	 * @param result The matrix to insert the new matrix. Ensure it is the right size as no checks
+	 *        are done.
 	 * @return New mutated matrix.
 	 */
 	private <S extends QuiverMatrix> void unsafeMutate(int k, S result, int rows, int cols) {
@@ -126,14 +119,14 @@ public class QuiverMatrix extends IntMatrix {
 				if (i == k || j == k) {
 					a = -1 * unsafeGet(i, j);
 				} else {
-					a = unsafeGet(i, j)
-							+ (Math.abs(unsafeGet(i, k)) * unsafeGet(k, j) + unsafeGet(
-									i, k) * Math.abs(unsafeGet(k, j))) / 2;
+					a =
+							unsafeGet(i, j)
+									+ (Math.abs(unsafeGet(i, k)) * unsafeGet(k, j) + unsafeGet(i, k)
+											* Math.abs(unsafeGet(k, j))) / 2;
 				}
 				result.unsafeSet(i, j, a);
 			}
 		}
-		result.removeNegZero();
 	}
 
 	/**
@@ -170,6 +163,12 @@ public class QuiverMatrix extends IntMatrix {
 		return new QuiverMatrix(copyMatrix());
 	}
 
+	/**
+	 * Check if the QuiverMatrix is mutation-infinite. This only checks the current matrix, not any
+	 * others in the mutation class.
+	 * 
+	 * @return true if this is mutation-infinite in its current form
+	 */
 	public boolean isInfinite() {
 		for (int i = 0; i < getNumRows(); i++) {
 			for (int j = 0; j < getNumCols(); j++) {
@@ -184,12 +183,14 @@ public class QuiverMatrix extends IntMatrix {
 
 
 	/**
-	 * Explicitly check whether two matrices which extend {@link QuiverMatrix} are equal as QuiverMatrices
+	 * Explicitly check whether two matrices which extend {@link QuiverMatrix} are equal as
+	 * QuiverMatrices
+	 * 
 	 * @param lhs
 	 * @param rhs
 	 * @return Whether the two matrices are equal as QuiverMatrices
 	 */
-	public static boolean areEqual(QuiverMatrix lhs, QuiverMatrix rhs){
+	public static boolean areEqual(QuiverMatrix lhs, QuiverMatrix rhs) {
 		if (lhs.hashCode() != rhs.hashCode()) {
 			return false;
 		}

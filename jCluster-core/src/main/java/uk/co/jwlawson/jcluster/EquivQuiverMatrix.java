@@ -20,6 +20,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * A QuiverMatrix where two matrices are considered equal if they are equivalent up to permutations
+ * of the rows and columns.
+ * 
+ * <p>
+ * This is much harder to compute than the normal matrix equals method, so the
+ * {@link EquivQuiverMatrix#equals(Object)} method is fairly slow.
+ * 
  * @author John Lawson
  * 
  */
@@ -29,20 +36,47 @@ public class EquivQuiverMatrix extends QuiverMatrix {
 	private final EquivalenceChecker mChecker;
 	private int mHashcode;
 
+	/**
+	 * Create a new matrix with {@code rows} number of rows and {@code cols} number of columns.
+	 * 
+	 * @see uk.co.jwlawson.jcluster.QuiverMatrix#QuiverMatrix(int, int)
+	 * @param rows Number of rows in matrix
+	 * @param cols Number of columns in matrix
+	 */
 	public EquivQuiverMatrix(int rows, int cols) {
 		this(rows);
 	}
 
+	/**
+	 * Create a new square matrix with {@code size} rows and columns.
+	 * 
+	 * @param size Number of rows and columns
+	 * @see uk.co.jwlawson.jcluster.QuiverMatrix#QuiverMatrix(int, int)
+	 */
 	EquivQuiverMatrix(int size) {
 		super(size, size);
 		mChecker = EquivalenceChecker.getInstance(size);
 	}
 
+	/**
+	 * Create a new square matrix with {@code size} rows and columns filled with the data provided
+	 * in {@code values}
+	 * 
+	 * @param size Number fo rows and columns
+	 * @param values Data to store in the matrix
+	 * @see uk.co.jwlawson.jcluster.QuiverMatrix#QuiverMatrix(int, int, int...)
+	 */
 	public EquivQuiverMatrix(int size, int... values) {
 		super(size, size, values);
 		mChecker = EquivalenceChecker.getInstance(size);
 	}
 
+	/**
+	 * Create a new matrix which copies the values in {@code matrix}.
+	 * 
+	 * @see uk.co.jwlawson.jcluster.QuiverMatrix#QuiverMatrix(QuiverMatrix)
+	 * @param matrix Matrix to copy the values from
+	 */
 	public EquivQuiverMatrix(QuiverMatrix matrix) {
 		super(matrix);
 		mChecker = EquivalenceChecker.getInstance(matrix.getNumRows());

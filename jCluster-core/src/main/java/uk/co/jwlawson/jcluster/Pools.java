@@ -40,6 +40,15 @@ public class Pools {
 			new HashMap<HolderKey<?>, ObjectPool<? extends LinkHolder<?>>>();
 	private static ObjectPool<IntMatrixPair> sMatrixPairPool;
 
+	/**
+	 * Get the instance of {@link ObjectPool} which provides objects which extend
+	 * {@link QuiverMatrix}. The class provided will be the type of objects returned by the pool.
+	 * 
+	 * @param rows Number of rows in the matrices
+	 * @param cols Number of columns in the matrices
+	 * @param clazz Type of QuiverMatrix to return
+	 * @return {@link ObjectPool} which provides objects of class {@code clazz}.
+	 */
 	@SuppressWarnings("unchecked")
 	public static synchronized <T extends QuiverMatrix> ObjectPool<T> getQuiverMatrixPool(int rows,
 			int cols, Class<T> clazz) {
@@ -60,6 +69,15 @@ public class Pools {
 		}
 	}
 
+	/**
+	 * Get an instance of {@link ObjectPool} which provides a source for {@link LinkHolder}. The
+	 * class {@code clazz} specifies which type of {@link QuiverMatrix} the {@link LinkHolder}
+	 * expects as its matrix.
+	 * 
+	 * @param size Number of links in each holder
+	 * @param quiverClass Type of {@link QuiverMatrix} expected to be held in each holder
+	 * @return Pool of {@link LinkHolder} objects
+	 */
 	@SuppressWarnings("unchecked")
 	public static synchronized <T extends QuiverMatrix> ObjectPool<LinkHolder<T>> getHolderPool(
 			int size, Class<T> quiverClass) {
@@ -79,6 +97,11 @@ public class Pools {
 		}
 	}
 
+	/**
+	 * Get an instance of an {@link ObjectPool} which provides {@link IntMatrixPair} ojects.
+	 * 
+	 * @return Pool of {@link IntMatrixPair} objects
+	 */
 	public static synchronized ObjectPool<IntMatrixPair> getIntMatrixPairPool() {
 		if (sMatrixPairPool == null) {
 			PoolSettings<IntMatrixPair> settings =
@@ -103,6 +126,13 @@ public class Pools {
 	 */
 	private Pools() {}
 
+	/**
+	 * Key object used to store the {@link QuiverMatrix} pools in the cache.
+	 * 
+	 * @author John Lawson
+	 * 
+	 * @param <V> Type of QuiverMatrix provided by the pool
+	 */
 	private static class QuiverKey<V> {
 		private final int id;
 		private final Class<V> clazz;
@@ -130,6 +160,13 @@ public class Pools {
 		}
 	}
 
+	/**
+	 * Key object used to lookup {@link LinkHolder} pools in the cache
+	 * 
+	 * @author John Lawson
+	 * 
+	 * @param <V> Type of {@link QuiverMatrix} expected by the holders in the pool
+	 */
 	private static class HolderKey<V> {
 		private final int size;
 		private final Class<V> clazz;
@@ -153,7 +190,7 @@ public class Pools {
 
 		@Override
 		public int hashCode() {
-			return new HashCodeBuilder(57, 97).append(size).append(clazz).toHashCode();
+			return new HashCodeBuilder(57, 293).append(size).append(clazz).toHashCode();
 		}
 	}
 }

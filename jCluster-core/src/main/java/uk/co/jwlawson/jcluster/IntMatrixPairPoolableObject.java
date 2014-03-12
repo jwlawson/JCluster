@@ -15,9 +15,13 @@
 package uk.co.jwlawson.jcluster;
 
 import nf.fr.eraasoft.pool.PoolException;
+import nf.fr.eraasoft.pool.PoolableObject;
 import nf.fr.eraasoft.pool.PoolableObjectBase;
 
 /**
+ * {@link PoolableObject} which provides a factory method for creating new {@link IntMatrixPair}
+ * objects.
+ * 
  * @author John Lawson
  * 
  */

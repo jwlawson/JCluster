@@ -23,6 +23,10 @@ import nf.fr.eraasoft.pool.ObjectPool;
 import nf.fr.eraasoft.pool.PoolException;
 
 /**
+ * Task to find the number of quivers in the mutation class of the initial quiver up to permutations
+ * of the vertices of the quivers. This uses much less memory than {@link MutClassSizeTask} but can
+ * be slower as the check for equivalence is slow.
+ * 
  * @author John Lawson
  * 
  */
@@ -50,8 +54,9 @@ public class EquivMutClassSizeTask extends MutClassSizeTask<EquivQuiverMatrix> {
 	}
 
 	@Override
-	protected void handleSeenMatrix(Map<EquivQuiverMatrix, LinkHolder<EquivQuiverMatrix>> matrixSet,
-			EquivQuiverMatrix mat, EquivQuiverMatrix newMatrix, int i) {
+	protected void handleSeenMatrix(
+			Map<EquivQuiverMatrix, LinkHolder<EquivQuiverMatrix>> matrixSet, EquivQuiverMatrix mat,
+			EquivQuiverMatrix newMatrix, int i) {
 		LinkHolder<EquivQuiverMatrix> newHolder = matrixSet.get(newMatrix);
 		LinkHolder<EquivQuiverMatrix> oldHolder = matrixSet.get(mat);
 		oldHolder.setLinkAt(i);

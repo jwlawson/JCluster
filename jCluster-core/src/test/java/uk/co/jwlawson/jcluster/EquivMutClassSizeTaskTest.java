@@ -16,6 +16,7 @@ package uk.co.jwlawson.jcluster;
 
 import static org.junit.Assert.assertEquals;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -63,6 +64,7 @@ public class EquivMutClassSizeTaskTest {
 		}
 	}
 
+	@Ignore("Takes over 1 minute")
 	@Test
 	public void testD7() {
 		QuiverMatrix matrix = DynkinDiagram.D7.getMatrix();

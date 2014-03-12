@@ -17,6 +17,8 @@ package uk.co.jwlawson.jcluster;
 import java.util.Arrays;
 
 /**
+ * Matrix of integers.
+ * 
  * @author John Lawson
  * 
  */
@@ -27,15 +29,30 @@ public class IntMatrix {
 	private int mCols;
 	private int mHashCode = 0;
 
+	/**
+	 * Create a new IntMatrix of the specified size which is filled with 0.
+	 * 
+	 * @param rows Number of rows in the matrix
+	 * @param cols NUmber of columns in the matrix
+	 */
 	public IntMatrix(int rows, int cols) {
 		mData = new int[rows * cols];
 		mRows = rows;
 		mCols = cols;
 	}
 
+	/**
+	 * Create a new IntMatrix containing the data provided. The data should collected into rows, so
+	 * the first row is given then the second and so on.
+	 * 
+	 * @param rows Number of rows in the matrix
+	 * @param cols Number of columns in the matrix
+	 * @param data Data contained in the matrix
+	 */
 	public IntMatrix(int rows, int cols, int... data) {
 		if (data.length != rows * cols) {
-			throw new IllegalArgumentException("Number of entries must match the size of the matrix");
+			throw new IllegalArgumentException(
+					"Number of entries must match the size of the matrix");
 		}
 		mData = new int[rows * cols];
 		mRows = rows;
@@ -45,6 +62,11 @@ public class IntMatrix {
 		}
 	}
 
+	/**
+	 * Create a new IntMatrix which is a copy of the provided matrix.
+	 * 
+	 * @param m Matrix to copy
+	 */
 	protected IntMatrix(IntMatrix m) {
 		this(m.mRows, m.mCols, m.mData);
 	}
@@ -57,39 +79,77 @@ public class IntMatrix {
 		return mRows;
 	}
 
+	/**
+	 * Get the value stored in the matrix at specified position.
+	 * 
+	 * @param row Row position
+	 * @param col Column position
+	 * @return Value stored in matrix
+	 * @throws IllegalArgumentException if the row or column index is less than 0, or greater than
+	 *         the number of rows or columns.
+	 */
 	public int get(int row, int col) {
 		if (row < 0 || row > mRows) {
 			throw new IllegalArgumentException(
-					"row must be non-negative and within the bounds. Expected <" + mRows + " but got " + row);
+					"row must be non-negative and within the bounds. Expected <" + mRows
+							+ " but got " + row);
 		}
 		if (col < 0 || col > mCols) {
 			throw new IllegalArgumentException(
-					"col must be non-negative and within the bounds. Expected <" + mCols + " but got " + col);
+					"col must be non-negative and within the bounds. Expected <" + mCols
+							+ " but got " + col);
 		}
 		return unsafeGet(row, col);
 	}
 
+	/**
+	 * Get the value stored in the matrix at requested position. No bounds checks are done, so this
+	 * method should only be used if the position is guaranteed to be valid.
+	 * 
+	 * @param row Row position
+	 * @param col Column position
+	 * @return Value stored in matrix
+	 */
 	public int unsafeGet(int row, int col) {
 		return mData[getIndex(row, col)];
 	}
 
+	/**
+	 * Convert the row and column indices to the index in the array storing the data.
+	 * 
+	 * @param row Row index
+	 * @param col Column index
+	 * @return Index in array
+	 */
 	private int getIndex(int row, int col) {
 		return row * mCols + col;
 	}
 
+	/**
+	 * Copy the values from the supplied matrix into this one.
+	 * 
+	 * @param matrix Matrix to copy
+	 */
 	public void set(IntMatrix matrix) {
-		mData = new int[matrix.mRows * matrix.mCols];
-		mRows = matrix.mRows;
-		mCols = matrix.mCols;
-		for (int i = 0; i < matrix.mData.length; i++) {
-			mData[i] = matrix.mData[i];
-		}
+		set(matrix.mRows, matrix.mCols, matrix.mData);
 	}
 
+	/**
+	 * Set the values of this matrix to be those provided. The array of data should be arranged with
+	 * rows together, so the first row is given, then the second and so on.
+	 * 
+	 * @param rows Number of rows in the matrix
+	 * @param cols Number of columns in the matrix
+	 * @param data Array of values to store in the matrix.
+	 * @throws IllegalArgumentException if the array is the wrong size compared to the number of
+	 *         rows and columns
+	 */
 	public void set(int rows, int cols, int... data) {
 		if (data.length != rows * cols) {
-			throw new IllegalArgumentException("Number of entries must match the size of the matrix");
+			throw new IllegalArgumentException(
+					"Number of entries must match the size of the matrix");
 		}
+		reset();
 		mData = new int[rows * cols];
 		mRows = rows;
 		mCols = cols;
@@ -98,22 +158,45 @@ public class IntMatrix {
 		}
 	}
 
+	/**
+	 * Set the value in the matrix at the specified position.
+	 * 
+	 * @param row Row index
+	 * @param col Column index
+	 * @param a New value to store
+	 * @throws IllegalArgumentException if the indices are not valid for this matrix
+	 */
 	public void set(int row, int col, int a) {
 		if (row < 0 || row > mRows) {
 			throw new IllegalArgumentException(
-					"row must be non-negative and within the bounds. Expected <" + mRows + " but got " + row);
+					"row must be non-negative and within the bounds. Expected <" + mRows
+							+ " but got " + row);
 		}
 		if (col < 0 || col > mCols) {
 			throw new IllegalArgumentException(
-					"col must be non-negative and within the bounds. Expected <" + mCols + " but got " + col);
+					"col must be non-negative and within the bounds. Expected <" + mCols
+							+ " but got " + col);
 		}
 		unsafeSet(row, col, a);
 	}
 
+	/**
+	 * Sets the value in the matrix at the specified position with out carrying out any bounds
+	 * checking. This should only be used if the indices are guaranteed to be valid.
+	 * 
+	 * @param row Row index
+	 * @param col Columns index
+	 * @param a new value to store
+	 */
 	public void unsafeSet(int row, int col, int a) {
 		mData[getIndex(row, col)] = a;
 	}
 
+	/**
+	 * Create a new matrix which contains a copy of the data stored in this one.
+	 * 
+	 * @return A new copy of this matrix
+	 */
 	public IntMatrix copyMatrix() {
 		IntMatrix result = new IntMatrix(mRows, mCols);
 		for (int i = 0; i < mData.length; i++) {
@@ -122,8 +205,10 @@ public class IntMatrix {
 		return result;
 	}
 
-	public void removeNegZero() {}
-
+	/**
+	 * IntMatrices are meant to be fairly immutable, so the hashcode is cached. Reset should be
+	 * called each time that the matrix is changed.
+	 */
 	public void reset() {
 		mHashCode = 0;
 	}
@@ -164,33 +249,75 @@ public class IntMatrix {
 		return mHashCode;
 	}
 
+	/**
+	 * Multiply this matrix on the left by {@code mat} and return a new matrix containing the
+	 * result.
+	 * 
+	 * <p>
+	 * i.e. {@code result = mat * this}
+	 * 
+	 * @param mat Matrix to multiply with
+	 * @return A new matrix with the result in
+	 */
 	public IntMatrix multLeft(IntMatrix mat) {
 		return multLeft(mat, new IntMatrix(mat.getNumRows(), mCols));
 	}
 
+	/**
+	 * Multiply this matrix on the right by {@code mat} and return a new matrix containing the
+	 * result.
+	 * 
+	 * <p>
+	 * i.e. {@code result = this * mat}
+	 * 
+	 * @param mat Matrix to multiply with
+	 * @return A new matrix with the result in
+	 */
 	public IntMatrix multRight(IntMatrix mat) {
 		return multRight(mat, new IntMatrix(mRows, mat.getNumCols()));
 	}
 
+	/**
+	 * Multiply this matrix on the left by {@code mat} and store the result in {@code container}
+	 * 
+	 * <p>
+	 * i.e. {@code container = mat * this}
+	 * 
+	 * @param mat Matrix to multiply with
+	 * @param container Matrix to store the result in
+	 * @return The container with the result in
+	 */
 	public IntMatrix multLeft(IntMatrix mat, IntMatrix container) {
 		if (mat == null || container == null) {
 			throw new IllegalArgumentException("Cannot multiply null matrices");
 		}
 		if (mat.getNumCols() != this.getNumRows()) {
 			String error =
-					String.format("Matrix to multiply is wrong size. Expected %d columns but have %d",
+					String.format(
+							"Matrix to multiply is wrong size. Expected %d columns but have %d",
 							getNumRows(), mat.getNumCols());
 			throw new IllegalArgumentException(error);
 		}
 		if (container.getNumRows() != mat.getNumRows() || container.getNumCols() != getNumCols()) {
 			String error =
 					String.format("Container is wrong size. Expected %d x %d but have %d x %d",
-							mat.getNumRows(), getNumCols(), container.getNumRows(), container.getNumCols());
+							mat.getNumRows(), getNumCols(), container.getNumRows(),
+							container.getNumCols());
 			throw new IllegalArgumentException(error);
 		}
 		return unsafeMult(mat, this, container);
 	}
 
+	/**
+	 * Multiply this matrix on the right by {@code mat} and store the result in {@code container}
+	 * 
+	 * <p>
+	 * i.e. {@code container = this * mat}
+	 * 
+	 * @param mat Matrix to multiply with
+	 * @param container Matrix to store the result in
+	 * @return The container with the result in
+	 */
 	public IntMatrix multRight(IntMatrix mat, IntMatrix container) {
 		if (mat == null || container == null) {
 			throw new IllegalArgumentException("Cannot multiply null matrices");
@@ -203,13 +330,28 @@ public class IntMatrix {
 		}
 		if (container.getNumRows() != getNumRows() || container.getNumCols() != mat.getNumCols()) {
 			String error =
-					String.format("Container is wrong size. Expected %d x %d but have %d x %d", getNumRows(),
-							mat.getNumCols(), container.getNumRows(), container.getNumCols());
+					String.format("Container is wrong size. Expected %d x %d but have %d x %d",
+							getNumRows(), mat.getNumCols(), container.getNumRows(),
+							container.getNumCols());
 			throw new IllegalArgumentException(error);
 		}
 		return unsafeMult(this, mat, container);
 	}
 
+	/**
+	 * Multiply together two matrices and store the result into container. i.e.
+	 * 
+	 * {@code container = left * right}
+	 * 
+	 * <p>
+	 * No bounds checking is done, so this method should only be used if the matrices are guaranteed
+	 * to be the right size.
+	 * 
+	 * @param left Matrix to multiply on the left
+	 * @param right Matrix to multiply on the right
+	 * @param container Matrix to store the result in
+	 * @return container with the result
+	 */
 	private IntMatrix unsafeMult(IntMatrix left, IntMatrix right, IntMatrix container) {
 		container.reset();
 		int colIncrement = right.getNumRows();

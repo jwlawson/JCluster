@@ -23,6 +23,10 @@ import nf.fr.eraasoft.pool.ObjectPool;
 import nf.fr.eraasoft.pool.PoolException;
 
 /**
+ * Base class which finds the number of matrices in the mutation class of the initial matrix. This
+ * is fast for small matrices, but larger matrices with larger mutation classes require a huge
+ * amount of memory, as each matrix in the class is stored.
+ * 
  * @author John Lawson
  * 
  */
@@ -68,21 +72,17 @@ public class MutClassSizeTask<T extends QuiverMatrix> extends AbstractMutClassSi
 			ObjectPool<LinkHolder<T>> holderPool, Map<T, LinkHolder<T>> mMatrixSet) {
 		LinkHolder<T> holder = mMatrixSet.get(remove);
 		if (holder != null && holder.isComplete()) {
-			removeFromMap(remove, quiverPool, holderPool, mMatrixSet, holder);
+			T key = holder.getQuiverMatrix();
+			holder = mMatrixSet.remove(remove);
+			if (key != remove) {
+				// So remove.equals(key), but they are not the same object
+				quiverPool.returnObj(key);
+			}
+			holderPool.returnObj(holder);
 		}
 		quiverPool.returnObj(remove);
 	}
 
-	protected void removeFromMap(T remove, ObjectPool<T> quiverPool,
-			ObjectPool<LinkHolder<T>> holderPool, Map<T, LinkHolder<T>> mMatrixSet, LinkHolder<T> holder) {
-		T key = holder.getQuiverMatrix();
-		holder = mMatrixSet.remove(remove);
-		if (key != remove) {
-			// So remove.equals(key), but they are not the same object
-			quiverPool.returnObj(key);
-		}
-		holderPool.returnObj(holder);
-	}
 
 	@Override
 	protected void teardown(ObjectPool<T> quiverPool, ObjectPool<LinkHolder<T>> holderPool,

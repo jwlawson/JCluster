@@ -1,18 +1,16 @@
 /**
  * Copyright 2014 John Lawson
  * 
- * QuiverMatrixPoolableObject.java is part of JCluster.
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * QuiverMatrixPoolableObject.java is part of JCluster. Licensed under the Apache License, Version
+ * 2.0 (the "License"); you may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
  * 
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package uk.co.jwlawson.jcluster;
 
@@ -28,23 +26,31 @@ import org.slf4j.LoggerFactory;
 /**
  * Object factory required for pooling QuiverMatrix objects.
  * 
- * @author John
+ * @author John Lawson
  * 
  */
-public class QuiverMatrixPoolableObject<T extends QuiverMatrix> extends
-		PoolableObjectBase<T> {
+public class QuiverMatrixPoolableObject<T extends QuiverMatrix> extends PoolableObjectBase<T> {
 
 	private final int rows;
 	private final int cols;
-	private Class<T> clazz;
+	private final Class<T> clazz;
 	private Constructor<T> constructor;
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
+	/**
+	 * Create a new PoolableObject. This provides a factory method to get new objects for the pool.
+	 * The class is required to be able to construct the correct class as otherwise the type is
+	 * erased and the only class returned is {@link QuiverMatrix}.
+	 * 
+	 * @param rows Number of rows in each matrix
+	 * @param cols Number of columns in each matrix
+	 * @param clazz Class to be created
+	 */
 	public QuiverMatrixPoolableObject(int rows, int cols, Class<T> clazz) {
 		this.rows = rows;
 		this.cols = cols;
 		this.clazz = clazz;
-		
+
 		try {
 			constructor = clazz.getConstructor(Integer.TYPE, Integer.TYPE);
 		} catch (NoSuchMethodException e) {
@@ -55,7 +61,7 @@ public class QuiverMatrixPoolableObject<T extends QuiverMatrix> extends
 			throw new RuntimeException("Cannot access constructor for class " + clazz, e);
 		}
 	}
-	
+
 	public T make() throws PoolException {
 		try {
 			T inst = constructor.newInstance(rows, cols);
