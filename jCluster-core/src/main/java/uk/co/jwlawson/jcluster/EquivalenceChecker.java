@@ -62,7 +62,7 @@ public class EquivalenceChecker {
 
 				@Override
 				public EquivalenceChecker load(Integer key) throws Exception {
-					log.info("New equivalenceChecker of size {} created", key);
+					log.info("New EquivalenceChecker of size {} created", key);
 					return new EquivalenceChecker(key);
 				}
 
@@ -98,8 +98,8 @@ public class EquivalenceChecker {
 			});
 
 	private IntMatrix[] mPermMatrices;
-	private final IntMatrix mMatrixPA;
-	private final IntMatrix mMatrixBP;
+	private final IntMatrix mMatrixAP;
+	private final IntMatrix mMatrixPB;
 	private final ObjectPool<IntMatrixPair> mPairPool;
 
 	/**
@@ -124,8 +124,8 @@ public class EquivalenceChecker {
 	private EquivalenceChecker(int size) {
 		setPermutations(size);
 
-		mMatrixPA = new IntMatrix(size, size);
-		mMatrixBP = new IntMatrix(size, size);
+		mMatrixAP = new IntMatrix(size, size);
+		mMatrixPB = new IntMatrix(size, size);
 		mPairPool = Pools.getIntMatrixPairPool();
 	}
 
@@ -237,6 +237,15 @@ public class EquivalenceChecker {
 		if (!areArraysEquivalent(aAbsColSum, bAbsColSum))
 			return false;
 
+		int[] rowMappings = new int[aRows];
+		for (int i = 0; i < aRows; i++) {
+			rowMappings[i] = -1;
+		}
+		int[] colMappings = new int[aCols];
+		for (int i = 0; i < aCols; i++) {
+			colMappings[i] = -1;
+		}
+
 		for (int aInd = 0; aInd < aRows; aInd++) {
 			int inRow = numberIn(bRowSum, aRowSum[aInd]);
 			if (inRow == 1) {
@@ -246,20 +255,22 @@ public class EquivalenceChecker {
 				if (!areArraysEquivalent(aRowVals, bRowVals)) {
 					return false;
 				}
+				rowMappings[bInd] *= aRows;
+				rowMappings[bInd] += aInd;
 			} else {
-				int inAbs = numberIn(bAbsRowSum, aAbsRowSum[aInd]);
 				int index = -1;
 				int[] aRowVals = a.getRow(aInd);
 				boolean foundEquiv = false;
-				for (int i = 0; i < inAbs; i++) {
-					index = getNextIndexOf(bAbsRowSum, aAbsRowSum[aInd], index);
-					if (bRowSum[index] != aRowSum[aInd]) {
+				for (int i = 0; i < inRow; i++) {
+					index = getNextIndexOf(bRowSum, aRowSum[aInd], index);
+					if (bAbsRowSum[index] != aAbsRowSum[aInd]) {
 						continue;
 					}
 					int[] bRowVals = b.getRow(index);
 					if (areArraysEquivalent(aRowVals, bRowVals)) {
 						foundEquiv = true;
-						break;
+						rowMappings[index] *= aRows;
+						rowMappings[index] += aInd;
 					}
 				}
 				if (!foundEquiv) {
@@ -277,20 +288,22 @@ public class EquivalenceChecker {
 				if (!areArraysEquivalent(aColVals, bColVals)) {
 					return false;
 				}
+				colMappings[aInd] *= aCols;
+				colMappings[aInd] += bInd;
 			} else {
-				int inAbs = numberIn(bAbsColSum, aAbsColSum[aInd]);
 				int index = -1;
 				int[] aColVals = a.getCol(aInd);
 				boolean foundEquiv = false;
-				for (int i = 0; i < inAbs; i++) {
-					index = getNextIndexOf(bAbsColSum, aAbsColSum[aInd], index);
-					if (bColSum[index] != aColSum[aInd]) {
+				for (int i = 0; i < inCol; i++) {
+					index = getNextIndexOf(bColSum, aColSum[aInd], index);
+					if (bAbsColSum[index] != aAbsColSum[aInd]) {
 						continue;
 					}
 					int[] bColVals = b.getCol(index);
 					if (areArraysEquivalent(aColVals, bColVals)) {
 						foundEquiv = true;
-						break;
+						colMappings[aInd] *= aCols;
+						colMappings[aInd] += index;
 					}
 				}
 				if (!foundEquiv) {
@@ -301,17 +314,56 @@ public class EquivalenceChecker {
 
 
 		for (IntMatrix p : mPermMatrices) {
-			// Check if PA == BP
-			// or PAP^(-1) == B
+			boolean notValid = isPermutationValid(aRows, aCols, rowMappings, colMappings, p);
+			if (notValid) {
+				continue;
+			}
+			// Check if PA == BP or PAP^(-1) == B
 			synchronized (this) {
-				a.multLeft(p, mMatrixPA);
-				b.multRight(p, mMatrixBP);
-				if (IntMatrix.areEqual(mMatrixBP, mMatrixPA)) {
+				a.multRight(p, mMatrixAP);
+				b.multLeft(p, mMatrixPB);
+				if (IntMatrix.areEqual(mMatrixPB, mMatrixAP)) {
 					return true;
 				}
 			}
 		}
 		return false;
+	}
+
+	private boolean isPermutationValid(int aRows, int aCols, int[] rowMappings, int[] colMappings,
+			IntMatrix p) {
+		boolean valid = true;
+		for (int i = 0; i < colMappings.length && valid; i++) {
+			valid = isColumnValid(aCols, colMappings, p, i);
+		}
+		for (int i = 0; i < rowMappings.length && valid; i++) {
+			valid = isRowValid(aRows, rowMappings, p, i);
+		}
+		return valid;
+	}
+
+	private boolean isRowValid(int numRows, int[] rowMappings, IntMatrix perm, int row) {
+		boolean rowValid = false;
+		while (rowMappings[row] > -1) {
+			if (perm.unsafeGet(rowMappings[row] % numRows, row) == 1) {
+				rowValid = true;
+				break;
+			}
+			rowMappings[row] /= numRows;
+		}
+		return rowValid;
+	}
+
+	private boolean isColumnValid(int numCols, int[] colMappings, IntMatrix perm, int col) {
+		boolean colValid = false;
+		while (colMappings[col] > -1) {
+			if (perm.unsafeGet(col, colMappings[col] % numCols) == 1) {
+				colValid = true;
+				break;
+			}
+			colMappings[col] /= numCols;
+		}
+		return colValid;
 	}
 
 	private int numberIn(int[] arr, int val) {
