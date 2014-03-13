@@ -147,7 +147,6 @@ public class EquivalenceChecker {
 			for (int j = 0; j < size; j++) {
 				mPermMatrices[count].set(j, vals[j], 1);
 			}
-			log.debug("" + mPermMatrices[count]);
 			count++;
 		}
 		if (count != fac) {
@@ -197,6 +196,13 @@ public class EquivalenceChecker {
 	 * Calculate directly whether the matrices are equivalent up to permutation of rows and columns
 	 * without looking up in the cache.
 	 * 
+	 * <p>
+	 * A lot of calculation is done before blindly multiplying matrices as for larger matrices this
+	 * is horrifically slow. As the sum of each row is invariant under permutations of rows and
+	 * columns these values are calculated and it is checked that each matrix has the same number of
+	 * rows with the same sum. These also show narrow which permutations could potentially be the
+	 * right ones so the invalid ones are not considered.
+	 * 
 	 * @param a The first matrix
 	 * @param b The second matrix
 	 * @return true if the matrices are equivalent
@@ -237,81 +243,21 @@ public class EquivalenceChecker {
 		if (!areArraysEquivalent(aAbsColSum, bAbsColSum))
 			return false;
 
-		int[] rowMappings = new int[aRows];
-		for (int i = 0; i < aRows; i++) {
-			rowMappings[i] = -1;
-		}
-		int[] colMappings = new int[aCols];
-		for (int i = 0; i < aCols; i++) {
-			colMappings[i] = -1;
+		int[] rowMappings = getMappingArray(aRows);
+		int[] colMappings = getMappingArray(aCols);
+
+		boolean rowsMatch =
+				checkRowsMatch(a, b, aRows, aRowSum, aAbsRowSum, bRowSum, bAbsRowSum, rowMappings);
+		if (!rowsMatch) {
+			return false;
 		}
 
-		for (int aInd = 0; aInd < aRows; aInd++) {
-			int inRow = numberIn(bRowSum, aRowSum[aInd]);
-			if (inRow == 1) {
-				int bInd = getIndexOf(bRowSum, aRowSum[aInd]);
-				int[] bRowVals = b.getRow(bInd);
-				int[] aRowVals = a.getRow(aInd);
-				if (!areArraysEquivalent(aRowVals, bRowVals)) {
-					return false;
-				}
-				rowMappings[bInd] *= aRows;
-				rowMappings[bInd] += aInd;
-			} else {
-				int index = -1;
-				int[] aRowVals = a.getRow(aInd);
-				boolean foundEquiv = false;
-				for (int i = 0; i < inRow; i++) {
-					index = getNextIndexOf(bRowSum, aRowSum[aInd], index);
-					if (bAbsRowSum[index] != aAbsRowSum[aInd]) {
-						continue;
-					}
-					int[] bRowVals = b.getRow(index);
-					if (areArraysEquivalent(aRowVals, bRowVals)) {
-						foundEquiv = true;
-						rowMappings[index] *= aRows;
-						rowMappings[index] += aInd;
-					}
-				}
-				if (!foundEquiv) {
-					return false;
-				}
-			}
+		boolean columnsMatch =
+				checkColumnsMatch(a, b, aCols, aColSum, aAbsColSum, bColSum, bAbsColSum,
+						colMappings);
+		if (!columnsMatch) {
+			return false;
 		}
-
-		for (int aInd = 0; aInd < aCols; aInd++) {
-			int inCol = numberIn(bColSum, aColSum[aInd]);
-			if (inCol == 1) {
-				int bInd = getIndexOf(bColSum, aColSum[aInd]);
-				int[] bColVals = b.getCol(bInd);
-				int[] aColVals = a.getCol(aInd);
-				if (!areArraysEquivalent(aColVals, bColVals)) {
-					return false;
-				}
-				colMappings[aInd] *= aCols;
-				colMappings[aInd] += bInd;
-			} else {
-				int index = -1;
-				int[] aColVals = a.getCol(aInd);
-				boolean foundEquiv = false;
-				for (int i = 0; i < inCol; i++) {
-					index = getNextIndexOf(bColSum, aColSum[aInd], index);
-					if (bAbsColSum[index] != aAbsColSum[aInd]) {
-						continue;
-					}
-					int[] bColVals = b.getCol(index);
-					if (areArraysEquivalent(aColVals, bColVals)) {
-						foundEquiv = true;
-						colMappings[aInd] *= aCols;
-						colMappings[aInd] += index;
-					}
-				}
-				if (!foundEquiv) {
-					return false;
-				}
-			}
-		}
-
 
 		for (IntMatrix p : mPermMatrices) {
 			boolean notValid = isPermutationValid(aRows, aCols, rowMappings, colMappings, p);
@@ -328,6 +274,73 @@ public class EquivalenceChecker {
 			}
 		}
 		return false;
+	}
+
+	private int[] getMappingArray(int length) {
+		int[] arr = new int[length];
+		for (int i = 0; i < length; i++) {
+			arr[i] = -1;
+		}
+		return arr;
+	}
+
+	private boolean checkColumnsMatch(IntMatrix a, IntMatrix b, int aCols, int[] aColSum,
+			int[] aAbsColSum, int[] bColSum, int[] bAbsColSum, int[] colMappings) {
+		boolean columnsMatch = true;
+		for (int aInd = 0; aInd < aCols; aInd++) {
+			int inCol = numberIn(bColSum, aColSum[aInd]);
+			int index = -1;
+			int[] aColVals = a.getCol(aInd);
+			boolean foundEquiv = false;
+			for (int i = 0; i < inCol; i++) {
+				index = getNextIndexOf(bColSum, aColSum[aInd], index);
+				if (bAbsColSum[index] != aAbsColSum[aInd]) {
+					// Columns will only be equivalent if they have the same absolute value sum
+					continue;
+				}
+				int[] bColVals = b.getCol(index);
+				if (areArraysEquivalent(aColVals, bColVals)) {
+					foundEquiv = true;
+					updateMapping(aCols, colMappings, index, aInd);
+				}
+			}
+			if (!foundEquiv) {
+				columnsMatch = false;
+			}
+		}
+		return columnsMatch;
+	}
+
+	private boolean checkRowsMatch(IntMatrix a, IntMatrix b, int aRows, int[] aRowSum,
+			int[] aAbsRowSum, int[] bRowSum, int[] bAbsRowSum, int[] rowMappings) {
+		boolean rowsMatch = true;
+		for (int aInd = 0; aInd < aRows && rowsMatch; aInd++) {
+			int inRow = numberIn(bRowSum, aRowSum[aInd]);
+			int index = -1;
+			int[] aRowVals = a.getRow(aInd);
+			boolean foundEquiv = false;
+			for (int i = 0; i < inRow; i++) {
+				index = getNextIndexOf(bRowSum, aRowSum[aInd], index);
+				if (bAbsRowSum[index] != aAbsRowSum[aInd]) {
+					// Rows will only be equivalent if they have the same absolute value sum
+					continue;
+				}
+				int[] bRowVals = b.getRow(index);
+				if (areArraysEquivalent(aRowVals, bRowVals)) {
+					foundEquiv = true;
+					updateMapping(aRows, rowMappings, aInd, index);
+				}
+			}
+			if (!foundEquiv) {
+				rowsMatch = false;
+			}
+		}
+		return rowsMatch;
+	}
+
+	private void updateMapping(int numRows, int[] rowMappings, int aIndex, int bIndex) {
+		rowMappings[bIndex] *= numRows;
+		rowMappings[bIndex] += aIndex;
 	}
 
 	private boolean isPermutationValid(int aRows, int aCols, int[] rowMappings, int[] colMappings,
@@ -374,15 +387,6 @@ public class EquivalenceChecker {
 			}
 		}
 		return count;
-	}
-
-	private int getIndexOf(int[] arr, int val) {
-		for (int i = 0; i < arr.length; i++) {
-			if (arr[i] == val) {
-				return i;
-			}
-		}
-		return -1;
 	}
 
 	private int getNextIndexOf(int[] arr, int val, int prev) {

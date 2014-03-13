@@ -38,6 +38,7 @@ public class EquivMutClassSizeTask extends MutClassSizeTask<EquivQuiverMatrix> {
 		super(matrix);
 		mList = new HashSet<EquivQuiverMatrix>();
 		mList.add(matrix);
+		setIterationsBetweenStats(100);
 	}
 
 	public EquivMutClassSizeTask(QuiverMatrix matrix) {
@@ -108,5 +109,6 @@ public class EquivMutClassSizeTask extends MutClassSizeTask<EquivQuiverMatrix> {
 			quiverPool.returnObj(m);
 		}
 		mList.clear();
+		super.teardown(quiverPool, holderPool, matrixSet);
 	}
 }

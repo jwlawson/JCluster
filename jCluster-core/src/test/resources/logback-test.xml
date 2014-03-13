@@ -41,9 +41,9 @@
 		<appender-ref ref="STDOUT" />
 	</logger>
 
-	<logger name="uk.co.jwlawson.jcluster.MutClassSizeTask" level="INFO"
+	<logger name="uk.co.jwlawson.jcluster" level="DEBUG"
 		additivity="false">
-		<appender-ref ref="STDOUT" />
+		<appender-ref ref="FILE" />
 	</logger>
 
 	<!-- Strictly speaking, the level attribute is not necessary since -->

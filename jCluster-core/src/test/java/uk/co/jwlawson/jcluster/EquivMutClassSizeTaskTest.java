@@ -17,6 +17,7 @@ package uk.co.jwlawson.jcluster;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -72,7 +73,7 @@ public class EquivMutClassSizeTaskTest {
 		}
 	}
 
-//	@Ignore("Takes over 20 seconds")
+	@Ignore("Takes over 10 seconds")
 	@Test
 	public void testD7() {
 		QuiverMatrix matrix = DynkinDiagram.D7.getMatrix();
@@ -99,7 +100,7 @@ public class EquivMutClassSizeTaskTest {
 		}
 	}
 
-//	@Ignore("Takes over 30 seconds")
+	@Ignore("Takes over 12 seconds")
 	@Test
 	public void testA7() {
 		QuiverMatrix matrix = DynkinDiagram.A7.getMatrix();
@@ -113,7 +114,7 @@ public class EquivMutClassSizeTaskTest {
 		}
 	}
 
-//	@Ignore("Takes over 160 seconds")
+	@Ignore("Takes over 30 seconds")
 	@Test
 	public void testE7() {
 		QuiverMatrix matrix = DynkinDiagram.E7.getMatrix();
