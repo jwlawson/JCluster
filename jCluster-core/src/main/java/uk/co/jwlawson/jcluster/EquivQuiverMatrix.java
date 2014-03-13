@@ -121,16 +121,24 @@ public class EquivQuiverMatrix extends QuiverMatrix {
 			hash = 137;
 			int[] rowSum = new int[getNumRows()];
 			int[] colSum = new int[getNumCols()];
+			int[] absRowSum = new int[getNumRows()];
+			int[] absColSum = new int[getNumCols()];
 			for (int i = 0; i < getNumRows(); i++) {
 				for (int j = 0; j < getNumCols(); j++) {
 					rowSum[i] += unsafeGet(i, j);
 					colSum[j] += unsafeGet(i, j);
+					absRowSum[i] += Math.abs(unsafeGet(i, j));
+					absColSum[j] += Math.abs(unsafeGet(i, j));
 				}
 			}
 			Arrays.sort(rowSum);
 			Arrays.sort(colSum);
-			hash += 57 * Arrays.hashCode(rowSum);
+			Arrays.sort(absRowSum);
+			Arrays.sort(absColSum);
+			hash += 257 * Arrays.hashCode(rowSum);
 			hash += 73 * Arrays.hashCode(colSum);
+			hash += 67 * Arrays.hashCode(absRowSum);
+			hash += 157 * Arrays.hashCode(absColSum);
 			mHashcode = hash;
 		}
 		return mHashcode;
