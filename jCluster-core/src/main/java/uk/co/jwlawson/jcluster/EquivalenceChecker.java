@@ -14,6 +14,8 @@
  */
 package uk.co.jwlawson.jcluster;
 
+import java.util.Arrays;
+
 import nf.fr.eraasoft.pool.ObjectPool;
 import nf.fr.eraasoft.pool.PoolException;
 
@@ -200,6 +202,104 @@ public class EquivalenceChecker {
 	 * @return true if the matrices are equivalent
 	 */
 	private Boolean areUncachedEquivalent(IntMatrix a, IntMatrix b) {
+		int aRows = a.getNumRows();
+		int aCols = a.getNumCols();
+		int[] aRowSum = new int[aRows];
+		int[] aColSum = new int[aCols];
+		int[] aAbsRowSum = new int[aRows];
+		int[] aAbsColSum = new int[aCols];
+
+		int[] bRowSum = new int[aRows];
+		int[] bColSum = new int[aCols];
+		int[] bAbsRowSum = new int[aRows];
+		int[] bAbsColSum = new int[aCols];
+		for (int i = 0; i < aRows; i++) {
+			for (int j = 0; j < aCols; j++) {
+				int aVal = a.unsafeGet(i, j);
+				aRowSum[i] += aVal;
+				aColSum[j] += aVal;
+				aAbsRowSum[i] += Math.abs(aVal);
+				aAbsColSum[j] += Math.abs(aVal);
+
+				int bVal = b.unsafeGet(i, j);
+				bRowSum[i] += bVal;
+				bColSum[j] += bVal;
+				bAbsRowSum[i] += Math.abs(bVal);
+				bAbsColSum[j] += Math.abs(bVal);
+			}
+		}
+		if (!areArraysEquivalent(aRowSum, bRowSum))
+			return false;
+		if (!areArraysEquivalent(aColSum, bColSum))
+			return false;
+		if (!areArraysEquivalent(aAbsRowSum, bAbsRowSum))
+			return false;
+		if (!areArraysEquivalent(aAbsColSum, bAbsColSum))
+			return false;
+
+		for (int aInd = 0; aInd < aRows; aInd++) {
+			int inRow = numberIn(bRowSum, aRowSum[aInd]);
+			if (inRow == 1) {
+				int bInd = getIndexOf(bRowSum, aRowSum[aInd]);
+				int[] bRowVals = b.getRow(bInd);
+				int[] aRowVals = a.getRow(aInd);
+				if (!areArraysEquivalent(aRowVals, bRowVals)) {
+					return false;
+				}
+			} else {
+				int inAbs = numberIn(bAbsRowSum, aAbsRowSum[aInd]);
+				int index = -1;
+				int[] aRowVals = a.getRow(aInd);
+				boolean foundEquiv = false;
+				for (int i = 0; i < inAbs; i++) {
+					index = getNextIndexOf(bAbsRowSum, aAbsRowSum[aInd], index);
+					if (bRowSum[index] != aRowSum[aInd]) {
+						continue;
+					}
+					int[] bRowVals = b.getRow(index);
+					if (areArraysEquivalent(aRowVals, bRowVals)) {
+						foundEquiv = true;
+						break;
+					}
+				}
+				if (!foundEquiv) {
+					return false;
+				}
+			}
+		}
+
+		for (int aInd = 0; aInd < aCols; aInd++) {
+			int inCol = numberIn(bColSum, aColSum[aInd]);
+			if (inCol == 1) {
+				int bInd = getIndexOf(bColSum, aColSum[aInd]);
+				int[] bColVals = b.getCol(bInd);
+				int[] aColVals = a.getCol(aInd);
+				if (!areArraysEquivalent(aColVals, bColVals)) {
+					return false;
+				}
+			} else {
+				int inAbs = numberIn(bAbsColSum, aAbsColSum[aInd]);
+				int index = -1;
+				int[] aColVals = a.getCol(aInd);
+				boolean foundEquiv = false;
+				for (int i = 0; i < inAbs; i++) {
+					index = getNextIndexOf(bAbsColSum, aAbsColSum[aInd], index);
+					if (bColSum[index] != aColSum[aInd]) {
+						continue;
+					}
+					int[] bColVals = b.getCol(index);
+					if (areArraysEquivalent(aColVals, bColVals)) {
+						foundEquiv = true;
+						break;
+					}
+				}
+				if (!foundEquiv) {
+					return false;
+				}
+			}
+		}
+
+
 		for (IntMatrix p : mPermMatrices) {
 			// Check if PA == BP
 			// or PAP^(-1) == B
@@ -212,6 +312,43 @@ public class EquivalenceChecker {
 			}
 		}
 		return false;
+	}
+
+	private int numberIn(int[] arr, int val) {
+		int count = 0;
+		for (int i : arr) {
+			if (i == val) {
+				count++;
+			}
+		}
+		return count;
+	}
+
+	private int getIndexOf(int[] arr, int val) {
+		for (int i = 0; i < arr.length; i++) {
+			if (arr[i] == val) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	private int getNextIndexOf(int[] arr, int val, int prev) {
+		for (int i = prev + 1; i < arr.length; i++) {
+			if (arr[i] == val) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	private boolean areArraysEquivalent(int[] a, int[] b) {
+		int[] aCopy = Arrays.copyOf(a, a.length);
+		int[] bCopy = Arrays.copyOf(b, b.length);
+		Arrays.sort(aCopy);
+		Arrays.sort(bCopy);
+		return Arrays.equals(aCopy, bCopy);
+
 	}
 
 	/**

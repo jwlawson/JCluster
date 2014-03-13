@@ -16,6 +16,7 @@ package uk.co.jwlawson.jcluster;
 
 import static org.junit.Assert.assertEquals;
 
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -24,6 +25,14 @@ import org.junit.Test;
  * 
  */
 public class EquivMutClassSizeTaskTest {
+
+	@BeforeClass
+	public static void setUp() {
+		// Run so that the caches in EquivalenceChecker are created before any tests are run. This
+		// means that the times given for each test better represent the time actually taken for
+		// that test.
+		EquivalenceChecker.getInstance(2);
+	}
 
 	@Test
 	public void testA3() {
@@ -86,6 +95,34 @@ public class EquivMutClassSizeTaskTest {
 		try {
 			result = task.call();
 			assertEquals(26, result);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Ignore("Takes over 30 seconds")
+	@Test
+	public void testA7() {
+		QuiverMatrix matrix = DynkinDiagram.A7.getMatrix();
+		EquivMutClassSizeTask task = new EquivMutClassSizeTask(matrix);
+		int result;
+		try {
+			result = task.call();
+			assertEquals(150, result);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+//	@Ignore("Takes over 160 seconds")
+	@Test
+	public void testE7() {
+		QuiverMatrix matrix = DynkinDiagram.E7.getMatrix();
+		EquivMutClassSizeTask task = new EquivMutClassSizeTask(matrix);
+		int result;
+		try {
+			result = task.call();
+			assertEquals(416, result);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

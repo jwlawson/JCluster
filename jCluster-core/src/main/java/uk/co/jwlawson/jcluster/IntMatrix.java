@@ -115,6 +115,18 @@ public class IntMatrix {
 	}
 
 	/**
+	 * Get the value stored in the underlying array at the specified index. Index can be computed as
+	 * {@code row * numCols + col}.
+	 * 
+	 * @param index Index to get
+	 * @return The value stored at index
+	 * @throws ArrayIndexOutOfBoundsException if index is out of bounds
+	 */
+	public int unsafeGet(int index) {
+		return mData[index];
+	}
+
+	/**
 	 * Convert the row and column indices to the index in the array storing the data.
 	 * 
 	 * @param row Row index
@@ -123,6 +135,37 @@ public class IntMatrix {
 	 */
 	private int getIndex(int row, int col) {
 		return row * mCols + col;
+	}
+
+	/**
+	 * Get a row of the matrix as an array.
+	 * 
+	 * @param row The index of the row
+	 * @return An array containing values of the row
+	 */
+	public int[] getRow(int row) {
+		int[] result = new int[mCols];
+		int count = row * mCols;
+		for (int j = 0; j < mCols; j++) {
+			result[j] = mData[count++];
+		}
+		return result;
+	}
+
+	/**
+	 * Get a column of the matrix as an array.
+	 * 
+	 * @param col The index of the column
+	 * @return An array containing values of the column
+	 */
+	public int[] getCol(int col) {
+		int[] result = new int[mRows];
+		int count = col;
+		for (int j = 0; j < mRows; j++) {
+			result[j] = mData[count];
+			count += mCols;
+		}
+		return result;
 	}
 
 	/**
