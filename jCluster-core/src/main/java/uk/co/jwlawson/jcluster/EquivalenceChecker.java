@@ -49,7 +49,7 @@ public class EquivalenceChecker {
 	 * being used by the instance.
 	 */
 	private static LoadingCache<Integer, EquivalenceChecker> sInstanceCache = CacheBuilder
-			.newBuilder().maximumWeight(10000000)
+			.newBuilder().maximumWeight(1000000000)
 			.weigher(new Weigher<Integer, EquivalenceChecker>() {
 
 				public int weigh(Integer key, EquivalenceChecker value) {
