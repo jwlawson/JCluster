@@ -11,11 +11,10 @@
 	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
 		<!-- encoders are assigned the type ch.qos.logback.classic.encoder.PatternLayoutEncoder 
 			by default -->
-		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
 			<level>INFO</level>
-			<onMatch>ACCEPT</onMatch>
-			<onMismatch>DENY</onMismatch>
 		</filter>
+
 		<encoder>
 			<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{5} - %msg%n
 			</pattern>
@@ -41,9 +40,8 @@
 		<appender-ref ref="STDOUT" />
 	</logger>
 
-	<logger name="uk.co.jwlawson.jcluster.MutClassSizeTask" level="INFO"
-		additivity="false">
-		<appender-ref ref="STDOUT" />
+	<logger name="uk.co.jwlawson.jcluster" level="DEBUG" additivity="false">
+		<appender-ref ref="FILE" />
 	</logger>
 
 	<!-- Strictly speaking, the level attribute is not necessary since -->

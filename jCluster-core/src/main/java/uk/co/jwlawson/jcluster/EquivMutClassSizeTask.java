@@ -38,6 +38,7 @@ public class EquivMutClassSizeTask extends MutClassSizeTask<EquivQuiverMatrix> {
 		super(matrix);
 		mList = new HashSet<EquivQuiverMatrix>();
 		mList.add(matrix);
+		setIterationsBetweenStats(100);
 	}
 
 	public EquivMutClassSizeTask(QuiverMatrix matrix) {
@@ -54,9 +55,8 @@ public class EquivMutClassSizeTask extends MutClassSizeTask<EquivQuiverMatrix> {
 	}
 
 	@Override
-	protected void handleSeenMatrix(
-			Map<EquivQuiverMatrix, LinkHolder<EquivQuiverMatrix>> matrixSet, EquivQuiverMatrix mat,
-			EquivQuiverMatrix newMatrix, int i) {
+	protected void handleSeenMatrix(Map<EquivQuiverMatrix, LinkHolder<EquivQuiverMatrix>> matrixSet,
+			EquivQuiverMatrix mat, EquivQuiverMatrix newMatrix, int i) {
 		LinkHolder<EquivQuiverMatrix> newHolder = matrixSet.get(newMatrix);
 		LinkHolder<EquivQuiverMatrix> oldHolder = matrixSet.get(mat);
 		oldHolder.setLinkAt(i);
@@ -70,22 +70,29 @@ public class EquivMutClassSizeTask extends MutClassSizeTask<EquivQuiverMatrix> {
 		}
 	}
 
+
 	@Override
-	protected void checkRemoveQuiver(EquivQuiverMatrix remove,
+	protected void removeHandledQuiver(EquivQuiverMatrix remove,
 			ObjectPool<EquivQuiverMatrix> quiverPool,
 			ObjectPool<LinkHolder<EquivQuiverMatrix>> holderPool,
-			Map<EquivQuiverMatrix, LinkHolder<EquivQuiverMatrix>> mMatrixSet) {
-		boolean removeQ = true;
-		LinkHolder<EquivQuiverMatrix> holder = mMatrixSet.get(remove);
-		if (holder != null && holder.isComplete()) {
-			EquivQuiverMatrix key = holder.getQuiverMatrix();
-			holder = mMatrixSet.remove(remove);
-			if (key == remove) {
-				removeQ = false;
-			}
-			holderPool.returnObj(holder);
-		}
-		if (removeQ) {
+			Map<EquivQuiverMatrix, LinkHolder<EquivQuiverMatrix>> matrixSet) {
+
+		LinkHolder<EquivQuiverMatrix> holder = matrixSet.remove(remove);
+		holderPool.returnObj(holder);
+	}
+
+	@Override
+	protected void removeComplete(EquivQuiverMatrix remove, ObjectPool<EquivQuiverMatrix> quiverPool,
+			ObjectPool<LinkHolder<EquivQuiverMatrix>> holderPool,
+			Map<EquivQuiverMatrix, LinkHolder<EquivQuiverMatrix>> matrixSet,
+			Queue<EquivQuiverMatrix> incompleteQuivers) {
+
+		LinkHolder<EquivQuiverMatrix> holder = matrixSet.remove(remove);
+		EquivQuiverMatrix key = holder.getQuiverMatrix();
+		holderPool.returnObj(holder);
+		// TODO Check if necessary to check this.
+		// I think this always runs
+		if (key != remove) {
 			quiverPool.returnObj(remove);
 		}
 	}
@@ -96,6 +103,7 @@ public class EquivMutClassSizeTask extends MutClassSizeTask<EquivQuiverMatrix> {
 			Queue<EquivQuiverMatrix> incompleteQuivers,
 			ObjectPool<LinkHolder<EquivQuiverMatrix>> holderPool, EquivQuiverMatrix mat,
 			EquivQuiverMatrix newMatrix, int i) throws PoolException {
+
 		mList.add(newMatrix);
 		super.handleUnseenMatrix(matrixSet, incompleteQuivers, holderPool, mat, newMatrix, i);
 	}
@@ -104,9 +112,36 @@ public class EquivMutClassSizeTask extends MutClassSizeTask<EquivQuiverMatrix> {
 	protected void teardown(ObjectPool<EquivQuiverMatrix> quiverPool,
 			ObjectPool<LinkHolder<EquivQuiverMatrix>> holderPool,
 			Map<EquivQuiverMatrix, LinkHolder<EquivQuiverMatrix>> matrixSet) {
+
 		for (EquivQuiverMatrix m : mList) {
 			quiverPool.returnObj(m);
 		}
 		mList.clear();
+		super.teardown(quiverPool, holderPool, matrixSet);
+	}
+
+	@Override
+	protected ObjectPool<EquivQuiverMatrix> getQuiverPool() {
+//		DummyPool pool = new DummyPool(getRows());
+//		return pool;
+		return super.getQuiverPool();
+	}
+
+	private class DummyPool implements ObjectPool<EquivQuiverMatrix> {
+
+		int mSize;
+
+		public DummyPool(int size) {
+			mSize = size;
+		}
+
+		public EquivQuiverMatrix getObj() throws PoolException {
+			return new EquivQuiverMatrix(mSize);
+		}
+
+		public void returnObj(EquivQuiverMatrix object) {
+			object = null;
+		}
+
 	}
 }

@@ -235,5 +235,5 @@ public enum DynkinDiagram {
 
 	/** Variety of diagrams to use for testing */
 	public static EnumSet<DynkinDiagram> TEST_SET = EnumSet.of(A2, A3, A4, A5, A6, A7, A8, D4, D5,
-			D6, D7, D8, E6, E7, E8, G2);
+			D6, D7, D8, E6, E7, G2);
 }

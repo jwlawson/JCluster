@@ -35,6 +35,7 @@ public class MutClassSizeTask<T extends QuiverMatrix> extends AbstractMutClassSi
 
 	public MutClassSizeTask(T matrix) {
 		super(matrix);
+		setIterationsBetweenStats(50000);
 	}
 
 	@Override
@@ -68,25 +69,13 @@ public class MutClassSizeTask<T extends QuiverMatrix> extends AbstractMutClassSi
 	}
 
 	@Override
-	protected void checkRemoveQuiver(T remove, ObjectPool<T> quiverPool,
-			ObjectPool<LinkHolder<T>> holderPool, Map<T, LinkHolder<T>> mMatrixSet) {
-		LinkHolder<T> holder = mMatrixSet.get(remove);
-		if (holder != null && holder.isComplete()) {
-			T key = holder.getQuiverMatrix();
-			holder = mMatrixSet.remove(remove);
-			if (key != remove) {
-				// So remove.equals(key), but they are not the same object
-				quiverPool.returnObj(key);
-			}
-			holderPool.returnObj(holder);
-		}
-		quiverPool.returnObj(remove);
-	}
-
-
-	@Override
 	protected void teardown(ObjectPool<T> quiverPool, ObjectPool<LinkHolder<T>> holderPool,
 			Map<T, LinkHolder<T>> matrixSet) {
-		// Do nothing
+
+		for (T matrix : matrixSet.keySet()) {
+			LinkHolder<T> holder = matrixSet.remove(matrix);
+			holderPool.returnObj(holder);
+			quiverPool.returnObj(matrix);
+		}
 	}
 }

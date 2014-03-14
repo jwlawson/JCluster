@@ -39,8 +39,8 @@ public class QuiverMatrixPoolableObject<T extends QuiverMatrix> extends Poolable
 
 	/**
 	 * Create a new PoolableObject. This provides a factory method to get new objects for the pool.
-	 * The class is required to be able to construct the correct class as otherwise the type is
-	 * erased and the only class returned is {@link QuiverMatrix}.
+	 * The class is required to be able to construct the correct class as otherwise the type is erased
+	 * and the only class returned is {@link QuiverMatrix}.
 	 * 
 	 * @param rows Number of rows in each matrix
 	 * @param cols Number of columns in each matrix
@@ -77,8 +77,8 @@ public class QuiverMatrixPoolableObject<T extends QuiverMatrix> extends Poolable
 		}
 	}
 
-	public void activate(T arg0) throws PoolException {
-		// Do nothing
+	public void activate(T quiver) throws PoolException {
+		quiver.reset();
 	}
 
 	@Override
