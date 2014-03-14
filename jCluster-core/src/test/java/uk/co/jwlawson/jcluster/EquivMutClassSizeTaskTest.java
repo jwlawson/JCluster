@@ -114,7 +114,7 @@ public class EquivMutClassSizeTaskTest {
 		}
 	}
 
-	@Ignore("Takes over 30 seconds")
+//	@Ignore("Takes over 30 seconds")
 	@Test
 	public void testE7() {
 		QuiverMatrix matrix = DynkinDiagram.E7.getMatrix();
