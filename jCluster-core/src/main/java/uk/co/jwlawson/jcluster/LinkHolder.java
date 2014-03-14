@@ -64,13 +64,12 @@ public class LinkHolder<T extends QuiverMatrix> {
 	 * Set the link at {@code index} to be true.
 	 * 
 	 * @param index Index to set
-	 * @throws IllegalArgumentException if the link has already has been set. This allows the
-	 *         program to fail quickly as the algorithms used should not be setting the same link
-	 *         twice.
+	 * @throws IllegalArgumentException if the link has already has been set. This allows the program
+	 *         to fail quickly as the algorithms used should not be setting the same link twice.
 	 */
 	public void setLinkAt(int index) {
 		if (mList[index]) {
-			throw new RuntimeException("Link already set");
+			throw new RuntimeException("Link already set in " + this);
 		}
 		mList[index] = true;
 	}

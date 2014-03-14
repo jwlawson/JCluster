@@ -119,17 +119,23 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> {
 						newMatrix = mat.mutate(i, newMatrix);
 						if (matrixSeenBefore(newMatrix, matrixSet)) {
 							handleSeenMatrix(matrixSet, mat, newMatrix, i);
-							checkRemoveQuiver(newMatrix, quiverPool, holderPool, matrixSet);
+							if (isMatrixComplete(newMatrix, matrixSet)) {
+								removeComplete(newMatrix, quiverPool, holderPool, matrixSet, incompleteQuivers);
+								// Removing complete removes from queue too, so effectively handles matrix
+								// want to do this in the method, but ints are immutable
+//								numMatrices++;
+							} else {
+								removeIncomplete(newMatrix, quiverPool);
+							}
 						} else {
 							if (newMatrix.isInfinite()) {
 								return INFINITE;
 							}
-							handleUnseenMatrix(matrixSet, incompleteQuivers, holderPool, mat,
-									newMatrix, i);
+							handleUnseenMatrix(matrixSet, incompleteQuivers, holderPool, mat, newMatrix, i);
 						}
 					}
 				}
-				checkRemoveQuiver(mat, quiverPool, holderPool, matrixSet);
+				removeHandledQuiver(mat, quiverPool, holderPool, matrixSet);
 				if (numMatrices % mIterationsBetweenStats == 0 && numMatrices != 0) {
 					stats.update(matrixSet, numMatrices);
 				}
@@ -148,41 +154,12 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> {
 	}
 
 	/**
-	 * Request that the calculation be stopped at the next convenient place. If called the
-	 * calculation will return {@link AbstractMutClassSizeTask#STOP}.
+	 * Request that the calculation be stopped at the next convenient place. If called the calculation
+	 * will return {@link AbstractMutClassSizeTask#STOP}.
 	 */
 	public void requestStop() {
 		mShouldRun = false;
 	}
-
-	/**
-	 * Handle matrix not yet seen before in the mutation process.
-	 * 
-	 * @param matrixSet {@link Map} containing the matrices and which mutations from them have been
-	 *        considered
-	 * @param incompleteQuivers {@link Queue} containing quivers not yet handled
-	 * @param holderPool {@link ObjectPool} providing {@link LinkHolder} objects
-	 * @param mat Matrix mutated to get the unseen matrix
-	 * @param newMatrix Unseen matrix
-	 * @param i Index mutated at to get unseen matrix
-	 * @throws PoolException Thrown if there is some problem taking objects from the
-	 *         {@link LinkHolder} pool
-	 */
-	protected abstract void handleUnseenMatrix(Map<T, LinkHolder<T>> matrixSet,
-			Queue<T> incompleteQuivers, ObjectPool<LinkHolder<T>> holderPool, T mat, T newMatrix,
-			int i) throws PoolException;
-
-	/**
-	 * Handle a matrix which has been seen before in the mutation process.
-	 * 
-	 * @param matrixSet {@link Map} containing the matrices and which mutations from them have been
-	 *        considered
-	 * @param mat Matrix mutated to get the seen before matrix
-	 * @param newMatrix Matrix which has been seen before
-	 * @param i Index mutated at to get to newMatrix
-	 */
-	protected abstract void handleSeenMatrix(Map<T, LinkHolder<T>> matrixSet, T mat, T newMatrix,
-			int i);
 
 	/**
 	 * Get the {@link ObjectPool} which provides {@link QuiverMatrix} objects of type T.
@@ -233,6 +210,66 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> {
 	}
 
 	/**
+	 * Check whether the matrix has all its links full.
+	 * 
+	 * @param remove Matrix to check
+	 * @param mMatrixSet Map containing the links
+	 * @return true if the matrix has all links full
+	 */
+	protected boolean isMatrixComplete(T remove, Map<T, LinkHolder<T>> mMatrixSet) {
+
+		LinkHolder<T> holder = mMatrixSet.get(remove);
+		return holder != null && holder.isComplete();
+	}
+
+	/**
+	 * Remove a matrix from the map once it has been handled by the task. This should only be called
+	 * once the quiver is handled, as it makes a lot of assumptions about the state concerning the
+	 * matrix. Any other time
+	 * {@link AbstractMutClassSizeTask#checkRemoveUnhandledQuiver(QuiverMatrix, ObjectPool, ObjectPool, Map, Queue, int)}
+	 * should be used instead.
+	 * 
+	 * @param remove Handled matrix to remove
+	 * @param quiverPool Pool to return matrix to
+	 * @param holderPool Pool to return link holder to
+	 * @param matrixSet Map to remove quiver from
+	 */
+	protected void removeHandledQuiver(T remove, ObjectPool<T> quiverPool,
+			ObjectPool<LinkHolder<T>> holderPool, Map<T, LinkHolder<T>> matrixSet) {
+
+		LinkHolder<T> holder = matrixSet.remove(remove);
+		holderPool.returnObj(holder);
+		removeIncomplete(remove, quiverPool);
+	}
+
+	/**
+	 * Remove a complete matrix from the map and the queue. This is followed by a call
+	 * {@code numMatrices++} in the main method.
+	 * 
+	 * @param remove Matrix to remove
+	 * @param quiverPool Pool to return matrix to
+	 * @param holderPool Pool to return holder to
+	 * @param matrixSet Map to remove matrix from
+	 * @param incompleteQuivers Queue to remove matrix from
+	 */
+	protected void removeComplete(T remove, ObjectPool<T> quiverPool,
+			ObjectPool<LinkHolder<T>> holderPool, Map<T, LinkHolder<T>> matrixSet,
+			Queue<T> incompleteQuivers) {
+
+		LinkHolder<T> holder = matrixSet.remove(remove);
+//		T key = holder.getQuiverMatrix();
+//		if (incompleteQuivers.remove(key)) {
+//			quiverPool.returnObj(key);
+//		}
+		holderPool.returnObj(holder);
+		removeIncomplete(remove, quiverPool);
+	}
+
+	protected void removeIncomplete(T remove, ObjectPool<T> quiverPool) {
+		quiverPool.returnObj(remove);
+	}
+
+	/**
 	 * Get the {@link Map} which holds the {@link QuiverMatrix} objects which have been seen before
 	 * and the {@link LinkHolder} associated to them.
 	 * 
@@ -240,6 +277,35 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> {
 	 * @return Map between matrices and link holders
 	 */
 	protected abstract Map<T, LinkHolder<T>> getMatrixMap(int size);
+
+	/**
+	 * Handle a matrix which has been seen before in the mutation process.
+	 * 
+	 * @param matrixSet {@link Map} containing the matrices and which mutations from them have been
+	 *        considered
+	 * @param mat Matrix mutated to get the seen before matrix
+	 * @param newMatrix Matrix which has been seen before
+	 * @param i Index mutated at to get to newMatrix
+	 */
+	protected abstract void handleSeenMatrix(Map<T, LinkHolder<T>> matrixSet, T mat, T newMatrix,
+			int i);
+
+	/**
+	 * Handle matrix not yet seen before in the mutation process.
+	 * 
+	 * @param matrixSet {@link Map} containing the matrices and which mutations from them have been
+	 *        considered
+	 * @param incompleteQuivers {@link Queue} containing quivers not yet handled
+	 * @param holderPool {@link ObjectPool} providing {@link LinkHolder} objects
+	 * @param mat Matrix mutated to get the unseen matrix
+	 * @param newMatrix Unseen matrix
+	 * @param i Index mutated at to get unseen matrix
+	 * @throws PoolException Thrown if there is some problem taking objects from the
+	 *         {@link LinkHolder} pool
+	 */
+	protected abstract void handleUnseenMatrix(Map<T, LinkHolder<T>> matrixSet,
+			Queue<T> incompleteQuivers, ObjectPool<LinkHolder<T>> holderPool, T mat, T newMatrix, int i)
+			throws PoolException;
 
 	/**
 	 * Check whether the matrix has been seen before in the mutation process.
@@ -251,18 +317,6 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> {
 	protected abstract boolean matrixSeenBefore(T newMatrix, Map<T, LinkHolder<T>> matrixSet);
 
 	/**
-	 * Check whether the matrix should be removed from the map. If so it is removed and returned to
-	 * the pools.
-	 * 
-	 * @param remove Matrix to check
-	 * @param quiverPool Pool to return the quiver to
-	 * @param holderPool Pool to return the link holder to
-	 * @param matrixSet Map to remove the quiver from
-	 */
-	protected abstract void checkRemoveQuiver(T remove, ObjectPool<T> quiverPool,
-			ObjectPool<LinkHolder<T>> holderPool, Map<T, LinkHolder<T>> matrixSet);
-
-	/**
 	 * Called after the calculation is complete. Can be used to clean up and return objects to their
 	 * pools.
 	 * 
@@ -270,12 +324,12 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> {
 	 * @param holderPool Pool of link holder objects
 	 * @param matrixSet Map containing quivers and holders
 	 */
-	protected abstract void teardown(ObjectPool<T> quiverPool,
-			ObjectPool<LinkHolder<T>> holderPool, Map<T, LinkHolder<T>> matrixSet);
+	protected abstract void teardown(ObjectPool<T> quiverPool, ObjectPool<LinkHolder<T>> holderPool,
+			Map<T, LinkHolder<T>> matrixSet);
 
 	/**
-	 * Check whether we need to mutate the vertex at the specified index, or whether that mutation
-	 * has already been considered.
+	 * Check whether we need to mutate the vertex at the specified index, or whether that mutation has
+	 * already been considered.
 	 * 
 	 * @param matrix Matrix to check
 	 * @param i Index to mutate at
@@ -326,10 +380,9 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> {
 
 		@Override
 		public String toString() {
-			String.format("Handled %d matrices with %d found but not handled", numConsidered,
+			String.format("Handled %d matrices with %d found but not handled", numConsidered, numInMap);
+			return String.format("Handled %d matrices with %d found but not handled", numConsidered,
 					numInMap);
-			return String.format("Handled %d matrices with %d found but not handled",
-					numConsidered, numInMap);
 		}
 
 		/** Get the time taken by the calculation so far in nanoseconds */

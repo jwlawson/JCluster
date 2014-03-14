@@ -1,5 +1,16 @@
 /**
+ * Copyright 2014 John Lawson
  * 
+ * Mutator.java is part of JCluster. Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License. You may obtain a copy of the
+ * License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package uk.co.jwlawson.jcluster.demos;
 
@@ -66,8 +77,7 @@ public class Mutator {
 	}
 
 	/**
-	 * Check whether the array contains the right number of elements to define a
-	 * matrix.
+	 * Check whether the array contains the right number of elements to define a matrix.
 	 */
 	private static boolean isValidMatrix(String[] args) {
 		int rows = NumberUtils.toInt(args[0]);
@@ -100,8 +110,7 @@ public class Mutator {
 			return DynkinDiagram.valueOf(matrix);
 		} catch (IllegalArgumentException e) {
 			// Should never happen if isDynkin is checked first
-			throw new RuntimeException("No Dynkin diagram named " + matrix
-					+ " is available.");
+			throw new RuntimeException("No Dynkin diagram named " + matrix + " is available.");
 		}
 	}
 
@@ -115,8 +124,8 @@ public class Mutator {
 	}
 
 	/**
-	 * Get the QuiverMatrix defined in the array.
-	 * The array should be of the form {@code rows, cols, data... }
+	 * Get the QuiverMatrix defined in the array. The array should be of the form
+	 * {@code rows, cols, data... }
 	 * 
 	 * @param arr The array containing the matrix data.
 	 * @return The QuiverMatrix defined by the array.
@@ -153,12 +162,9 @@ public class Mutator {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		System.out
-				.println("Mutator demo from jCluster  Copyright (C) 2014 John Lawson");
-		System.out
-				.println("This program comes with ABSOLUTELY NO WARRANTY. This is free");
-		System.out
-				.println("software, and you are welcome to redistribute it under certain");
+		System.out.println("Mutator demo from jCluster  Copyright (C) 2014 John Lawson");
+		System.out.println("This program comes with ABSOLUTELY NO WARRANTY. This is free");
+		System.out.println("software, and you are welcome to redistribute it under certain");
 		System.out.println("conditions.");
 		if (Mutator.isValidArgs(args)) {
 			Mutator mut = new Mutator(args);
@@ -180,8 +186,7 @@ public class Mutator {
 		} else {
 			System.out.println("Usage:");
 			System.out.println("    Mutator <diagram>");
-			System.out
-					.println("    Where diagram is the name of a Dynkin diagram");
+			System.out.println("    Where diagram is the name of a Dynkin diagram");
 			System.out.println();
 			System.out.println("    e.g. Mutator A6");
 		}

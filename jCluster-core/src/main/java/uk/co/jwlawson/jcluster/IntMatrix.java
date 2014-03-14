@@ -51,8 +51,7 @@ public class IntMatrix {
 	 */
 	public IntMatrix(int rows, int cols, int... data) {
 		if (data.length != rows * cols) {
-			throw new IllegalArgumentException(
-					"Number of entries must match the size of the matrix");
+			throw new IllegalArgumentException("Number of entries must match the size of the matrix");
 		}
 		mData = new int[rows * cols];
 		mRows = rows;
@@ -85,19 +84,17 @@ public class IntMatrix {
 	 * @param row Row position
 	 * @param col Column position
 	 * @return Value stored in matrix
-	 * @throws IllegalArgumentException if the row or column index is less than 0, or greater than
-	 *         the number of rows or columns.
+	 * @throws IllegalArgumentException if the row or column index is less than 0, or greater than the
+	 *         number of rows or columns.
 	 */
 	public int get(int row, int col) {
 		if (row < 0 || row > mRows) {
 			throw new IllegalArgumentException(
-					"row must be non-negative and within the bounds. Expected <" + mRows
-							+ " but got " + row);
+					"row must be non-negative and within the bounds. Expected <" + mRows + " but got " + row);
 		}
 		if (col < 0 || col > mCols) {
 			throw new IllegalArgumentException(
-					"col must be non-negative and within the bounds. Expected <" + mCols
-							+ " but got " + col);
+					"col must be non-negative and within the bounds. Expected <" + mCols + " but got " + col);
 		}
 		return unsafeGet(row, col);
 	}
@@ -184,13 +181,12 @@ public class IntMatrix {
 	 * @param rows Number of rows in the matrix
 	 * @param cols Number of columns in the matrix
 	 * @param data Array of values to store in the matrix.
-	 * @throws IllegalArgumentException if the array is the wrong size compared to the number of
-	 *         rows and columns
+	 * @throws IllegalArgumentException if the array is the wrong size compared to the number of rows
+	 *         and columns
 	 */
 	public void set(int rows, int cols, int... data) {
 		if (data.length != rows * cols) {
-			throw new IllegalArgumentException(
-					"Number of entries must match the size of the matrix");
+			throw new IllegalArgumentException("Number of entries must match the size of the matrix");
 		}
 		reset();
 		mData = new int[rows * cols];
@@ -212,13 +208,11 @@ public class IntMatrix {
 	public void set(int row, int col, int a) {
 		if (row < 0 || row > mRows) {
 			throw new IllegalArgumentException(
-					"row must be non-negative and within the bounds. Expected <" + mRows
-							+ " but got " + row);
+					"row must be non-negative and within the bounds. Expected <" + mRows + " but got " + row);
 		}
 		if (col < 0 || col > mCols) {
 			throw new IllegalArgumentException(
-					"col must be non-negative and within the bounds. Expected <" + mCols
-							+ " but got " + col);
+					"col must be non-negative and within the bounds. Expected <" + mCols + " but got " + col);
 		}
 		unsafeSet(row, col, a);
 	}
@@ -249,8 +243,8 @@ public class IntMatrix {
 	}
 
 	/**
-	 * IntMatrices are meant to be fairly immutable, so the hashcode is cached. Reset should be
-	 * called each time that the matrix is changed.
+	 * IntMatrices are meant to be fairly immutable, so the hashcode is cached. Reset should be called
+	 * each time that the matrix is changed.
 	 */
 	public void reset() {
 		mHashCode = 0;
@@ -286,15 +280,19 @@ public class IntMatrix {
 	public int hashCode() {
 		int hashcode = mHashCode;
 		if (hashcode == 0) {
-			hashcode = Arrays.hashCode(mData);
+//			hashcode = Arrays.hashCode(mData);
+			hashcode = 113;
+			for (int i = 0; i < mData.length; i++) {
+				hashcode *= 523;
+				hashcode += mData[i];
+			}
 			mHashCode = hashcode;
 		}
 		return mHashCode;
 	}
 
 	/**
-	 * Multiply this matrix on the left by {@code mat} and return a new matrix containing the
-	 * result.
+	 * Multiply this matrix on the left by {@code mat} and return a new matrix containing the result.
 	 * 
 	 * <p>
 	 * i.e. {@code result = mat * this}
@@ -307,8 +305,7 @@ public class IntMatrix {
 	}
 
 	/**
-	 * Multiply this matrix on the right by {@code mat} and return a new matrix containing the
-	 * result.
+	 * Multiply this matrix on the right by {@code mat} and return a new matrix containing the result.
 	 * 
 	 * <p>
 	 * i.e. {@code result = this * mat}
@@ -336,16 +333,14 @@ public class IntMatrix {
 		}
 		if (mat.getNumCols() != this.getNumRows()) {
 			String error =
-					String.format(
-							"Matrix to multiply is wrong size. Expected %d columns but have %d",
+					String.format("Matrix to multiply is wrong size. Expected %d columns but have %d",
 							getNumRows(), mat.getNumCols());
 			throw new IllegalArgumentException(error);
 		}
 		if (container.getNumRows() != mat.getNumRows() || container.getNumCols() != getNumCols()) {
 			String error =
 					String.format("Container is wrong size. Expected %d x %d but have %d x %d",
-							mat.getNumRows(), getNumCols(), container.getNumRows(),
-							container.getNumCols());
+							mat.getNumRows(), getNumCols(), container.getNumRows(), container.getNumCols());
 			throw new IllegalArgumentException(error);
 		}
 		return unsafeMult(mat, this, container);
@@ -373,9 +368,8 @@ public class IntMatrix {
 		}
 		if (container.getNumRows() != getNumRows() || container.getNumCols() != mat.getNumCols()) {
 			String error =
-					String.format("Container is wrong size. Expected %d x %d but have %d x %d",
-							getNumRows(), mat.getNumCols(), container.getNumRows(),
-							container.getNumCols());
+					String.format("Container is wrong size. Expected %d x %d but have %d x %d", getNumRows(),
+							mat.getNumCols(), container.getNumRows(), container.getNumCols());
 			throw new IllegalArgumentException(error);
 		}
 		return unsafeMult(this, mat, container);
