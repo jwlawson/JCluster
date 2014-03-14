@@ -121,9 +121,6 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> {
 							handleSeenMatrix(matrixSet, mat, newMatrix, i);
 							if (isMatrixComplete(newMatrix, matrixSet)) {
 								removeComplete(newMatrix, quiverPool, holderPool, matrixSet, incompleteQuivers);
-								// Removing complete removes from queue too, so effectively handles matrix
-								// want to do this in the method, but ints are immutable
-//								numMatrices++;
 							} else {
 								removeIncomplete(newMatrix, quiverPool);
 							}
@@ -243,8 +240,11 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> {
 	}
 
 	/**
-	 * Remove a complete matrix from the map and the queue. This is followed by a call
-	 * {@code numMatrices++} in the main method.
+	 * Remove a complete matrix from the map.
+	 * 
+	 * <p>
+	 * Does not remove from the Queue, as the Queue is not backed by a hashtable, so the remove is
+	 * slow.
 	 * 
 	 * @param remove Matrix to remove
 	 * @param quiverPool Pool to return matrix to
@@ -257,10 +257,6 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> {
 			Queue<T> incompleteQuivers) {
 
 		LinkHolder<T> holder = matrixSet.remove(remove);
-//		T key = holder.getQuiverMatrix();
-//		if (incompleteQuivers.remove(key)) {
-//			quiverPool.returnObj(key);
-//		}
 		holderPool.returnObj(holder);
 		removeIncomplete(remove, quiverPool);
 	}
