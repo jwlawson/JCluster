@@ -38,7 +38,7 @@ public class NewFiniteTaskTest {
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	@Test
-	public void test() {
+	public void testA4() {
 		log.debug("Starting test");
 		MutClassSizeTask<QuiverMatrix> task =
 				new MutClassSizeTask<QuiverMatrix>(DynkinDiagram.A4.getMatrix());
@@ -57,7 +57,7 @@ public class NewFiniteTaskTest {
 
 
 	@Test
-	public void test1() {
+	public void testA3() {
 		log.debug("Starting test");
 		MutClassSizeTask<QuiverMatrix> task =
 				new MutClassSizeTask<QuiverMatrix>(DynkinDiagram.A3.getMatrix());
@@ -74,7 +74,6 @@ public class NewFiniteTaskTest {
 		}
 	}
 
-	@Ignore("Don't know the real value")
 	@Test
 	public void testA5() {
 		log.debug("Starting test");
@@ -85,7 +84,7 @@ public class NewFiniteTaskTest {
 		Future<Integer> future = exec.submit(task);
 		try {
 			int value = future.get();
-			assertEquals(14, value);
+			assertEquals(1980, value);
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
 		} catch (ExecutionException e) {
@@ -93,7 +92,6 @@ public class NewFiniteTaskTest {
 		}
 	}
 
-	@Ignore("Don't know the real value")
 	@Test
 	public void testD5() {
 		log.debug("Starting test");
@@ -104,7 +102,7 @@ public class NewFiniteTaskTest {
 		Future<Integer> future = exec.submit(task);
 		try {
 			int value = future.get();
-			assertEquals(14, value);
+			assertEquals(2184, value);
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
 		} catch (ExecutionException e) {
