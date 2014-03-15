@@ -19,8 +19,8 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
-import uk.co.jwlawson.jcluster.pool.Pool;
 import nf.fr.eraasoft.pool.PoolException;
+import uk.co.jwlawson.jcluster.pool.Pool;
 
 /**
  * Task to find the number of quivers in the mutation class of the initial quiver up to permutations
@@ -118,30 +118,5 @@ public class EquivMutClassSizeTask extends MutClassSizeTask<EquivQuiverMatrix> {
 		}
 		mList.clear();
 		super.teardown(quiverPool, holderPool, matrixSet);
-	}
-
-	@Override
-	protected Pool<EquivQuiverMatrix> getQuiverPool() {
-//		DummyPool pool = new DummyPool(getRows());
-//		return pool;
-		return super.getQuiverPool();
-	}
-
-	private class DummyPool implements Pool<EquivQuiverMatrix> {
-
-		int mSize;
-
-		public DummyPool(int size) {
-			mSize = size;
-		}
-
-		public EquivQuiverMatrix getObj() {
-			return new EquivQuiverMatrix(mSize);
-		}
-
-		public void returnObj(EquivQuiverMatrix object) {
-			object = null;
-		}
-
 	}
 }

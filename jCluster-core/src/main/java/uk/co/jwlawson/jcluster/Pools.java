@@ -18,7 +18,7 @@ import nf.fr.eraasoft.pool.ObjectPool;
 import uk.co.jwlawson.jcluster.pool.Pool;
 import uk.co.jwlawson.jcluster.pool.PoolCache;
 import uk.co.jwlawson.jcluster.pool.PoolCacheImpl;
-import uk.co.jwlawson.jcluster.pool.multiway.MultiwayPoolFactory;
+import uk.co.jwlawson.jcluster.pool.dummy.DummyPoolFactory;
 
 /**
  * Convenience class to provide an ObjectPool of QuiverMatrix objects. Caches the instances so that
@@ -29,7 +29,7 @@ import uk.co.jwlawson.jcluster.pool.multiway.MultiwayPoolFactory;
  */
 public class Pools {
 
-	private static PoolCache poolCache = new PoolCacheImpl(new MultiwayPoolFactory());
+	private static PoolCache poolCache = new PoolCacheImpl(new DummyPoolFactory());
 
 	/**
 	 * Get the instance of {@link ObjectPool} which provides objects which extend {@link QuiverMatrix}
