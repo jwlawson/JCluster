@@ -15,6 +15,7 @@
 package uk.co.jwlawson.jcluster;
 
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
 import nf.fr.eraasoft.pool.ObjectPool;
 import nf.fr.eraasoft.pool.PoolSettings;
@@ -22,6 +23,9 @@ import nf.fr.eraasoft.pool.PoolSettings;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.github.benmanes.multiway.LoadingMultiwayPool;
+import com.github.benmanes.multiway.MultiwayPoolBuilder;
 
 /**
  * Convenience class to provide an ObjectPool of QuiverMatrix objects. Caches the instances so that
@@ -40,37 +44,30 @@ public class Pools {
 			new HashMap<HolderKey<?>, Pool<? extends LinkHolder<?>>>();
 	private static Pool<IntMatrixPair> sMatrixPairPool;
 
+	private static LoadingMultiwayPool<? extends QuiverKey<?>, ? extends QuiverMatrix> sBackingMultiPool;
+
 	/**
 	 * Get the instance of {@link ObjectPool} which provides objects which extend {@link QuiverMatrix}
 	 * . The class provided will be the type of objects returned by the pool.
 	 * 
+	 * <p>
+	 * The pool is thread local, so only return objects which have been borrowed in the same thread.
+	 * 
 	 * @param rows Number of rows in the matrices
 	 * @param cols Number of columns in the matrices
 	 * @param clazz Type of QuiverMatrix to return
-	 * @return {@link ObjectPool} which provides objects of class {@code clazz}.
+	 * @return {@link Pool} which provides objects of class {@code clazz}.
 	 */
-	@SuppressWarnings("unchecked")
 	public static synchronized <T extends QuiverMatrix> Pool<T> getQuiverMatrixPool(int rows,
 			int cols, Class<T> clazz) {
-		int id = getId(rows, cols);
-		QuiverKey<T> key = new QuiverKey<T>(id, clazz);
-		if (sQuiverPoolMap.containsKey(key)) {
-			return (Pool<T>) sQuiverPoolMap.get(key);
-		} else {
-			logger.info("Creating new {} pool {}x{}", clazz.getSimpleName(), rows, cols);
-			PoolSettings<T> settings =
-					new PoolSettings<T>(new QuiverMatrixPoolableObject<T>(rows, cols, clazz));
-			settings.max(-1);
-			settings.maxIdle(500000);
-			PoolSettings.timeBetweenTwoControls(600);
-			Pool<T> pool = getPool(settings.pool());
-			sQuiverPoolMap.put(key, pool);
-			return pool;
-		}
+
+		QuiverKey<T> key = new QuiverKey<T>(rows, cols, clazz);
+		Pool<T> pool = getMultiWayPool(key);
+		return pool;
 	}
 
 	/**
-	 * Get an instance of {@link ObjectPool} which provides a source for {@link LinkHolder}. The class
+	 * Get an instance of {@link Pool} which provides a source for {@link LinkHolder}. The class
 	 * {@code clazz} specifies which type of {@link QuiverMatrix} the {@link LinkHolder} expects as
 	 * its matrix.
 	 * 
@@ -81,20 +78,15 @@ public class Pools {
 	@SuppressWarnings("unchecked")
 	public static synchronized <T extends QuiverMatrix> Pool<LinkHolder<T>> getHolderPool(int size,
 			Class<T> quiverClass) {
+
 		HolderKey<T> key = new HolderKey<T>(size, quiverClass);
-		if (sHolderPoolMap.containsKey(key)) {
-			return (Pool<LinkHolder<T>>) sHolderPoolMap.get(key);
-		} else {
+		Pool<LinkHolder<T>> pool = (Pool<LinkHolder<T>>) sHolderPoolMap.get(key);
+		if (pool == null) {
 			logger.info("Creating new Holder pool of size {}", size);
-			PoolSettings<LinkHolder<T>> settings =
-					new PoolSettings<LinkHolder<T>>(new LinkHolderPoolableObject<T>(size));
-			settings.max(-1);
-			settings.maxIdle(500000);
-			PoolSettings.timeBetweenTwoControls(600);
-			Pool<LinkHolder<T>> pool = getPool(settings.pool());
+			pool = getNewFuriousLinkHolderPool(size);
 			sHolderPoolMap.put(key, pool);
-			return pool;
 		}
+		return pool;
 	}
 
 	/**
@@ -104,25 +96,66 @@ public class Pools {
 	 */
 	public static synchronized Pool<IntMatrixPair> getIntMatrixPairPool() {
 		if (sMatrixPairPool == null) {
-			PoolSettings<IntMatrixPair> settings =
-					new PoolSettings<IntMatrixPair>(new IntMatrixPairPoolableObject());
-			settings.max(-1);
-			settings.maxIdle(100);
-			sMatrixPairPool = getPool(settings.pool());
+			sMatrixPairPool = getNewFuriousPairPool();
 		}
 		return sMatrixPairPool;
 	}
 
-	/*
-	 * Szudzik's function. See http://szudzik.com/ElegantPairing.pdf
-	 */
-	private static int getId(int a, int b) {
-		return a >= b ? a * a + a + b : a + b * b;
+	private static Pool<IntMatrixPair> getNewFuriousPairPool() {
+		PoolSettings<IntMatrixPair> settings =
+				new PoolSettings<IntMatrixPair>(new IntMatrixPairPoolableObject());
+		settings.max(-1);
+		settings.maxIdle(100);
+		Pool<IntMatrixPair> pool = getPool(settings.pool());
+		return pool;
+	}
+
+	private static <T extends QuiverMatrix> Pool<T> getNewFuriousQuiverPool(int rows, int cols,
+			Class<T> clazz) {
+		PoolSettings<T> settings =
+				new PoolSettings<T>(new QuiverMatrixPoolableObject<T>(rows, cols, clazz));
+		settings.max(-1);
+		settings.maxIdle(500000);
+		PoolSettings.timeBetweenTwoControls(600);
+		Pool<T> pool = getPool(settings.pool());
+		return pool;
+	}
+
+	private static <T extends QuiverMatrix> Pool<LinkHolder<T>> getNewFuriousLinkHolderPool(int size) {
+		PoolSettings<LinkHolder<T>> settings =
+				new PoolSettings<LinkHolder<T>>(new LinkHolderPoolableObject<T>(size));
+		settings.max(-1);
+		settings.maxIdle(500000);
+		PoolSettings.timeBetweenTwoControls(600);
+		Pool<LinkHolder<T>> pool = getPool(settings.pool());
+		return pool;
 	}
 
 	private static <T> Pool<T> getPool(ObjectPool<T> pool) {
 		Pool<T> result = new FuriousPoolAdaptor<T>(pool);
 		return result;
+	}
+
+	private static <T extends QuiverMatrix> Pool<T> getMultiWayPool(QuiverKey<T> key) {
+		LoadingMultiwayPool<QuiverKey<T>, T> backingPool = getBackingMultiWayPool();
+		return getPool(backingPool, key);
+	}
+
+	@SuppressWarnings("unchecked")
+	private static <T extends QuiverMatrix> LoadingMultiwayPool<QuiverKey<T>, T> getBackingMultiWayPool() {
+		if (sBackingMultiPool == null) {
+			sBackingMultiPool =
+					MultiwayPoolBuilder.newBuilder().maximumSize(10000000)
+							.expireAfterAccess(2, TimeUnit.MINUTES).build(new QuiverMatrixResourceLoader<T>());
+			logger.info("New {} created", sBackingMultiPool.getClass().getSimpleName());
+		}
+		return (LoadingMultiwayPool<QuiverKey<T>, T>) sBackingMultiPool;
+	}
+
+	private static <T extends QuiverMatrix> Pool<T> getPool(
+			LoadingMultiwayPool<QuiverKey<T>, T> pool, QuiverKey<T> key) {
+
+		return new MultiwayPoolAdaptor<T>(pool, key);
 	}
 
 	/**
@@ -138,13 +171,27 @@ public class Pools {
 	 * 
 	 * @param <V> Type of QuiverMatrix provided by the pool
 	 */
-	private static class QuiverKey<V> {
-		private final int id;
+	public static class QuiverKey<V> {
+		private final int rows;
+		private final int cols;
 		private final Class<V> clazz;
 
-		public QuiverKey(int id, Class<V> clazz) {
-			this.id = id;
+		public QuiverKey(int rows, int cols, Class<V> clazz) {
+			this.rows = rows;
+			this.cols = cols;
 			this.clazz = clazz;
+		}
+
+		public Class<V> getClassObject() {
+			return clazz;
+		}
+
+		public int getRows() {
+			return rows;
+		}
+
+		public int getCols() {
+			return cols;
 		}
 
 		@Override
@@ -156,12 +203,12 @@ public class Pools {
 			if (obj.getClass() != getClass())
 				return false;
 			QuiverKey<?> rhs = (QuiverKey<?>) obj;
-			return (id == rhs.id) && (clazz == rhs.clazz);
+			return (rows == rhs.rows) && (cols == rhs.cols) && (clazz == rhs.clazz);
 		}
 
 		@Override
 		public int hashCode() {
-			return new HashCodeBuilder(57, 97).append(id).append(clazz).toHashCode();
+			return new HashCodeBuilder(57, 97).append(rows).append(cols).append(clazz).toHashCode();
 		}
 	}
 
@@ -198,4 +245,5 @@ public class Pools {
 			return new HashCodeBuilder(57, 293).append(size).append(clazz).toHashCode();
 		}
 	}
+
 }

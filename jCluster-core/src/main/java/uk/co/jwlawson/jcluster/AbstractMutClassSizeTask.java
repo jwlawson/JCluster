@@ -43,16 +43,19 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> {
 	private final List<StatsListener> mStatsListeners;
 
 	public AbstractMutClassSizeTask(T matrix) {
+		mInitialMatrix = copyMatrixFromPool(matrix);
+		mStatsListeners = new ArrayList<AbstractMutClassSizeTask.StatsListener>();
+		addListener(new StatsLogger());
+	}
+
+	private T copyMatrixFromPool(T matrix) {
 		@SuppressWarnings("unchecked")
 		Pool<T> pool =
 				Pools.getQuiverMatrixPool(matrix.getNumRows(), matrix.getNumCols(),
 						(Class<T>) matrix.getClass());
-		T first;
-		first = pool.getObj();
+		T first = pool.getObj();
 		first.set(matrix);
-		mInitialMatrix = first;
-		mStatsListeners = new ArrayList<AbstractMutClassSizeTask.StatsListener>();
-		addListener(new StatsLogger());
+		return first;
 	}
 
 	/**
@@ -85,23 +88,26 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> {
 	 * @throws Exception
 	 */
 	public Integer call() throws Exception {
-		log.debug("MutClassSizeTask started for {}", mInitialMatrix);
+		log.info("MutClassSizeTask started for {}", mInitialMatrix);
 		int size = getSize(mInitialMatrix);
 		int numMatrices = 0;
 
 		Map<T, LinkHolder<T>> matrixSet = getMatrixMap(size);
-
-		LinkHolder<T> initial = new LinkHolder<T>(getSize(mInitialMatrix));
-		initial.setMatrix(mInitialMatrix);
-		matrixSet.put(mInitialMatrix, initial);
-
-		Queue<T> incompleteQuivers = new ArrayDeque<T>((int) Math.pow(2, 3 * size - 3));
-		incompleteQuivers.add(mInitialMatrix);
-
 		Pool<T> quiverPool = getQuiverPool();
 		Pool<LinkHolder<T>> holderPool = getHolderPool(size);
 		Stats stats = new Stats();
 		mShouldRun = true;
+
+		T m = quiverPool.getObj();
+		m.set(mInitialMatrix);
+
+		LinkHolder<T> initial = new LinkHolder<T>(getSize(m));
+		initial.setMatrix(m);
+		matrixSet.put(m, initial);
+
+		Queue<T> incompleteQuivers = new ArrayDeque<T>((int) Math.pow(2, 3 * size - 3));
+		incompleteQuivers.add(m);
+
 		try {
 			T mat;
 			T newMatrix;

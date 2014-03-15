@@ -20,8 +20,20 @@ package uk.co.jwlawson.jcluster;
  */
 public interface Pool<T> {
 
+	/**
+	 * Get an object from the pool. If no such object is already in the pool then one is created.
+	 * 
+	 * @return Pooled object
+	 */
 	public T getObj();
 
+	/**
+	 * Return an object to the pool.
+	 * <p>
+	 * This should only be used to return objects which were previously taken fro the pool.
+	 * 
+	 * @param obj Object to return
+	 */
 	public void returnObj(T obj);
 
 }
