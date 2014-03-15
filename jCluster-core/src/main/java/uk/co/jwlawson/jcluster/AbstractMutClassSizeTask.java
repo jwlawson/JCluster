@@ -27,6 +27,8 @@ import nf.fr.eraasoft.pool.PoolException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.co.jwlawson.jcluster.pool.Pool;
+
 public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> {
 
 	/** Value returned when the calculation was stopped prematurely */
@@ -43,19 +45,9 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> {
 	private final List<StatsListener> mStatsListeners;
 
 	public AbstractMutClassSizeTask(T matrix) {
-		mInitialMatrix = copyMatrixFromPool(matrix);
+		mInitialMatrix = matrix;
 		mStatsListeners = new ArrayList<AbstractMutClassSizeTask.StatsListener>();
 		addListener(new StatsLogger());
-	}
-
-	private T copyMatrixFromPool(T matrix) {
-		@SuppressWarnings("unchecked")
-		Pool<T> pool =
-				Pools.getQuiverMatrixPool(matrix.getNumRows(), matrix.getNumCols(),
-						(Class<T>) matrix.getClass());
-		T first = pool.getObj();
-		first.set(matrix);
-		return first;
 	}
 
 	/**
@@ -88,26 +80,28 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> {
 	 * @throws Exception
 	 */
 	public Integer call() throws Exception {
-		log.info("MutClassSizeTask started for {}", mInitialMatrix);
+		log.debug("MutClassSizeTask started for {}", mInitialMatrix);
 		int size = getSize(mInitialMatrix);
 		int numMatrices = 0;
 
 		Map<T, LinkHolder<T>> matrixSet = getMatrixMap(size);
 		Pool<T> quiverPool = getQuiverPool();
 		Pool<LinkHolder<T>> holderPool = getHolderPool(size);
-		Stats stats = new Stats();
-		mShouldRun = true;
+		Queue<T> incompleteQuivers = new ArrayDeque<T>((int) Math.pow(2, 3 * size - 3));
 
 		T m = quiverPool.getObj();
 		m.set(mInitialMatrix);
 
-		LinkHolder<T> initial = new LinkHolder<T>(getSize(m));
+		LinkHolder<T> initial = holderPool.getObj();
 		initial.setMatrix(m);
 		matrixSet.put(m, initial);
 
-		Queue<T> incompleteQuivers = new ArrayDeque<T>((int) Math.pow(2, 3 * size - 3));
 		incompleteQuivers.add(m);
 
+		setUp(m);
+
+		Stats stats = new Stats();
+		mShouldRun = true;
 		try {
 			T mat;
 			T newMatrix;
@@ -122,7 +116,7 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> {
 						if (matrixSeenBefore(newMatrix, matrixSet)) {
 							handleSeenMatrix(matrixSet, mat, newMatrix, i);
 							if (isMatrixComplete(newMatrix, matrixSet)) {
-								removeComplete(newMatrix, quiverPool, holderPool, matrixSet, incompleteQuivers);
+								removeComplete(newMatrix, quiverPool, holderPool, matrixSet);
 							} else {
 								removeIncomplete(newMatrix, quiverPool);
 							}
@@ -153,10 +147,21 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> {
 	}
 
 	/**
+	 * Called just before the task is started.
+	 * <p>
+	 * The matrix a copy of the initial matrix that the task is starting from, but the instance has
+	 * come from the thread local pool to ensure that it can be returned once the task is complete.
+	 * 
+	 * @param pooledInitial Copy of the initial matrix from the thread local pool
+	 */
+	protected void setUp(T pooledInitial) {}
+
+	/**
 	 * Request that the calculation be stopped at the next convenient place. If called the calculation
 	 * will return {@link AbstractMutClassSizeTask#STOP}.
 	 */
 	public void requestStop() {
+		log.debug("{} has been requested to stop", getClass().getSimpleName());
 		mShouldRun = false;
 	}
 
@@ -252,10 +257,9 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> {
 	 * @param quiverPool Pool to return matrix to
 	 * @param holderPool Pool to return holder to
 	 * @param matrixSet Map to remove matrix from
-	 * @param incompleteQuivers Queue to remove matrix from
 	 */
 	protected void removeComplete(T remove, Pool<T> quiverPool, Pool<LinkHolder<T>> holderPool,
-			Map<T, LinkHolder<T>> matrixSet, Queue<T> incompleteQuivers) {
+			Map<T, LinkHolder<T>> matrixSet) {
 
 		LinkHolder<T> holder = matrixSet.remove(remove);
 		holderPool.returnObj(holder);

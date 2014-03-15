@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
-import nf.fr.eraasoft.pool.ObjectPool;
+import uk.co.jwlawson.jcluster.pool.Pool;
 import nf.fr.eraasoft.pool.PoolException;
 
 /**
@@ -37,7 +37,6 @@ public class EquivMutClassSizeTask extends MutClassSizeTask<EquivQuiverMatrix> {
 	public EquivMutClassSizeTask(EquivQuiverMatrix matrix) {
 		super(matrix);
 		mList = new HashSet<EquivQuiverMatrix>();
-		mList.add(matrix);
 		setIterationsBetweenStats(100);
 	}
 
@@ -46,12 +45,16 @@ public class EquivMutClassSizeTask extends MutClassSizeTask<EquivQuiverMatrix> {
 	}
 
 	@Override
+	protected void setUp(EquivQuiverMatrix m) {
+		super.setUp(m);
+
+		mList.add(m);
+	}
+
+	@Override
 	protected boolean matrixSeenBefore(EquivQuiverMatrix newMatrix,
 			Map<EquivQuiverMatrix, LinkHolder<EquivQuiverMatrix>> matrixSet) {
-		boolean result = false;
-		result = result || mList.contains(newMatrix);
-		result = result || super.matrixSeenBefore(newMatrix, matrixSet);
-		return result;
+		return mList.contains(newMatrix) || super.matrixSeenBefore(newMatrix, matrixSet);
 	}
 
 	@Override
@@ -83,8 +86,7 @@ public class EquivMutClassSizeTask extends MutClassSizeTask<EquivQuiverMatrix> {
 	@Override
 	protected void removeComplete(EquivQuiverMatrix remove, Pool<EquivQuiverMatrix> quiverPool,
 			Pool<LinkHolder<EquivQuiverMatrix>> holderPool,
-			Map<EquivQuiverMatrix, LinkHolder<EquivQuiverMatrix>> matrixSet,
-			Queue<EquivQuiverMatrix> incompleteQuivers) {
+			Map<EquivQuiverMatrix, LinkHolder<EquivQuiverMatrix>> matrixSet) {
 
 		LinkHolder<EquivQuiverMatrix> holder = matrixSet.remove(remove);
 		EquivQuiverMatrix key = holder.getQuiverMatrix();
@@ -125,7 +127,7 @@ public class EquivMutClassSizeTask extends MutClassSizeTask<EquivQuiverMatrix> {
 		return super.getQuiverPool();
 	}
 
-	private class DummyPool implements ObjectPool<EquivQuiverMatrix> {
+	private class DummyPool implements Pool<EquivQuiverMatrix> {
 
 		int mSize;
 
@@ -133,7 +135,7 @@ public class EquivMutClassSizeTask extends MutClassSizeTask<EquivQuiverMatrix> {
 			mSize = size;
 		}
 
-		public EquivQuiverMatrix getObj() throws PoolException {
+		public EquivQuiverMatrix getObj() {
 			return new EquivQuiverMatrix(mSize);
 		}
 

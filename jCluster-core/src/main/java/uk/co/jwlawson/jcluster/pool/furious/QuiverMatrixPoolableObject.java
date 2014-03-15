@@ -12,7 +12,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package uk.co.jwlawson.jcluster;
+package uk.co.jwlawson.jcluster.pool.furious;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -22,6 +22,8 @@ import nf.fr.eraasoft.pool.PoolableObjectBase;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.co.jwlawson.jcluster.QuiverMatrix;
 
 /**
  * Object factory required for pooling QuiverMatrix objects.

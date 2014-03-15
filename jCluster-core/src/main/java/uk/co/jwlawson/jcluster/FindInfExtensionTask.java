@@ -23,7 +23,7 @@ import java.util.concurrent.ExecutorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.co.jwlawson.jcluster.CheckInfTask.CheckInfListener;
+import uk.co.jwlawson.jcluster.pool.Pool;
 
 /**
  * Task to find all mutation-infinite quivers achieved by adding vertices to the initial quiver.
@@ -84,15 +84,6 @@ public class FindInfExtensionTask implements Callable<Set<QuiverMatrix>> {
 		CheckInfTask task =
 				new CheckInfTask(matrix, Pools.getQuiverMatrixPool(matrix.getNumRows(),
 						matrix.getNumCols(), QuiverMatrix.class));
-		task.addListener(new CheckInfListener() {
-			public void matrixChecked(QuiverMatrix matrix) {
-				try {
-					matrixPool.returnObj(matrix);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
 		return task;
 	}
 

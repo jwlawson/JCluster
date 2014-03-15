@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ThreadLocalRandom;
 
+import uk.co.jwlawson.jcluster.pool.Pool;
+
 /**
  * Checks whether the initial matrix is infinite. This can prove that the matrix is infinite, but
  * cannot prove it is finite, rather that it is probably finite.

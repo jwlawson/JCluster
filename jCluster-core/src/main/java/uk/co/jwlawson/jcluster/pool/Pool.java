@@ -12,7 +12,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package uk.co.jwlawson.jcluster;
+package uk.co.jwlawson.jcluster.pool;
 
 /**
  * @author John Lawson
@@ -25,7 +25,7 @@ public interface Pool<T> {
 	 * 
 	 * @return Pooled object
 	 */
-	public T getObj();
+	T getObj();
 
 	/**
 	 * Return an object to the pool.
@@ -34,6 +34,6 @@ public interface Pool<T> {
 	 * 
 	 * @param obj Object to return
 	 */
-	public void returnObj(T obj);
+	void returnObj(T obj);
 
 }

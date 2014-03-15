@@ -1,7 +1,7 @@
 /**
  * Copyright 2014 John Lawson
  * 
- * IntMatrixPairPoolableObject.java is part of JCluster. Licensed under the Apache License, Version
+ * IntMatrixPairResourceLoader.java is part of JCluster. Licensed under the Apache License, Version
  * 2.0 (the "License"); you may not use this file except in compliance with the License. You may
  * obtain a copy of the License at
  * 
@@ -12,27 +12,20 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package uk.co.jwlawson.jcluster;
+package uk.co.jwlawson.jcluster.pool.multiway;
 
-import nf.fr.eraasoft.pool.PoolException;
-import nf.fr.eraasoft.pool.PoolableObject;
-import nf.fr.eraasoft.pool.PoolableObjectBase;
+import uk.co.jwlawson.jcluster.IntMatrixPair;
+
+import com.github.benmanes.multiway.ResourceLoader;
 
 /**
- * {@link PoolableObject} which provides a factory method for creating new {@link IntMatrixPair}
- * objects.
- * 
  * @author John Lawson
  * 
  */
-public class IntMatrixPairPoolableObject extends PoolableObjectBase<IntMatrixPair> {
+public class IntMatrixPairResourceLoader implements ResourceLoader<Integer, IntMatrixPair> {
 
-	public IntMatrixPair make() throws PoolException {
+	public IntMatrixPair load(Integer key) throws Exception {
 		return new IntMatrixPair();
-	}
-
-	public void activate(IntMatrixPair t) throws PoolException {
-		t.reset();
 	}
 
 }

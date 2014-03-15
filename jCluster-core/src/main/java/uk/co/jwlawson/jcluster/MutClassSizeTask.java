@@ -19,6 +19,7 @@ import java.util.Queue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 
+import uk.co.jwlawson.jcluster.pool.Pool;
 import nf.fr.eraasoft.pool.PoolException;
 
 /**

@@ -12,11 +12,13 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package uk.co.jwlawson.jcluster;
+package uk.co.jwlawson.jcluster.pool.furious;
 
 import nf.fr.eraasoft.pool.PoolException;
 import nf.fr.eraasoft.pool.PoolableObject;
 import nf.fr.eraasoft.pool.PoolableObjectBase;
+import uk.co.jwlawson.jcluster.LinkHolder;
+import uk.co.jwlawson.jcluster.QuiverMatrix;
 
 /**
  * {@link PoolableObject} which provides a factory method for new {@link LinkHolder} objects.

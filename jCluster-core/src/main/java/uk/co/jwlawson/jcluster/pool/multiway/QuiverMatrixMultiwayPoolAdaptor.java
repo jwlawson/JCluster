@@ -12,9 +12,11 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package uk.co.jwlawson.jcluster;
+package uk.co.jwlawson.jcluster.pool.multiway;
 
-import uk.co.jwlawson.jcluster.Pools.QuiverKey;
+import uk.co.jwlawson.jcluster.QuiverKey;
+import uk.co.jwlawson.jcluster.QuiverMatrix;
+import uk.co.jwlawson.jcluster.pool.Pool;
 
 import com.github.benmanes.multiway.LoadingMultiwayPool;
 
@@ -22,12 +24,12 @@ import com.github.benmanes.multiway.LoadingMultiwayPool;
  * @author John Lawson
  * 
  */
-public class MultiwayPoolAdaptor<T extends QuiverMatrix> implements Pool<T> {
+public class QuiverMatrixMultiwayPoolAdaptor<T extends QuiverMatrix> implements Pool<T> {
 
 	private final LoadingMultiwayPool<QuiverKey<T>, T> pool;
 	private final QuiverKey<T> key;
 
-	public MultiwayPoolAdaptor(LoadingMultiwayPool<QuiverKey<T>, T> pool, QuiverKey<T> key) {
+	public QuiverMatrixMultiwayPoolAdaptor(LoadingMultiwayPool<QuiverKey<T>, T> pool, QuiverKey<T> key) {
 		this.pool = pool;
 		this.key = key;
 	}
@@ -38,7 +40,6 @@ public class MultiwayPoolAdaptor<T extends QuiverMatrix> implements Pool<T> {
 	 * @see uk.co.jwlawson.jcluster.Pool#getObj()
 	 */
 	public T getObj() {
-		System.out.println("Taking object");
 		return pool.borrow(key);
 	}
 
@@ -52,10 +53,8 @@ public class MultiwayPoolAdaptor<T extends QuiverMatrix> implements Pool<T> {
 		try {
 			pool.release(obj);
 		} catch (IllegalArgumentException e) {
-			System.out.println("Error Returning " + obj);
-			throw new RuntimeException(e);
+			throw new RuntimeException("Matrix " + obj + " not taken from pool in this thread", e);
 		}
-		System.out.println("Returned " + obj);
 	}
 
 }
