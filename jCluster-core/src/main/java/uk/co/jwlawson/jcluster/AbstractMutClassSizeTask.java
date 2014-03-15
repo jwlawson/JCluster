@@ -44,17 +44,13 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> {
 
 	public AbstractMutClassSizeTask(T matrix) {
 		@SuppressWarnings("unchecked")
-		ObjectPool<T> pool =
+		Pool<T> pool =
 				Pools.getQuiverMatrixPool(matrix.getNumRows(), matrix.getNumCols(),
 						(Class<T>) matrix.getClass());
 		T first;
-		try {
-			first = pool.getObj();
-			first.set(matrix);
-			mInitialMatrix = first;
-		} catch (PoolException e) {
-			throw new RuntimeException(e);
-		}
+		first = pool.getObj();
+		first.set(matrix);
+		mInitialMatrix = first;
 		mStatsListeners = new ArrayList<AbstractMutClassSizeTask.StatsListener>();
 		addListener(new StatsLogger());
 	}
@@ -102,8 +98,8 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> {
 		Queue<T> incompleteQuivers = new ArrayDeque<T>((int) Math.pow(2, 3 * size - 3));
 		incompleteQuivers.add(mInitialMatrix);
 
-		ObjectPool<T> quiverPool = getQuiverPool();
-		ObjectPool<LinkHolder<T>> holderPool = getHolderPool(size);
+		Pool<T> quiverPool = getQuiverPool();
+		Pool<LinkHolder<T>> holderPool = getHolderPool(size);
 		Stats stats = new Stats();
 		mShouldRun = true;
 		try {
@@ -163,7 +159,7 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> {
 	 * 
 	 * @return Pool of quiver objects
 	 */
-	protected ObjectPool<T> getQuiverPool() {
+	protected Pool<T> getQuiverPool() {
 		return Pools.getQuiverMatrixPool(getRows(), getCols(), getMatrixClass());
 	}
 
@@ -174,7 +170,7 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> {
 	 * @param size Number of links in each {@link LinkHolder}
 	 * @return Pool of {@link LinkHolder} objects
 	 */
-	protected ObjectPool<LinkHolder<T>> getHolderPool(int size) {
+	protected Pool<LinkHolder<T>> getHolderPool(int size) {
 		return Pools.getHolderPool(size, getMatrixClass());
 	}
 
@@ -231,8 +227,8 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> {
 	 * @param holderPool Pool to return link holder to
 	 * @param matrixSet Map to remove quiver from
 	 */
-	protected void removeHandledQuiver(T remove, ObjectPool<T> quiverPool,
-			ObjectPool<LinkHolder<T>> holderPool, Map<T, LinkHolder<T>> matrixSet) {
+	protected void removeHandledQuiver(T remove, Pool<T> quiverPool, Pool<LinkHolder<T>> holderPool,
+			Map<T, LinkHolder<T>> matrixSet) {
 
 		LinkHolder<T> holder = matrixSet.remove(remove);
 		holderPool.returnObj(holder);
@@ -252,16 +248,15 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> {
 	 * @param matrixSet Map to remove matrix from
 	 * @param incompleteQuivers Queue to remove matrix from
 	 */
-	protected void removeComplete(T remove, ObjectPool<T> quiverPool,
-			ObjectPool<LinkHolder<T>> holderPool, Map<T, LinkHolder<T>> matrixSet,
-			Queue<T> incompleteQuivers) {
+	protected void removeComplete(T remove, Pool<T> quiverPool, Pool<LinkHolder<T>> holderPool,
+			Map<T, LinkHolder<T>> matrixSet, Queue<T> incompleteQuivers) {
 
 		LinkHolder<T> holder = matrixSet.remove(remove);
 		holderPool.returnObj(holder);
 		removeIncomplete(remove, quiverPool);
 	}
 
-	protected void removeIncomplete(T remove, ObjectPool<T> quiverPool) {
+	protected void removeIncomplete(T remove, Pool<T> quiverPool) {
 		quiverPool.returnObj(remove);
 	}
 
@@ -300,7 +295,7 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> {
 	 *         {@link LinkHolder} pool
 	 */
 	protected abstract void handleUnseenMatrix(Map<T, LinkHolder<T>> matrixSet,
-			Queue<T> incompleteQuivers, ObjectPool<LinkHolder<T>> holderPool, T mat, T newMatrix, int i)
+			Queue<T> incompleteQuivers, Pool<LinkHolder<T>> holderPool, T mat, T newMatrix, int i)
 			throws PoolException;
 
 	/**
@@ -320,7 +315,7 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> {
 	 * @param holderPool Pool of link holder objects
 	 * @param matrixSet Map containing quivers and holders
 	 */
-	protected abstract void teardown(ObjectPool<T> quiverPool, ObjectPool<LinkHolder<T>> holderPool,
+	protected abstract void teardown(Pool<T> quiverPool, Pool<LinkHolder<T>> holderPool,
 			Map<T, LinkHolder<T>> matrixSet);
 
 	/**

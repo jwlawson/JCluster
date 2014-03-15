@@ -72,9 +72,8 @@ public class EquivMutClassSizeTask extends MutClassSizeTask<EquivQuiverMatrix> {
 
 
 	@Override
-	protected void removeHandledQuiver(EquivQuiverMatrix remove,
-			ObjectPool<EquivQuiverMatrix> quiverPool,
-			ObjectPool<LinkHolder<EquivQuiverMatrix>> holderPool,
+	protected void removeHandledQuiver(EquivQuiverMatrix remove, Pool<EquivQuiverMatrix> quiverPool,
+			Pool<LinkHolder<EquivQuiverMatrix>> holderPool,
 			Map<EquivQuiverMatrix, LinkHolder<EquivQuiverMatrix>> matrixSet) {
 
 		LinkHolder<EquivQuiverMatrix> holder = matrixSet.remove(remove);
@@ -82,8 +81,8 @@ public class EquivMutClassSizeTask extends MutClassSizeTask<EquivQuiverMatrix> {
 	}
 
 	@Override
-	protected void removeComplete(EquivQuiverMatrix remove, ObjectPool<EquivQuiverMatrix> quiverPool,
-			ObjectPool<LinkHolder<EquivQuiverMatrix>> holderPool,
+	protected void removeComplete(EquivQuiverMatrix remove, Pool<EquivQuiverMatrix> quiverPool,
+			Pool<LinkHolder<EquivQuiverMatrix>> holderPool,
 			Map<EquivQuiverMatrix, LinkHolder<EquivQuiverMatrix>> matrixSet,
 			Queue<EquivQuiverMatrix> incompleteQuivers) {
 
@@ -100,17 +99,16 @@ public class EquivMutClassSizeTask extends MutClassSizeTask<EquivQuiverMatrix> {
 	@Override
 	protected void handleUnseenMatrix(
 			Map<EquivQuiverMatrix, LinkHolder<EquivQuiverMatrix>> matrixSet,
-			Queue<EquivQuiverMatrix> incompleteQuivers,
-			ObjectPool<LinkHolder<EquivQuiverMatrix>> holderPool, EquivQuiverMatrix mat,
-			EquivQuiverMatrix newMatrix, int i) throws PoolException {
+			Queue<EquivQuiverMatrix> incompleteQuivers, Pool<LinkHolder<EquivQuiverMatrix>> holderPool,
+			EquivQuiverMatrix mat, EquivQuiverMatrix newMatrix, int i) throws PoolException {
 
 		mList.add(newMatrix);
 		super.handleUnseenMatrix(matrixSet, incompleteQuivers, holderPool, mat, newMatrix, i);
 	}
 
 	@Override
-	protected void teardown(ObjectPool<EquivQuiverMatrix> quiverPool,
-			ObjectPool<LinkHolder<EquivQuiverMatrix>> holderPool,
+	protected void teardown(Pool<EquivQuiverMatrix> quiverPool,
+			Pool<LinkHolder<EquivQuiverMatrix>> holderPool,
 			Map<EquivQuiverMatrix, LinkHolder<EquivQuiverMatrix>> matrixSet) {
 
 		for (EquivQuiverMatrix m : mList) {
@@ -121,7 +119,7 @@ public class EquivMutClassSizeTask extends MutClassSizeTask<EquivQuiverMatrix> {
 	}
 
 	@Override
-	protected ObjectPool<EquivQuiverMatrix> getQuiverPool() {
+	protected Pool<EquivQuiverMatrix> getQuiverPool() {
 //		DummyPool pool = new DummyPool(getRows());
 //		return pool;
 		return super.getQuiverPool();

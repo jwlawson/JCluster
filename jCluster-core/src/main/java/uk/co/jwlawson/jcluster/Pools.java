@@ -34,15 +34,15 @@ public class Pools {
 
 	private final static Logger logger = LoggerFactory.getLogger(Pools.class);
 
-	private static HashMap<QuiverKey<?>, ObjectPool<?>> sQuiverPoolMap =
-			new HashMap<QuiverKey<?>, ObjectPool<?>>();
-	private static HashMap<HolderKey<?>, ObjectPool<? extends LinkHolder<?>>> sHolderPoolMap =
-			new HashMap<HolderKey<?>, ObjectPool<? extends LinkHolder<?>>>();
-	private static ObjectPool<IntMatrixPair> sMatrixPairPool;
+	private static HashMap<QuiverKey<?>, Pool<?>> sQuiverPoolMap =
+			new HashMap<QuiverKey<?>, Pool<?>>();
+	private static HashMap<HolderKey<?>, Pool<? extends LinkHolder<?>>> sHolderPoolMap =
+			new HashMap<HolderKey<?>, Pool<? extends LinkHolder<?>>>();
+	private static Pool<IntMatrixPair> sMatrixPairPool;
 
 	/**
-	 * Get the instance of {@link ObjectPool} which provides objects which extend
-	 * {@link QuiverMatrix}. The class provided will be the type of objects returned by the pool.
+	 * Get the instance of {@link ObjectPool} which provides objects which extend {@link QuiverMatrix}
+	 * . The class provided will be the type of objects returned by the pool.
 	 * 
 	 * @param rows Number of rows in the matrices
 	 * @param cols Number of columns in the matrices
@@ -50,12 +50,12 @@ public class Pools {
 	 * @return {@link ObjectPool} which provides objects of class {@code clazz}.
 	 */
 	@SuppressWarnings("unchecked")
-	public static synchronized <T extends QuiverMatrix> ObjectPool<T> getQuiverMatrixPool(int rows,
+	public static synchronized <T extends QuiverMatrix> Pool<T> getQuiverMatrixPool(int rows,
 			int cols, Class<T> clazz) {
 		int id = getId(rows, cols);
 		QuiverKey<T> key = new QuiverKey<T>(id, clazz);
 		if (sQuiverPoolMap.containsKey(key)) {
-			return (ObjectPool<T>) sQuiverPoolMap.get(key);
+			return (Pool<T>) sQuiverPoolMap.get(key);
 		} else {
 			logger.info("Creating new {} pool {}x{}", clazz.getSimpleName(), rows, cols);
 			PoolSettings<T> settings =
@@ -63,27 +63,27 @@ public class Pools {
 			settings.max(-1);
 			settings.maxIdle(500000);
 			PoolSettings.timeBetweenTwoControls(600);
-			ObjectPool<T> pool = settings.pool();
+			Pool<T> pool = getPool(settings.pool());
 			sQuiverPoolMap.put(key, pool);
 			return pool;
 		}
 	}
 
 	/**
-	 * Get an instance of {@link ObjectPool} which provides a source for {@link LinkHolder}. The
-	 * class {@code clazz} specifies which type of {@link QuiverMatrix} the {@link LinkHolder}
-	 * expects as its matrix.
+	 * Get an instance of {@link ObjectPool} which provides a source for {@link LinkHolder}. The class
+	 * {@code clazz} specifies which type of {@link QuiverMatrix} the {@link LinkHolder} expects as
+	 * its matrix.
 	 * 
 	 * @param size Number of links in each holder
 	 * @param quiverClass Type of {@link QuiverMatrix} expected to be held in each holder
 	 * @return Pool of {@link LinkHolder} objects
 	 */
 	@SuppressWarnings("unchecked")
-	public static synchronized <T extends QuiverMatrix> ObjectPool<LinkHolder<T>> getHolderPool(
-			int size, Class<T> quiverClass) {
+	public static synchronized <T extends QuiverMatrix> Pool<LinkHolder<T>> getHolderPool(int size,
+			Class<T> quiverClass) {
 		HolderKey<T> key = new HolderKey<T>(size, quiverClass);
 		if (sHolderPoolMap.containsKey(key)) {
-			return (ObjectPool<LinkHolder<T>>) sHolderPoolMap.get(key);
+			return (Pool<LinkHolder<T>>) sHolderPoolMap.get(key);
 		} else {
 			logger.info("Creating new Holder pool of size {}", size);
 			PoolSettings<LinkHolder<T>> settings =
@@ -91,7 +91,7 @@ public class Pools {
 			settings.max(-1);
 			settings.maxIdle(500000);
 			PoolSettings.timeBetweenTwoControls(600);
-			ObjectPool<LinkHolder<T>> pool = settings.pool();
+			Pool<LinkHolder<T>> pool = getPool(settings.pool());
 			sHolderPoolMap.put(key, pool);
 			return pool;
 		}
@@ -102,13 +102,13 @@ public class Pools {
 	 * 
 	 * @return Pool of {@link IntMatrixPair} objects
 	 */
-	public static synchronized ObjectPool<IntMatrixPair> getIntMatrixPairPool() {
+	public static synchronized Pool<IntMatrixPair> getIntMatrixPairPool() {
 		if (sMatrixPairPool == null) {
 			PoolSettings<IntMatrixPair> settings =
 					new PoolSettings<IntMatrixPair>(new IntMatrixPairPoolableObject());
 			settings.max(-1);
 			settings.maxIdle(100);
-			sMatrixPairPool = settings.pool();
+			sMatrixPairPool = getPool(settings.pool());
 		}
 		return sMatrixPairPool;
 	}
@@ -118,6 +118,11 @@ public class Pools {
 	 */
 	private static int getId(int a, int b) {
 		return a >= b ? a * a + a + b : a + b * b;
+	}
+
+	private static <T> Pool<T> getPool(ObjectPool<T> pool) {
+		Pool<T> result = new FuriousPoolAdaptor<T>(pool);
+		return result;
 	}
 
 	/**

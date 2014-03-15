@@ -19,7 +19,6 @@ import java.util.Queue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 
-import nf.fr.eraasoft.pool.ObjectPool;
 import nf.fr.eraasoft.pool.PoolException;
 
 /**
@@ -40,7 +39,7 @@ public class MutClassSizeTask<T extends QuiverMatrix> extends AbstractMutClassSi
 
 	@Override
 	protected void handleUnseenMatrix(Map<T, LinkHolder<T>> matrixSet, Queue<T> incompleteQuivers,
-			ObjectPool<LinkHolder<T>> holderPool, T mat, T newMatrix, int i) throws PoolException {
+			Pool<LinkHolder<T>> holderPool, T mat, T newMatrix, int i) throws PoolException {
 		incompleteQuivers.add(newMatrix);
 		LinkHolder<T> newHolder = holderPool.getObj();
 		newHolder.setMatrix(newMatrix);
@@ -69,7 +68,7 @@ public class MutClassSizeTask<T extends QuiverMatrix> extends AbstractMutClassSi
 	}
 
 	@Override
-	protected void teardown(ObjectPool<T> quiverPool, ObjectPool<LinkHolder<T>> holderPool,
+	protected void teardown(Pool<T> quiverPool, Pool<LinkHolder<T>> holderPool,
 			Map<T, LinkHolder<T>> matrixSet) {
 
 		for (T matrix : matrixSet.keySet()) {

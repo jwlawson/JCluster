@@ -19,8 +19,6 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ThreadLocalRandom;
 
-import nf.fr.eraasoft.pool.ObjectPool;
-
 /**
  * Checks whether the initial matrix is infinite. This can prove that the matrix is infinite, but
  * cannot prove it is finite, rather that it is probably finite.
@@ -37,10 +35,10 @@ public class CheckInfTask implements Callable<QuiverMatrix> {
 	private int mLastMutation;
 	private int mCounter;
 	private int mRand;
-	private final ObjectPool<QuiverMatrix> mMatrixPool;
+	private final Pool<QuiverMatrix> mMatrixPool;
 	private final List<CheckInfListener> mListeners;
 
-	public CheckInfTask(QuiverMatrix matrix, ObjectPool<QuiverMatrix> pool) {
+	public CheckInfTask(QuiverMatrix matrix, Pool<QuiverMatrix> pool) {
 		mMatrix = matrix;
 		mCounter = 0;
 		mRand = -1;

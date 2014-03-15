@@ -20,8 +20,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 
-import nf.fr.eraasoft.pool.ObjectPool;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,9 +52,9 @@ public class FindInfExtensionTask implements Callable<Set<QuiverMatrix>> {
 		int size = mInitialMatrix.getNumRows();
 		ExecutorCompletionService<QuiverMatrix> pool =
 				new ExecutorCompletionService<QuiverMatrix>(mExecutor);
-		final ObjectPool<QuiverMatrix> matrixPool =
-				Pools.getQuiverMatrixPool(mEnlargedMatrix.getNumRows(),
-						mEnlargedMatrix.getNumCols(), QuiverMatrix.class);
+		final Pool<QuiverMatrix> matrixPool =
+				Pools.getQuiverMatrixPool(mEnlargedMatrix.getNumRows(), mEnlargedMatrix.getNumCols(),
+						QuiverMatrix.class);
 
 		for (int num = 0; num < Math.pow(5, size); num++) {
 			CheckInfTask task = getEnlargedCheckInfTask(size, matrixPool, num);
@@ -80,8 +78,8 @@ public class FindInfExtensionTask implements Callable<Set<QuiverMatrix>> {
 		return infiniteMatrices;
 	}
 
-	private CheckInfTask getEnlargedCheckInfTask(int size,
-			final ObjectPool<QuiverMatrix> matrixPool, int num) throws Exception {
+	private CheckInfTask getEnlargedCheckInfTask(int size, final Pool<QuiverMatrix> matrixPool,
+			int num) throws Exception {
 		QuiverMatrix matrix = addVertexToMatrix(size, matrixPool, num);
 		CheckInfTask task =
 				new CheckInfTask(matrix, Pools.getQuiverMatrixPool(matrix.getNumRows(),
@@ -98,8 +96,8 @@ public class FindInfExtensionTask implements Callable<Set<QuiverMatrix>> {
 		return task;
 	}
 
-	private QuiverMatrix addVertexToMatrix(int size, final ObjectPool<QuiverMatrix> matrixPool,
-			int num) throws Exception {
+	private QuiverMatrix addVertexToMatrix(int size, final Pool<QuiverMatrix> matrixPool, int num)
+			throws Exception {
 		QuiverMatrix matrix = matrixPool.getObj();
 		matrix.set(mEnlargedMatrix);
 		log.debug("Enlarged matrix: {} copied to {}", mEnlargedMatrix, matrix);

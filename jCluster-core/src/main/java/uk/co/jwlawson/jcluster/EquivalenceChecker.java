@@ -16,9 +16,6 @@ package uk.co.jwlawson.jcluster;
 
 import java.util.Arrays;
 
-import nf.fr.eraasoft.pool.ObjectPool;
-import nf.fr.eraasoft.pool.PoolException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,7 +96,7 @@ public class EquivalenceChecker {
 	private IntMatrix[] mPermMatrices;
 	private final IntMatrix mMatrixAP;
 	private final IntMatrix mMatrixPB;
-	private final ObjectPool<IntMatrixPair> mPairPool;
+	private final Pool<IntMatrixPair> mPairPool;
 
 	/**
 	 * Get an instance of {@link EquivalenceChecker} of the provided size. The instances are cached,
@@ -418,7 +415,7 @@ public class EquivalenceChecker {
 			pair = mPairPool.getObj();
 			pair.set(a, b);
 			return mPermCache.getUnchecked(pair);
-		} catch (PoolException e) {
+		} catch (RuntimeException e) {
 			log.error("Error getting IntMatrixPair instance", e);
 			return areUncachedEquivalent(a, b);
 		} finally {
