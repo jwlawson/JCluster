@@ -1,7 +1,7 @@
 /**
  * Copyright 2014 John Lawson
  * 
- * NewFiniteTaskTest.java is part of JCluster. Licensed under the Apache License, Version 2.0 (the
+ * MutClassSizeTaskTest.java is part of JCluster. Licensed under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance with the License. You may obtain a
  * copy of the License at
  * 
@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
  * @author John Lawson
  * 
  */
-public class NewFiniteTaskTest {
+public class MutClassSizeTaskTest {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
