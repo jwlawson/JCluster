@@ -14,7 +14,6 @@
  */
 package uk.co.jwlawson.jcluster;
 
-import java.util.Arrays;
 
 /**
  * Matrix of integers.
@@ -314,7 +313,7 @@ public class IntMatrix {
 	 * @param container Matrix to store the result in
 	 * @return The container with the result in
 	 */
-	public IntMatrix multLeft(IntMatrix mat, IntMatrix container) {
+	public <T extends IntMatrix> T multLeft(IntMatrix mat, T container) {
 		checkParam(mat == null || container == null, "Cannot multiply null matrices");
 		checkParam(mat.getNumCols() != this.getNumRows(),
 				"Matrix to multiply is wrong size. Expected %d columns but have %d", getNumRows(),
@@ -336,7 +335,7 @@ public class IntMatrix {
 	 * @param container Matrix to store the result in
 	 * @return The container with the result in
 	 */
-	public IntMatrix multRight(IntMatrix mat, IntMatrix container) {
+	public <T extends IntMatrix> T multRight(IntMatrix mat, T container) {
 		checkParam(mat == null || container == null, "Cannot multiply null matrices");
 		checkParam(getNumCols() != mat.getNumRows(),
 				"Matrix to multiply is wrong size. Expected %d rows but have %d", getNumCols(),
@@ -362,7 +361,7 @@ public class IntMatrix {
 	 * @param container Matrix to store the result in
 	 * @return container with the result
 	 */
-	private IntMatrix unsafeMult(IntMatrix left, IntMatrix right, IntMatrix container) {
+	private <T extends IntMatrix> T unsafeMult(IntMatrix left, IntMatrix right, T container) {
 		container.reset();
 		int colIncrement = right.getNumRows();
 		int leftInd;
@@ -386,10 +385,30 @@ public class IntMatrix {
 		return container;
 	}
 
-	public IntMatrix submatrix(int i, int j) {
-		return submatrix(i, j, new IntMatrix(getNumRows() - 1, getNumCols() - 1));
+	/**
+	 * Create a new matrix which contains the values on this matrix, except those in the specified row
+	 * and column.
+	 * 
+	 * @param row Row to remove
+	 * @param col Column to remove
+	 * @return New matrix which is the submatrix of this one
+	 * @throws IllegalArgumentException if the row or column index are outside the bounds of the
+	 *         matrix
+	 */
+	public IntMatrix submatrix(int row, int col) {
+		return submatrix(row, col, new IntMatrix(getNumRows() - 1, getNumCols() - 1));
 	}
 
+	/**
+	 * Get the submatrix of this matrix by removing the specified row and column. The submatrix is
+	 * returned in the provided matrix.
+	 * 
+	 * @param row Row to remove
+	 * @param col Column to remove
+	 * @param result Submatrix returned
+	 * @return Submatrix with removed row and column
+	 * @throws IllegalArgumentException if the parameters do not match those expected.
+	 */
 	public <T extends IntMatrix> T submatrix(int row, int col, T result) {
 		checkParam(result.mRows != (mRows - 1),
 				"Provided container matrix of the wrong size. Expected %d rows but got %d.", mRows - 1,
@@ -406,24 +425,47 @@ public class IntMatrix {
 		return unsafeSubmatrix(row, col, result);
 	}
 
+	/**
+	 * Get the submatrix of this by removing the specified row and column. No bounds checking is done,
+	 * so only use if you are certain that the parameters are valid.
+	 * 
+	 * @param row Row to remove
+	 * @param col Column to remove
+	 * @param result Submatrix to return
+	 * @return Submatrix with row and column removed
+	 */
 	private <T extends IntMatrix> T unsafeSubmatrix(int row, int col, T result) {
 		result.reset();
-		int rowAdd = 0;
-		for (int i = 0; i < result.getNumRows(); i++) {
-			if (i == row) {
-				rowAdd = 1;
-			}
-			int colAdd = 0;
-			for (int j = 0; j < result.getNumCols(); j++) {
-				if (j == col) {
-					colAdd = 1;
+		int resInd = 0;
+		int origInd = 0;
+		while (resInd < result.mRows * result.mCols) {
+			boolean changed;
+			do {
+				changed = false;
+				if (origInd == row * mCols) {
+					origInd += mCols;
+					changed = true;
 				}
-				result.set(i, j, get(i + rowAdd, j + colAdd));
-			}
+				if (origInd % mCols == col) {
+					origInd++;
+					changed = true;
+				}
+			} while (changed);
+			result.mData[resInd++] = mData[origInd++];
 		}
 		return result;
 	}
 
+	/**
+	 * Check parameters by providing an expression which tests their validity. If the expression
+	 * evaluates to true then a new IllegalArgumentException is thrown containing the provided
+	 * formatted string.
+	 * 
+	 * @param expression Expression to check
+	 * @param formatString String to format if the expression is true
+	 * @param formatParams Objects to format the string with
+	 * @throws IllegalArgumentException if {@code expression} is true
+	 */
 	private void checkParam(boolean expression, String formatString, Object... formatParams) {
 		if (expression) {
 			String error = String.format(formatString, formatParams);
@@ -433,19 +475,30 @@ public class IntMatrix {
 
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
+		StringBuilder sb = new StringBuilder("[ ");
 		for (int i = 0; i < mRows; i++) {
+			sb.append("{");
 			for (int j = 0; j < mCols; j++) {
-				sb.append(mData[getIndex(i, j)]);
 				sb.append(" ");
+				sb.append(mData[getIndex(i, j)]);
 			}
-			if (i != mRows - 1) {
-				sb.append(System.lineSeparator());
-			}
+			sb.append(" } ");
 		}
+		sb.append("]");
 		return sb.toString();
 	}
 
+	/**
+	 * Test whether two matrices are equal as IntMatrix objects.
+	 * 
+	 * <p>
+	 * This can be useful to check whether two objects which extend IntMatrix are equal without the
+	 * added structure that their class provides.
+	 * 
+	 * @param lhs First matrix to check
+	 * @param rhs Second matrix to check
+	 * @return true if the matrices are equal as IntMatrix objects
+	 */
 	public static boolean areEqual(IntMatrix lhs, IntMatrix rhs) {
 		if (lhs == null && rhs == null) {
 			return true;
@@ -467,7 +520,18 @@ public class IntMatrix {
 		return true;
 	}
 
+	/**
+	 * Get the IntMatrix hashcode of the supplied matrix.
+	 * 
+	 * @param a Matrix to calculate the hashcode of
+	 * @return Hashcode of the matrix as if it were an IntMatrix
+	 */
 	public static int hashCode(IntMatrix a) {
-		return Arrays.hashCode(a.mData);
+		int hashcode = 113;
+		for (int i = 0; i < a.mData.length; i++) {
+			hashcode *= 523;
+			hashcode += a.mData[i];
+		}
+		return hashcode;
 	}
 }
