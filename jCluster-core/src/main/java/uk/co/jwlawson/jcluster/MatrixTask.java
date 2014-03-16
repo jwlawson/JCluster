@@ -1,7 +1,7 @@
 /**
  * Copyright 2014 John Lawson
  * 
- * MatrixTaskFactory.java is part of JCluster. Licensed under the Apache License, Version 2.0 (the
+ * MatrixTask.java is part of JCluster. Licensed under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance with the License. You may obtain a
  * copy of the License at
  * 
@@ -14,13 +14,18 @@
  */
 package uk.co.jwlawson.jcluster;
 
+import java.util.concurrent.Callable;
 
 /**
  * @author John Lawson
  * 
  */
-public interface MatrixTaskFactory {
+public interface MatrixTask extends Callable<MatrixInfo> {
 
-	MatrixTask getTask(QuiverMatrix matrix);
+	public void setMatrix(QuiverMatrix matrix);
+
+	public void reset();
+
+	public MatrixInfo call() throws Exception;
 
 }
