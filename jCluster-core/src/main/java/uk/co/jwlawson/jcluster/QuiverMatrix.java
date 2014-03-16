@@ -40,8 +40,8 @@ public class QuiverMatrix extends IntMatrix {
 	}
 
 	/**
-	 * Create a new QuiverMatrix with set number of rows and columns. The provided array must have
-	 * the correct number of entries and be in row-major form.
+	 * Create a new QuiverMatrix with set number of rows and columns. The provided array must have the
+	 * correct number of entries and be in row-major form.
 	 * 
 	 * That is {@code row 1},{row 2}, ... } }.
 	 * 
@@ -89,13 +89,12 @@ public class QuiverMatrix extends IntMatrix {
 		int cols = getNumCols();
 		if (k < 0 || k > Math.min(rows, cols)) {
 			throw new IllegalArgumentException(
-					"Index needs to be within the unfrozen vaules of the matrix. Expected: " + 0
-							+ " to " + Math.min(rows, cols) + " Actual: " + k);
+					"Index needs to be within the unfrozen vaules of the matrix. Expected: " + 0 + " to "
+							+ Math.min(rows, cols) + " Actual: " + k);
 		}
 		if (rows != result.getNumRows() || cols != result.getNumCols()) {
 			throw new IllegalArgumentException("Incorrectly sized matrix passed. Expected: " + rows
-					+ " x " + cols + ". Actual: " + result.getNumRows() + " x "
-					+ result.getNumCols());
+					+ " x " + cols + ". Actual: " + result.getNumRows() + " x " + result.getNumCols());
 		}
 		unsafeMutate(k, result, rows, cols);
 		return result;
@@ -108,8 +107,8 @@ public class QuiverMatrix extends IntMatrix {
 	 * Remember that the indexing starts at 0.
 	 * 
 	 * @param k Index to mutate on.
-	 * @param result The matrix to insert the new matrix. Ensure it is the right size as no checks
-	 *        are done.
+	 * @param result The matrix to insert the new matrix. Ensure it is the right size as no checks are
+	 *        done.
 	 * @return New mutated matrix.
 	 */
 	private <S extends QuiverMatrix> void unsafeMutate(int k, S result, int rows, int cols) {
@@ -195,5 +194,50 @@ public class QuiverMatrix extends IntMatrix {
 			return false;
 		}
 		return IntMatrix.areEqual(lhs, rhs);
+	}
+
+	public QuiverMatrix submatrix(int i, int j) {
+		return submatrix(i, j, new QuiverMatrix(getNumRows() - 1, getNumCols() - 1));
+	}
+
+	public QuiverMatrix submatrix(int row, int col, QuiverMatrix result) {
+		checkParam(result.getNumRows() != getNumRows() - 1,
+				"Provided container matrix of the wrong size. Expected %d rows but got %d.",
+				getNumRows() - 1, result.getNumRows());
+		checkParam(result.getNumCols() != getNumCols() - 1,
+				"Provided container matrix of the wrong size. Expected %d columns but got %d.",
+				getNumCols() - 1, result.getNumCols());
+		checkParam(row < 0 || row > getNumRows(),
+				"Row index not contained in the matrix. Expected 0 < row < %d but got %d", getNumRows(),
+				row);
+		checkParam(col < 0 || col > getNumCols(),
+				"Column index not contained in the matrix. Expected 0 < col < %d but got %d", getNumCols(),
+				col);
+		return unsafeSubmatrix(row, col, result);
+	}
+
+	QuiverMatrix unsafeSubmatrix(int row, int col, QuiverMatrix result) {
+		result.reset();
+		int rowAdd = 0;
+		for (int i = 0; i < result.getNumRows(); i++) {
+			if (i == row) {
+				rowAdd = 1;
+			}
+			int colAdd = 0;
+			for (int j = 0; j < result.getNumCols(); j++) {
+				if (j == col) {
+					colAdd = 1;
+				}
+				result.set(i, j, get(i + rowAdd, j + colAdd));
+			}
+		}
+		return result;
+	}
+
+	private void checkParam(boolean expression, String formatString, Object... formatParams) {
+		if (expression) {
+			String error = String.format(formatString, formatParams);
+			throw new IllegalArgumentException(error);
+		}
 	}
 }

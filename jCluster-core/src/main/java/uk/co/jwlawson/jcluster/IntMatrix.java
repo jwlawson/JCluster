@@ -50,9 +50,7 @@ public class IntMatrix {
 	 * @param data Data contained in the matrix
 	 */
 	public IntMatrix(int rows, int cols, int... data) {
-		if (data.length != rows * cols) {
-			throw new IllegalArgumentException("Number of entries must match the size of the matrix");
-		}
+		checkParam(data.length != rows * cols, "Number of entries must match the size of the matrix");
 		mData = new int[rows * cols];
 		mRows = rows;
 		mCols = cols;
@@ -88,14 +86,10 @@ public class IntMatrix {
 	 *         number of rows or columns.
 	 */
 	public int get(int row, int col) {
-		if (row < 0 || row > mRows) {
-			throw new IllegalArgumentException(
-					"row must be non-negative and within the bounds. Expected <" + mRows + " but got " + row);
-		}
-		if (col < 0 || col > mCols) {
-			throw new IllegalArgumentException(
-					"col must be non-negative and within the bounds. Expected <" + mCols + " but got " + col);
-		}
+		checkParam(row < 0 || row > mRows,
+				"row must be non-negative and within the bounds. Expected < %d but got %d", mRows, row);
+		checkParam(col < 0 || col > mCols,
+				"col must be non-negative and within the bounds. Expected < %d but got %d", mCols, col);
 		return unsafeGet(row, col);
 	}
 
@@ -185,9 +179,7 @@ public class IntMatrix {
 	 *         and columns
 	 */
 	public void set(int rows, int cols, int... data) {
-		if (data.length != rows * cols) {
-			throw new IllegalArgumentException("Number of entries must match the size of the matrix");
-		}
+		checkParam(data.length != rows * cols, "Number of entries must match the size of the matrix");
 		reset();
 		mData = new int[rows * cols];
 		mRows = rows;
@@ -206,14 +198,10 @@ public class IntMatrix {
 	 * @throws IllegalArgumentException if the indices are not valid for this matrix
 	 */
 	public void set(int row, int col, int a) {
-		if (row < 0 || row > mRows) {
-			throw new IllegalArgumentException(
-					"row must be non-negative and within the bounds. Expected <" + mRows + " but got " + row);
-		}
-		if (col < 0 || col > mCols) {
-			throw new IllegalArgumentException(
-					"col must be non-negative and within the bounds. Expected <" + mCols + " but got " + col);
-		}
+		checkParam(row < 0 || row > mRows,
+				"row must be non-negative and within the bounds. Expected < %d but got %d", mRows, row);
+		checkParam(col < 0 || col > mCols,
+				"col must be non-negative and within the bounds. Expected < %d but got %d", mCols, col);
 		unsafeSet(row, col, a);
 	}
 
@@ -280,7 +268,6 @@ public class IntMatrix {
 	public int hashCode() {
 		int hashcode = mHashCode;
 		if (hashcode == 0) {
-//			hashcode = Arrays.hashCode(mData);
 			hashcode = 113;
 			for (int i = 0; i < mData.length; i++) {
 				hashcode *= 523;
@@ -328,21 +315,14 @@ public class IntMatrix {
 	 * @return The container with the result in
 	 */
 	public IntMatrix multLeft(IntMatrix mat, IntMatrix container) {
-		if (mat == null || container == null) {
-			throw new IllegalArgumentException("Cannot multiply null matrices");
-		}
-		if (mat.getNumCols() != this.getNumRows()) {
-			String error =
-					String.format("Matrix to multiply is wrong size. Expected %d columns but have %d",
-							getNumRows(), mat.getNumCols());
-			throw new IllegalArgumentException(error);
-		}
-		if (container.getNumRows() != mat.getNumRows() || container.getNumCols() != getNumCols()) {
-			String error =
-					String.format("Container is wrong size. Expected %d x %d but have %d x %d",
-							mat.getNumRows(), getNumCols(), container.getNumRows(), container.getNumCols());
-			throw new IllegalArgumentException(error);
-		}
+		checkParam(mat == null || container == null, "Cannot multiply null matrices");
+		checkParam(mat.getNumCols() != this.getNumRows(),
+				"Matrix to multiply is wrong size. Expected %d columns but have %d", getNumRows(),
+				mat.getNumCols());
+		checkParam(
+				container.getNumRows() != mat.getNumRows() || container.getNumCols() != getNumCols(),
+				"Container is wrong size. Expected %d x %d but have %d x %d", mat.getNumRows(),
+				getNumCols(), container.getNumRows(), container.getNumCols());
 		return unsafeMult(mat, this, container);
 	}
 
@@ -357,21 +337,14 @@ public class IntMatrix {
 	 * @return The container with the result in
 	 */
 	public IntMatrix multRight(IntMatrix mat, IntMatrix container) {
-		if (mat == null || container == null) {
-			throw new IllegalArgumentException("Cannot multiply null matrices");
-		}
-		if (getNumCols() != mat.getNumRows()) {
-			String error =
-					String.format("Matrix to multiply is wrong size. Expected %d rows but have %d",
-							getNumCols(), mat.getNumRows());
-			throw new IllegalArgumentException(error);
-		}
-		if (container.getNumRows() != getNumRows() || container.getNumCols() != mat.getNumCols()) {
-			String error =
-					String.format("Container is wrong size. Expected %d x %d but have %d x %d", getNumRows(),
-							mat.getNumCols(), container.getNumRows(), container.getNumCols());
-			throw new IllegalArgumentException(error);
-		}
+		checkParam(mat == null || container == null, "Cannot multiply null matrices");
+		checkParam(getNumCols() != mat.getNumRows(),
+				"Matrix to multiply is wrong size. Expected %d rows but have %d", getNumCols(),
+				mat.getNumRows());
+		checkParam(
+				container.getNumRows() != getNumRows() || container.getNumCols() != mat.getNumCols(),
+				"Container is wrong size. Expected %d x %d but have %d x %d", getNumRows(),
+				mat.getNumCols(), container.getNumRows(), container.getNumCols());
 		return unsafeMult(this, mat, container);
 	}
 
@@ -411,6 +384,51 @@ public class IntMatrix {
 			leftIndStart += left.getNumCols();
 		}
 		return container;
+	}
+
+	public IntMatrix submatrix(int i, int j) {
+		return submatrix(i, j, new IntMatrix(getNumRows() - 1, getNumCols() - 1));
+	}
+
+	public <T extends IntMatrix> T submatrix(int row, int col, T result) {
+		checkParam(result.mRows != (mRows - 1),
+				"Provided container matrix of the wrong size. Expected %d rows but got %d.", mRows - 1,
+				result.mRows);
+		checkParam(result.mCols != (mCols - 1),
+				"Provided container matrix of the wrong size. Expected %d columns but got %d.", mCols - 1,
+				result.mCols);
+		checkParam(row < 0 || row >= mRows,
+				"Row index not contained in the matrix. Expected 0 < row < %d but got %d", getNumRows(),
+				row);
+		checkParam(col < 0 || col >= mCols,
+				"Column index not contained in the matrix. Expected 0 < col < %d but got %d", getNumCols(),
+				col);
+		return unsafeSubmatrix(row, col, result);
+	}
+
+	private <T extends IntMatrix> T unsafeSubmatrix(int row, int col, T result) {
+		result.reset();
+		int rowAdd = 0;
+		for (int i = 0; i < result.getNumRows(); i++) {
+			if (i == row) {
+				rowAdd = 1;
+			}
+			int colAdd = 0;
+			for (int j = 0; j < result.getNumCols(); j++) {
+				if (j == col) {
+					colAdd = 1;
+				}
+				result.set(i, j, get(i + rowAdd, j + colAdd));
+			}
+		}
+		return result;
+	}
+
+	private void checkParam(boolean expression, String formatString, Object... formatParams) {
+		if (expression) {
+			String error = String.format(formatString, formatParams);
+			throw new IllegalArgumentException(error);
+		}
 	}
 
 	@Override

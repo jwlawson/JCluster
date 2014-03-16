@@ -90,4 +90,54 @@ public class IntMatrixTest {
 		assertEquals(a, a.multLeft(id));
 		assertEquals(a, id.multLeft(a));
 	}
+
+	@Test
+	public void testSubmatrix3x3a() {
+		IntMatrix m = new IntMatrix(3, 3, 0, 1, 2, 3, 4, 5, 6, 7, 8);
+		IntMatrix exp = new IntMatrix(2, 2, 4, 5, 7, 8);
+
+		assertEquals(exp, m.submatrix(0, 0));
+	}
+
+	@Test
+	public void testSubmatrix3x3b() {
+		IntMatrix m = new IntMatrix(3, 3, 0, 1, 2, 3, 4, 5, 6, 7, 8);
+		IntMatrix exp = new IntMatrix(2, 2, 1, 2, 4, 5);
+
+		assertEquals(exp, m.submatrix(2, 0));
+	}
+
+	@Test
+	public void testSubmatrix3x3c() {
+		IntMatrix m = new IntMatrix(3, 3, 0, 1, 2, 3, 4, 5, 6, 7, 8);
+		IntMatrix exp = new IntMatrix(2, 2, 0, 1, 6, 7);
+
+		assertEquals(exp, m.submatrix(1, 2));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testInvalidSubmatrixRows() {
+		IntMatrix m = new IntMatrix(3, 3, 0, 1, 2, 3, 4, 5, 6, 7, 8);
+		m.submatrix(3, 1);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testInvalidSubmatrixCols() {
+		IntMatrix m = new IntMatrix(3, 3, 0, 1, 2, 3, 4, 5, 6, 7, 8);
+		m.submatrix(0, 3);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testInvalidSubmatrixResultRows() {
+		IntMatrix m = new IntMatrix(3, 3, 0, 1, 2, 3, 4, 5, 6, 7, 8);
+		IntMatrix m1 = new IntMatrix(3, 2);
+		m.submatrix(0, 1, m1);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testInvalidSubmatrixResultCols() {
+		IntMatrix m = new IntMatrix(3, 3, 0, 1, 2, 3, 4, 5, 6, 7, 8);
+		IntMatrix m1 = new IntMatrix(2, 3);
+		m.submatrix(1, 1, m1);
+	}
 }

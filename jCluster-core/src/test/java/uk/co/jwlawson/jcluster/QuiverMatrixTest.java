@@ -86,6 +86,5 @@ public class QuiverMatrixTest {
 						1, 1, -1, 0);
 
 		assertEquals(exp, m.mutate(4));
-
 	}
 }
