@@ -14,51 +14,68 @@
  */
 package uk.co.jwlawson.jcluster;
 
-import java.lang.reflect.Type;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
-import nf.fr.eraasoft.pool.ObjectPool;
-import nf.fr.eraasoft.pool.PoolException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.co.jwlawson.jcluster.pool.Pool;
 
+/**
+ * 
+ * @author John Lawson
+ * 
+ * @param <T>
+ */
 public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> implements MatrixTask<T> {
 
-	/** Value returned when the calculation was stopped prematurely */
-	public final static int STOP = Integer.MIN_VALUE;
+	/** Value returned when the calculation was stopped prematurely. */
+	public static final int STOP = Integer.MIN_VALUE;
 
-	/** Value returned if the mutation class is found to be infinite */
-	public final static int INFINITE = -1;
+	/** Value returned if the mutation class is found to be infinite. */
+	public static final int INFINITE = -1;
 
+	/** Logger instance. */
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
+	/** Initial matrix to find mutation class of. */
 	private T mInitialMatrix;
+	/** True if the calculation should be continued. */
 	private boolean mShouldRun;
+	/** Number of iterations to run between updating the stats. */
 	private int mIterationsBetweenStats;
+	/** List of listeners waiting for the stats to be updated. */
 	private final List<StatsListener> mStatsListeners;
 
+	/**
+	 * Create a new instance. Initialises the listeners and adds a logger listener.
+	 */
 	public AbstractMutClassSizeTask() {
 		mStatsListeners = new ArrayList<AbstractMutClassSizeTask.StatsListener>();
 		addListener(new StatsLogger());
 	}
 
-	public AbstractMutClassSizeTask(T matrix) {
+	/**
+	 * Create a new instance with an initial matrix already set.
+	 * 
+	 * @param matrix Initial matrix to find the mutation class of
+	 */
+	public AbstractMutClassSizeTask(final T matrix) {
 		this();
 		setMatrix(matrix);
 	}
 
-	public void setMatrix(T matrix) {
+	/** {@inheritDoc} */
+	public final void setMatrix(final T matrix) {
 		mInitialMatrix = matrix;
 	}
 
-	public void reset() {
+	/** {@inheritDoc} */
+	public final void reset() {
 		mShouldRun = true;
 	}
 
@@ -67,7 +84,7 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> implement
 	 * 
 	 * @param listener The StatsListener to add
 	 * */
-	public void addListener(StatsListener listener) {
+	public final void addListener(final StatsListener listener) {
 		mStatsListeners.add(listener);
 	}
 
@@ -80,7 +97,7 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> implement
 	 * 
 	 * @param number Number of iterations between Stats updates
 	 */
-	public void setIterationsBetweenStats(int number) {
+	public final void setIterationsBetweenStats(final int number) {
 		mIterationsBetweenStats = number;
 	}
 
@@ -89,9 +106,9 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> implement
 	 * mutation-infinite then -1 is returned.
 	 * 
 	 * @return The size of the mutation class, or -1 if infinite
-	 * @throws Exception
+	 * @throws Exception if something goes wrong in the calculation
 	 */
-	public MatrixInfo call() throws Exception {
+	public final MatrixInfo call() throws Exception {
 		log.debug("MutClassSizeTask started for {}", mInitialMatrix);
 		MatrixInfo result = handleResult(getMatrixInfo(), getMutationClassSize());
 		return result;
@@ -107,17 +124,14 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> implement
 	 * @param result Mutation class size just calculated
 	 * @return MatrixInfo object to be returned by the call() method
 	 */
-	protected MatrixInfo handleResult(MatrixInfo info, int result) {
-		info.setMutationClassSize(result);
-		return info;
-	}
+	protected abstract MatrixInfo handleResult(final MatrixInfo info, final int result);
 
 	/**
-	 * Get the MatrixInfo object which should be returned by call()
+	 * Get the MatrixInfo object which should be returned by call().
 	 * 
 	 * @return Matrix info object
 	 */
-	protected MatrixInfo getMatrixInfo() {
+	protected final MatrixInfo getMatrixInfo() {
 		MatrixInfo result = new MatrixInfo(mInitialMatrix);
 		return result;
 	}
@@ -125,10 +139,9 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> implement
 	/**
 	 * Calculate the size of the mutation class.
 	 * 
-	 * @return
-	 * @throws PoolException
+	 * @return Size of the mutation class
 	 */
-	protected Integer getMutationClassSize() throws PoolException {
+	protected final Integer getMutationClassSize() {
 		int size = getSize(mInitialMatrix);
 		int numMatrices = 0;
 
@@ -166,7 +179,7 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> implement
 							if (isMatrixComplete(newMatrix, matrixSet)) {
 								removeComplete(newMatrix, quiverPool, holderPool, matrixSet);
 							} else {
-								removeIncomplete(newMatrix, quiverPool);
+								returnMatrix(newMatrix, quiverPool);
 							}
 						} else {
 							if (newMatrix.isInfinite()) {
@@ -202,34 +215,33 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> implement
 	 * 
 	 * @param pooledInitial Copy of the initial matrix from the thread local pool
 	 */
-	protected void setUp(T pooledInitial) {}
+	protected void setUp(final T pooledInitial) {}
 
 	/**
 	 * Request that the calculation be stopped at the next convenient place. If called the calculation
 	 * will return {@link AbstractMutClassSizeTask#STOP}.
 	 */
-	public void requestStop() {
+	public final void requestStop() {
 		log.debug("{} has been requested to stop", getClass().getSimpleName());
 		mShouldRun = false;
 	}
 
 	/**
-	 * Get the {@link ObjectPool} which provides {@link QuiverMatrix} objects of type T.
+	 * Get the {@link Pool} which provides {@link QuiverMatrix} objects of type T.
 	 * 
 	 * @return Pool of quiver objects
 	 */
-	protected Pool<T> getQuiverPool() {
+	protected final Pool<T> getQuiverPool() {
 		return Pools.getQuiverMatrixPool(getRows(), getCols(), getMatrixClass());
 	}
 
 	/**
-	 * Get the {@link ObjectPool} which provides {@link LinkHolder} objects which expect matrices of
-	 * Type T.
+	 * Get the {@link Pool} which provides {@link LinkHolder} objects which expect matrices of Type T.
 	 * 
 	 * @param size Number of links in each {@link LinkHolder}
 	 * @return Pool of {@link LinkHolder} objects
 	 */
-	protected Pool<LinkHolder<T>> getHolderPool(int size) {
+	protected final Pool<LinkHolder<T>> getHolderPool(final int size) {
 		return Pools.getHolderPool(size, getMatrixClass());
 	}
 
@@ -239,25 +251,35 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> implement
 	 * @param matrix Matrix to get the size of
 	 * @return Number of unfrozen vertices in the quiver
 	 */
-	private int getSize(QuiverMatrix matrix) {
+	private int getSize(final QuiverMatrix matrix) {
 		return Math.min(matrix.getNumRows(), matrix.getNumCols());
 	}
 
 	/**
-	 * Get the {@link Type} of {@link QuiverMatrix} which is being used.
+	 * Get the Type of {@link QuiverMatrix} which is being used.
 	 * 
-	 * @return the {@link Type} of {@link QuiverMatrix}
+	 * @return the Type of {@link QuiverMatrix}
 	 */
 	@SuppressWarnings("unchecked")
-	protected Class<T> getMatrixClass() {
+	protected final Class<T> getMatrixClass() {
 		return (Class<T>) mInitialMatrix.getClass();
 	}
 
-	protected int getRows() {
+	/**
+	 * Get the number of rows in the initial matrix.
+	 * 
+	 * @return Number of rows
+	 */
+	protected final int getRows() {
 		return mInitialMatrix.getNumRows();
 	}
 
-	protected int getCols() {
+	/**
+	 * Get the number of columns in the initial matrix.
+	 * 
+	 * @return Number of columns
+	 */
+	protected final int getCols() {
 		return mInitialMatrix.getNumCols();
 	}
 
@@ -268,7 +290,7 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> implement
 	 * @param mMatrixSet Map containing the links
 	 * @return true if the matrix has all links full
 	 */
-	protected boolean isMatrixComplete(T remove, Map<T, LinkHolder<T>> mMatrixSet) {
+	protected final boolean isMatrixComplete(final T remove, final Map<T, LinkHolder<T>> mMatrixSet) {
 
 		LinkHolder<T> holder = mMatrixSet.get(remove);
 		return holder != null && holder.isComplete();
@@ -278,7 +300,7 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> implement
 	 * Remove a matrix from the map once it has been handled by the task. This should only be called
 	 * once the quiver is handled, as it makes a lot of assumptions about the state concerning the
 	 * matrix. Any other time
-	 * {@link AbstractMutClassSizeTask#checkRemoveUnhandledQuiver(QuiverMatrix, ObjectPool, ObjectPool, Map, Queue, int)}
+	 * {@link AbstractMutClassSizeTask#checkRemoveUnhandledQuiver(QuiverMatrix, Pool, Pool, Map, Queue, int)}
 	 * should be used instead.
 	 * 
 	 * @param remove Handled matrix to remove
@@ -286,13 +308,8 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> implement
 	 * @param holderPool Pool to return link holder to
 	 * @param matrixSet Map to remove quiver from
 	 */
-	protected void removeHandledQuiver(T remove, Pool<T> quiverPool, Pool<LinkHolder<T>> holderPool,
-			Map<T, LinkHolder<T>> matrixSet) {
-
-		LinkHolder<T> holder = matrixSet.remove(remove);
-		holderPool.returnObj(holder);
-		removeIncomplete(remove, quiverPool);
-	}
+	protected abstract void removeHandledQuiver(final T remove, final Pool<T> quiverPool,
+			final Pool<LinkHolder<T>> holderPool, final Map<T, LinkHolder<T>> matrixSet);
 
 	/**
 	 * Remove a complete matrix from the map.
@@ -306,15 +323,16 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> implement
 	 * @param holderPool Pool to return holder to
 	 * @param matrixSet Map to remove matrix from
 	 */
-	protected void removeComplete(T remove, Pool<T> quiverPool, Pool<LinkHolder<T>> holderPool,
-			Map<T, LinkHolder<T>> matrixSet) {
+	protected abstract void removeComplete(final T remove, final Pool<T> quiverPool,
+			final Pool<LinkHolder<T>> holderPool, final Map<T, LinkHolder<T>> matrixSet);
 
-		LinkHolder<T> holder = matrixSet.remove(remove);
-		holderPool.returnObj(holder);
-		removeIncomplete(remove, quiverPool);
-	}
-
-	protected void removeIncomplete(T remove, Pool<T> quiverPool) {
+	/**
+	 * Return a quiver to the pool.
+	 * 
+	 * @param remove Matrix to return
+	 * @param quiverPool Pool to return to
+	 */
+	protected final void returnMatrix(final T remove, final Pool<T> quiverPool) {
 		quiverPool.returnObj(remove);
 	}
 
@@ -345,16 +363,13 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> implement
 	 * @param matrixSet {@link Map} containing the matrices and which mutations from them have been
 	 *        considered
 	 * @param incompleteQuivers {@link Queue} containing quivers not yet handled
-	 * @param holderPool {@link ObjectPool} providing {@link LinkHolder} objects
+	 * @param holderPool {@link Pool} providing {@link LinkHolder} objects
 	 * @param mat Matrix mutated to get the unseen matrix
 	 * @param newMatrix Unseen matrix
 	 * @param i Index mutated at to get unseen matrix
-	 * @throws PoolException Thrown if there is some problem taking objects from the
-	 *         {@link LinkHolder} pool
 	 */
 	protected abstract void handleUnseenMatrix(Map<T, LinkHolder<T>> matrixSet,
-			Queue<T> incompleteQuivers, Pool<LinkHolder<T>> holderPool, T mat, T newMatrix, int i)
-			throws PoolException;
+			Queue<T> incompleteQuivers, Pool<LinkHolder<T>> holderPool, T mat, T newMatrix, int i);
 
 	/**
 	 * Check whether the matrix has been seen before in the mutation process.
@@ -385,7 +400,7 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> implement
 	 * @param matrixSet Map containing {@link LinkHolder} objects
 	 * @return true if should mutate at the index
 	 */
-	private boolean shouldMutateAt(T matrix, int i, Map<T, LinkHolder<T>> matrixSet) {
+	private boolean shouldMutateAt(final T matrix, final int i, final Map<T, LinkHolder<T>> matrixSet) {
 		LinkHolder<T> holder = matrixSet.get(matrix);
 		return holder != null && !holder.hasLink(i);
 	}
@@ -403,23 +418,40 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> implement
 	 * 
 	 */
 	public class Stats {
-		int numConsidered;
-		int numInMap;
-		long startTime;
-		long lastIteration;
-		int numIterations;
+		/** Number of matrices handled so far. */
+		private int numConsidered;
+		/** Number of matrices seen but not handled. */
+		private int numInMap;
+		/** Time the calculation started. */
+		private long startTime;
+		/** Time the last iteration was completed. */
+		private long lastIteration;
+		/** Number of iterations completed. */
+		private int numIterations;
 
+		/**
+		 * Start the Stats recording.
+		 */
 		private void start() {
 			startTime = System.nanoTime();
 			lastIteration = startTime;
 		}
 
+		/**
+		 * Register that one iteration has been completed.
+		 */
 		private void iterationComplete() {
 			numIterations++;
 			lastIteration = System.nanoTime() - lastIteration;
 		}
 
-		private void update(Map<T, LinkHolder<T>> map, int num) {
+		/**
+		 * Update the Stats object with new information.
+		 * 
+		 * @param map Map containing unhandled matrices
+		 * @param num Number of matrices handled so far
+		 */
+		private void update(final Map<T, LinkHolder<T>> map, final int num) {
 			numConsidered = num;
 			numInMap = map.size();
 			for (StatsListener lis : mStatsListeners) {
@@ -428,14 +460,18 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> implement
 		}
 
 		@Override
-		public String toString() {
+		public final String toString() {
 			String.format("Handled %d matrices with %d found but not handled", numConsidered, numInMap);
 			return String.format("Handled %d matrices with %d found but not handled", numConsidered,
 					numInMap);
 		}
 
-		/** Get the time taken by the calculation so far in nanoseconds */
-		public long getCalculationTime() {
+		/**
+		 * Get the time taken by the calculation so far in nanoseconds.
+		 * 
+		 * @return Time the calculation has taken up until now
+		 */
+		public final long getCalculationTime() {
 			long now = System.nanoTime();
 			return now - startTime;
 		}
@@ -445,17 +481,17 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> implement
 		 * 
 		 * @return The average iteration time
 		 */
-		public long getAvgIterationTime() {
+		public final long getAvgIterationTime() {
 			long time = getCalculationTime();
 			return time / numIterations;
 		}
 
 		/**
-		 * Get the time taken for the very last iteration
+		 * Get the time taken for the very last iteration.
 		 * 
 		 * @return The time taken by the last iterations
 		 */
-		public long getLastIterationTime() {
+		public final long getLastIterationTime() {
 			return lastIteration;
 		}
 
@@ -471,13 +507,18 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> implement
 		 * 
 		 * @param stats Statistics object with methods for accessing the data
 		 */
-		public void statsUpdated(AbstractMutClassSizeTask<?>.Stats stats);
+		void statsUpdated(AbstractMutClassSizeTask<?>.Stats stats);
 	}
 
-	/** Simple class which provides logging of the task statistics each time it is updated */
+	/** Simple class which provides logging of the task statistics each time it is updated. */
 	private class StatsLogger implements StatsListener {
 
-		public void statsUpdated(AbstractMutClassSizeTask<?>.Stats stats) {
+		/**
+		 * Called each time the Stats are updated.
+		 * 
+		 * @param stats The Stats object which has just been updated
+		 */
+		public void statsUpdated(final AbstractMutClassSizeTask<?>.Stats stats) {
 			log.debug(stats.toString());
 		}
 	}

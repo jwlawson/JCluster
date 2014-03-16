@@ -22,15 +22,26 @@ import com.google.common.base.Optional;
  */
 public class MatrixInfo {
 
+	/** Matrix with these properties. */
 	private final QuiverMatrix matrix;
+	/** Whether the matrix is mutation finite. */
 	private Optional<Boolean> finite = Optional.absent();
+	/** Size of the matrix mutation class. */
 	private Optional<Integer> mutClassSize = Optional.absent();
+	/** Size of the matrix mutation class up to reordering rows and columns. */
 	private Optional<Integer> equivMutSize = Optional.absent();
+	/** Whether the matrix is minumally mutation infinite. */
 	private Optional<Boolean> minMutInf = Optional.absent();
+	/** The dynkin diagram the matrix is (if any). */
 	private Optional<DynkinDiagram> diagram = Optional.absent();
 
-	public MatrixInfo(QuiverMatrix matrix) {
-		this.matrix = matrix;
+	/**
+	 * Create a new MatrixInfo for the provided matrix.
+	 * 
+	 * @param m Matrix
+	 */
+	public MatrixInfo(final QuiverMatrix m) {
+		this.matrix = m;
 	}
 
 	/**
@@ -55,21 +66,26 @@ public class MatrixInfo {
 	/**
 	 * Set whether the matrix is mutation finite.
 	 * 
-	 * @param finite true if the matrix is mutation finite
+	 * @param f true if the matrix is mutation finite
 	 */
-	public void setFinite(boolean finite) {
-		if (finite) {
+	public void setFinite(final boolean f) {
+		if (f) {
 			noSideSetMinMutInf(false);
 		}
-		noSideSetFinite(finite);
-	}
-
-	private void noSideSetFinite(boolean finite) {
-		this.finite = Optional.of(finite);
+		noSideSetFinite(f);
 	}
 
 	/**
-	 * Get whether the matrix is mutation finite
+	 * Set if finite without setting any of the side effects.
+	 * 
+	 * @param f if finite
+	 */
+	private void noSideSetFinite(final boolean f) {
+		this.finite = Optional.of(f);
+	}
+
+	/**
+	 * Get whether the matrix is mutation finite.
 	 * 
 	 * @return true if mutation finite
 	 * @throws IllegalStateException if this has not been set
@@ -90,29 +106,29 @@ public class MatrixInfo {
 	/**
 	 * Set the value of the size of mutation class of this matrix.
 	 * 
-	 * @param mutClassSize Size of the mutation class
+	 * @param classSize Size of the mutation class
 	 */
-	public void setMutationClassSize(int mutClassSize) {
-		if (mutClassSize > 0) {
+	public void setMutationClassSize(final int classSize) {
+		if (classSize > 0) {
 			noSideSetFinite(true);
 		}
-		if (mutClassSize == -1) {
+		if (classSize == -1) {
 			noSideSetFinite(false);
 		}
-		noSideSetMutationClassSize(mutClassSize);
+		noSideSetMutationClassSize(classSize);
 	}
 
 	/**
 	 * Set the size of the mutation class without setting any of the side effects.
 	 * 
-	 * @param mutClassSize Size of the mutation class
+	 * @param classSize Size of the mutation class
 	 */
-	private void noSideSetMutationClassSize(int mutClassSize) {
-		this.mutClassSize = Optional.of(mutClassSize);
+	private void noSideSetMutationClassSize(final int classSize) {
+		this.mutClassSize = Optional.of(classSize);
 	}
 
 	/**
-	 * Get the size of the mutation class of the matrix
+	 * Get the size of the mutation class of the matrix.
 	 * 
 	 * @return The size of the mutation class
 	 * @throws IllegalStateException if the size has not been set
@@ -133,26 +149,26 @@ public class MatrixInfo {
 	/**
 	 * Set the value of the size of mutation class of this matrix up to reordering rows and columns.
 	 * 
-	 * @param mutClassSize Size of the mutation class
+	 * @param classSize Size of the mutation class
 	 */
-	public void setEquivMutationClassSize(int mutClassSize) {
-		if (mutClassSize > 0) {
+	public void setEquivMutationClassSize(final int classSize) {
+		if (classSize > 0) {
 			noSideSetFinite(true);
 		}
-		if (mutClassSize == -1) {
+		if (classSize == -1) {
 			noSideSetFinite(false);
 		}
-		noSideSetEquivMutationClassSize(mutClassSize);
+		noSideSetEquivMutationClassSize(classSize);
 	}
 
 	/**
 	 * Set the size of the mutation class up to reordering rows and columns without setting any of the
 	 * side effects.
 	 * 
-	 * @param mutClassSize Size of the mutation class
+	 * @param classSize Size of the mutation class
 	 */
-	private void noSideSetEquivMutationClassSize(int mutClassSize) {
-		this.equivMutSize = Optional.of(mutClassSize);
+	private void noSideSetEquivMutationClassSize(final int classSize) {
+		this.equivMutSize = Optional.of(classSize);
 	}
 
 	/**
@@ -179,7 +195,7 @@ public class MatrixInfo {
 	 * 
 	 * @param result true if the matrix is minimally mutation infinite
 	 */
-	public void setMinMutInf(boolean result) {
+	public void setMinMutInf(final boolean result) {
 		if (result) {
 			noSideSetFinite(false);
 			noSideSetMutationClassSize(-1);
@@ -192,7 +208,7 @@ public class MatrixInfo {
 	 * 
 	 * @param result true if the matrix is minimally mutation infinite
 	 */
-	private void noSideSetMinMutInf(boolean result) {
+	private void noSideSetMinMutInf(final boolean result) {
 		minMutInf = Optional.of(result);
 	}
 
@@ -218,21 +234,21 @@ public class MatrixInfo {
 	/**
 	 * Set the dynkin diagram that the matrix is.
 	 * 
-	 * @param diagram The diagram that the matrix is
+	 * @param d The diagram that the matrix is
 	 */
-	public void setDynkinDiagram(DynkinDiagram diagram) {
+	public void setDynkinDiagram(final DynkinDiagram d) {
 		noSideSetFinite(true);
 		noSideSetMinMutInf(false);
-		noSideSetDynkinDiagram(diagram);
+		noSideSetDynkinDiagram(d);
 	}
 
 	/**
 	 * Set the dynkin diagram that the matrix is without setting any of the side effects.
 	 * 
-	 * @param diagram The diagram that the matrix is
+	 * @param d The diagram that the matrix is
 	 */
-	private void noSideSetDynkinDiagram(DynkinDiagram diagram) {
-		this.diagram = Optional.of(diagram);
+	private void noSideSetDynkinDiagram(final DynkinDiagram d) {
+		this.diagram = Optional.of(d);
 	}
 
 	/**
@@ -245,7 +261,17 @@ public class MatrixInfo {
 		return diagram.get();
 	}
 
-	public void combine(MatrixInfo info) {
+	/**
+	 * Combine the info on the matrix stored in the two MatrixInfo objects.
+	 * 
+	 * @param info MatrixInfo object containing information about the same matrix
+	 * @throws IllegalArgumentException if {@code info} contains information about a different matrix
+	 */
+	public void combine(final MatrixInfo info) {
+		if (!matrix.equals(info.matrix)) {
+			throw new IllegalArgumentException(
+					"Cannot combine two MatrixInfo objects with different matrices");
+		}
 		if (!hasFiniteSet() && info.hasFiniteSet()) {
 			noSideSetFinite(info.isFinite());
 		}

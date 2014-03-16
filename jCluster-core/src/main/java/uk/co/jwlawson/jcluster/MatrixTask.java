@@ -17,15 +17,32 @@ package uk.co.jwlawson.jcluster;
 import java.util.concurrent.Callable;
 
 /**
+ * Task to compute a property of a matrix. The result will be returned in a MatrixInfo object.
+ * 
+ * @param <T> Matrix class to use in the calculation
  * @author John Lawson
  * 
  */
 public interface MatrixTask<T extends QuiverMatrix> extends Callable<MatrixInfo> {
 
-	public void setMatrix(T matrix);
+	/**
+	 * Set the matrix to be used in the calculation.
+	 * 
+	 * @param matrix Matrix to use
+	 */
+	void setMatrix(T matrix);
 
-	public void reset();
+	/**
+	 * Reset the task so that it can be used again for a different matrix.
+	 */
+	void reset();
 
-	public MatrixInfo call() throws Exception;
+	/**
+	 * Perform the calculation on the matrix.
+	 * 
+	 * @return MatrixInfo object containing the result of the calculation
+	 * @throws Exception if an error is encountered during the calculation
+	 */
+	MatrixInfo call() throws Exception;
 
 }

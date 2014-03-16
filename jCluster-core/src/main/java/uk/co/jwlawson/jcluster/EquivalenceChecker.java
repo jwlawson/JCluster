@@ -37,12 +37,13 @@ import com.google.common.cache.Weigher;
  * @author John Lawson
  * 
  */
-public class EquivalenceChecker {
+public final class EquivalenceChecker {
 
-	private final static Logger log = LoggerFactory.getLogger(EquivalenceChecker.class);
+	/** Logger. */
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	/** Constant value which represents an invalid permutation. */
-	private final int[] NO_PERMUTATION = new int[0];
+	private static final int[] NO_PERMUTATION = new int[0];
 
 	/**
 	 * The cache which stores {@link EquivalenceChecker} instances. There is a maximum bound on it to
@@ -53,13 +54,15 @@ public class EquivalenceChecker {
 			.newBuilder().maximumWeight(400000000) // Max num for 10x10 is 363 million
 			.weigher(new Weigher<Integer, EquivalenceChecker>() {
 
-				public int weigh(Integer key, EquivalenceChecker value) {
+				@Override
+				public int weigh(final Integer key, final EquivalenceChecker value) {
 					return value.mPermMatrices.length * key * key;
 				}
 			}).build(new CacheLoader<Integer, EquivalenceChecker>() {
+				private final Logger log = LoggerFactory.getLogger(getClass());
 
 				@Override
-				public EquivalenceChecker load(Integer key) throws Exception {
+				public EquivalenceChecker load(final Integer key) throws Exception {
 					log.info("New EquivalenceChecker of size {} created", key);
 					return new EquivalenceChecker(key);
 				}
@@ -84,7 +87,7 @@ public class EquivalenceChecker {
 				 * @see com.google.common.cache.CacheLoader#load(java.lang.Object)
 				 */
 				@Override
-				public Boolean load(IntMatrixPair key) throws Exception {
+				public Boolean load(final IntMatrixPair key) throws Exception {
 					boolean result = areUncachedEquivalent(key.a, key.b);
 					IntMatrixPair opp = new IntMatrixPair();
 					opp.set(key.b, key.a);
@@ -94,9 +97,13 @@ public class EquivalenceChecker {
 
 			});
 
+	/** Array of all permutation matrices of this size. */
 	private IntMatrix[] mPermMatrices;
+	/** Matrix storing the multiplication. */
 	private final IntMatrix mMatrixAP;
+	/** Matrix string the multiplication. */
 	private final IntMatrix mMatrixPB;
+	/** Pool of matrix pairs. */
 	private final Pool<IntMatrixPair> mPairPool;
 
 	/**
@@ -107,7 +114,7 @@ public class EquivalenceChecker {
 	 * @param size Size of matrices which the {@link EquivalenceChecker} will check
 	 * @return An instance of {@link EquivalenceChecker}
 	 */
-	public static EquivalenceChecker getInstance(int size) {
+	public static EquivalenceChecker getInstance(final int size) {
 		return sInstanceCache.getUnchecked(size);
 	}
 
@@ -118,7 +125,7 @@ public class EquivalenceChecker {
 	 * 
 	 * @param size The size of the matrices which will be checked for equivalence
 	 */
-	private EquivalenceChecker(int size) {
+	private EquivalenceChecker(final int size) {
 		setPermutations(size);
 
 		mMatrixAP = new IntMatrix(size, size);
@@ -131,7 +138,7 @@ public class EquivalenceChecker {
 	 * 
 	 * @param size The size of the matrices to construct
 	 */
-	private void setPermutations(int size) {
+	private void setPermutations(final int size) {
 		int fac = factorial(size);
 		mPermMatrices = new IntMatrix[fac];
 		int count = 0;
@@ -161,7 +168,7 @@ public class EquivalenceChecker {
 	 * @return An array of column numbers indicating the positions of the 1s, or NO_PERMUTATION if an
 	 *         invalid id is provided
 	 */
-	private int[] getPermValues(int size, int i) {
+	private int[] getPermValues(final int size, final int i) {
 		int[] result = new int[size];
 		int id = i;
 		for (int j = 0; j < size; j++) {
@@ -182,7 +189,7 @@ public class EquivalenceChecker {
 	 * @param num Number to start calculating from
 	 * @return The value of num factorial
 	 */
-	private int factorial(int num) {
+	private int factorial(final int num) {
 		if (num == 1) {
 			return 1;
 		}
@@ -204,7 +211,7 @@ public class EquivalenceChecker {
 	 * @param b The second matrix
 	 * @return true if the matrices are equivalent
 	 */
-	private Boolean areUncachedEquivalent(IntMatrix a, IntMatrix b) {
+	private Boolean areUncachedEquivalent(final IntMatrix a, final IntMatrix b) {
 		if (IntMatrix.areEqual(a, b)) {
 			return true;
 		}
@@ -234,14 +241,18 @@ public class EquivalenceChecker {
 				bAbsColSum[j] += Math.abs(bVal);
 			}
 		}
-		if (!areArraysEquivalent(aRowSum, bRowSum))
+		if (!areArraysEquivalent(aRowSum, bRowSum)) {
 			return false;
-		if (!areArraysEquivalent(aColSum, bColSum))
+		}
+		if (!areArraysEquivalent(aColSum, bColSum)) {
 			return false;
-		if (!areArraysEquivalent(aAbsRowSum, bAbsRowSum))
+		}
+		if (!areArraysEquivalent(aAbsRowSum, bAbsRowSum)) {
 			return false;
-		if (!areArraysEquivalent(aAbsColSum, bAbsColSum))
+		}
+		if (!areArraysEquivalent(aAbsColSum, bAbsColSum)) {
 			return false;
+		}
 
 		int[] rowMappings = getMappingArray(aRows);
 		int[] colMappings = getMappingArray(aCols);
@@ -278,7 +289,13 @@ public class EquivalenceChecker {
 		return false;
 	}
 
-	private int[] getMappingArray(int length) {
+	/**
+	 * Get an array to store the mapping information in.
+	 * 
+	 * @param length Length of the array
+	 * @return Array
+	 */
+	private int[] getMappingArray(final int length) {
 		int[] arr = new int[length];
 		for (int i = 0; i < length; i++) {
 			arr[i] = 57;
@@ -286,8 +303,22 @@ public class EquivalenceChecker {
 		return arr;
 	}
 
-	private boolean checkColumnsMatch(IntMatrix a, IntMatrix b, int aCols, int[] aColSum,
-			int[] aAbsColSum, int[] bColSum, int[] bAbsColSum, int[] colMappings) {
+	/**
+	 * Check that the columns in the matrices match up to permutations.
+	 * 
+	 * @param a First matrix
+	 * @param b Second matrix
+	 * @param aCols number of columns
+	 * @param aColSum Sums of the first matrices columns
+	 * @param aAbsColSum Sums of the abs value of the first matrices columns
+	 * @param bColSum Sums of the second matrices columns
+	 * @param bAbsColSum Sums of the abs value of the second matrices columns
+	 * @param colMappings Array of column mappings to update
+	 * @return true if the matrices have matching columns
+	 */
+	private boolean checkColumnsMatch(final IntMatrix a, final IntMatrix b, final int aCols,
+			final int[] aColSum, final int[] aAbsColSum, final int[] bColSum, final int[] bAbsColSum,
+			final int[] colMappings) {
 		boolean columnsMatch = true;
 		for (int aInd = 0; aInd < aCols; aInd++) {
 			int inCol = numberIn(bColSum, aColSum[aInd]);
@@ -313,8 +344,9 @@ public class EquivalenceChecker {
 		return columnsMatch;
 	}
 
-	private boolean checkRowsMatch(IntMatrix a, IntMatrix b, int aRows, int[] aRowSum,
-			int[] aAbsRowSum, int[] bRowSum, int[] bAbsRowSum, int[] rowMappings) {
+	private boolean checkRowsMatch(final IntMatrix a, final IntMatrix b, final int aRows,
+			final int[] aRowSum, final int[] aAbsRowSum, final int[] bRowSum, final int[] bAbsRowSum,
+			final int[] rowMappings) {
 		boolean rowsMatch = true;
 		for (int aInd = 0; aInd < aRows && rowsMatch; aInd++) {
 			int inRow = numberIn(bRowSum, aRowSum[aInd]);
@@ -340,12 +372,14 @@ public class EquivalenceChecker {
 		return rowsMatch;
 	}
 
-	private void updateMapping(int numRows, int[] rowMappings, int aIndex, int bIndex) {
+	private void updateMapping(final int numRows, final int[] rowMappings, final int aIndex,
+			final int bIndex) {
 		rowMappings[bIndex] *= numRows;
 		rowMappings[bIndex] += aIndex;
 	}
 
-	private boolean isPermutationValid(int aRows, int aCols, int[] colMappings, IntMatrix p) {
+	private boolean isPermutationValid(final int aRows, final int aCols, final int[] colMappings,
+			final IntMatrix p) {
 		for (int i = 0; i < colMappings.length; i++) {
 			if (!isColumnValid(aCols, colMappings, p, i)) {
 				return false;
@@ -354,7 +388,8 @@ public class EquivalenceChecker {
 		return true;
 	}
 
-	private boolean isColumnValid(int num, int[] mappings, IntMatrix perm, int index) {
+	private boolean isColumnValid(final int num, final int[] mappings, final IntMatrix perm,
+			final int index) {
 		while (mappings[index] != 57) {
 			if (perm.unsafeGet(index, mappings[index] % num) == 1) {
 				return true;
@@ -364,7 +399,7 @@ public class EquivalenceChecker {
 		return false;
 	}
 
-	private int numberIn(int[] arr, int val) {
+	private int numberIn(final int[] arr, final int val) {
 		int count = 0;
 		for (int i : arr) {
 			if (i == val) {
@@ -374,7 +409,7 @@ public class EquivalenceChecker {
 		return count;
 	}
 
-	private int getNextIndexOf(int[] arr, int val, int prev) {
+	private int getNextIndexOf(final int[] arr, final int val, final int prev) {
 		for (int i = prev + 1; i < arr.length; i++) {
 			if (arr[i] == val) {
 				return i;
@@ -383,7 +418,7 @@ public class EquivalenceChecker {
 		return -1;
 	}
 
-	private boolean areArraysEquivalent(int[] a, int[] b) {
+	private boolean areArraysEquivalent(final int[] a, final int[] b) {
 		int[] aCopy = Arrays.copyOf(a, a.length);
 		int[] bCopy = Arrays.copyOf(b, b.length);
 		Arrays.sort(aCopy);
@@ -399,7 +434,7 @@ public class EquivalenceChecker {
 	 * @param b The second matrix
 	 * @return true if the two are equivalent
 	 */
-	public boolean areEquivalent(IntMatrix a, IntMatrix b) {
+	public boolean areEquivalent(final IntMatrix a, final IntMatrix b) {
 		IntMatrixPair pair = null;
 		try {
 			pair = mPairPool.getObj();

@@ -39,7 +39,13 @@ public class FindInfExtensionTask implements Callable<Set<QuiverMatrix>> {
 	private final QuiverMatrix mEnlargedMatrix;
 	private final ExecutorService mExecutor;
 
-	public FindInfExtensionTask(QuiverMatrix initial, ExecutorService executor) {
+	/**
+	 * Create a new task.
+	 * 
+	 * @param initial Initial matrix
+	 * @param executor Executor to use
+	 */
+	public FindInfExtensionTask(final QuiverMatrix initial, final ExecutorService executor) {
 		if (initial.getNumCols() != initial.getNumRows()) {
 			throw new IllegalArgumentException("Task assumes that the matrix is square");
 		}
@@ -48,6 +54,7 @@ public class FindInfExtensionTask implements Callable<Set<QuiverMatrix>> {
 		mExecutor = executor;
 	}
 
+	@Override
 	public Set<QuiverMatrix> call() throws Exception {
 		int size = mInitialMatrix.getNumRows();
 		ExecutorCompletionService<MatrixInfo> pool =
@@ -69,24 +76,21 @@ public class FindInfExtensionTask implements Callable<Set<QuiverMatrix>> {
 			if (num % 100000 == 0) {
 				log.debug("{} Infinite matrices found out of {}", num, Math.pow(5, size));
 			}
-			MatrixInfo res = pool.take().get();
-			if (res != null) {
-//				infiniteMatrices.add(res);
-			}
+			pool.take().get();
 		}
 		log.info("All extensions checked");
 		return infiniteMatrices;
 	}
 
-	private FastInfiniteCheck getEnlargedCheckInfTask(int size, final Pool<QuiverMatrix> matrixPool,
-			int num) throws Exception {
+	private FastInfiniteCheck getEnlargedCheckInfTask(final int size,
+			final Pool<QuiverMatrix> matrixPool, final int num) throws Exception {
 		QuiverMatrix matrix = addVertexToMatrix(size, matrixPool, num);
 		FastInfiniteCheck task = new FastInfiniteCheck(matrix);
 		return task;
 	}
 
-	private QuiverMatrix addVertexToMatrix(int size, final Pool<QuiverMatrix> matrixPool, int num)
-			throws Exception {
+	private QuiverMatrix addVertexToMatrix(final int size, final Pool<QuiverMatrix> matrixPool,
+			final int num) throws Exception {
 		QuiverMatrix matrix = matrixPool.getObj();
 		matrix.set(mEnlargedMatrix);
 		log.debug("Enlarged matrix: {} copied to {}", mEnlargedMatrix, matrix);

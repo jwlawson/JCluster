@@ -22,24 +22,41 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * 
  * @author John Lawson
  * 
+ * @param <V>
  */
 public abstract class CompletionHandler<V> implements Runnable {
 
+	/** Logger. */
 	private final Logger log = LoggerFactory.getLogger(getClass());
-
+	/** Service to execute tasks. */
 	private CompletionService<V> service;
+	/** Queue to leave results in. */
 	private CompletionResultQueue<V> queue;
 
-	public void setQueue(CompletionResultQueue<V> queue) {
-		this.queue = queue;
+	/**
+	 * Set the queue.
+	 * 
+	 * @param q Queue to store results in
+	 */
+	public void setQueue(final CompletionResultQueue<V> q) {
+		this.queue = q;
 	}
 
-	public void setService(CompletionService<V> service) {
-		this.service = service;
+	/**
+	 * Set the service.
+	 * 
+	 * @param s Service to execute tasks
+	 */
+	public void setService(final CompletionService<V> s) {
+		this.service = s;
 	}
 
+	/**
+	 * Process the next task and queue its result.
+	 */
 	protected void handleNextTask() {
 		Future<V> future;
 		try {

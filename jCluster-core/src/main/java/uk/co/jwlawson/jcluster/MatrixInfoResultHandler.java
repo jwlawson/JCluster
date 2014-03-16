@@ -25,14 +25,29 @@ public abstract class MatrixInfoResultHandler implements Callable<MatrixInfo> {
 	private CompletionResultQueue<MatrixInfo> queue;
 	private boolean running = true;
 
+	/**
+	 * Handle the new result.
+	 * 
+	 * @param matrix New result
+	 */
 	protected abstract void handleResult(MatrixInfo matrix);
 
+	/**
+	 * Get the final MatrixInfo object after processing all the results.
+	 * 
+	 * @return Final MatrixInfo object
+	 */
 	protected abstract MatrixInfo getFinal();
 
+	/**
+	 * Inform the handler that all results have been queued, so once the queue is empty there will be
+	 * no more.
+	 */
 	public void allResultsQueued() {
 		running = false;
 	}
 
+	@Override
 	public MatrixInfo call() throws Exception {
 		while (queue.hasResult() || running) {
 			MatrixInfo info = queue.popResult();

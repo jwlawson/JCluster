@@ -15,21 +15,36 @@
 package uk.co.jwlawson.jcluster;
 
 /**
+ * CompletionHandler of a fixed size. Use this when you know the number of tasks which will be
+ * submitted.
+ * 
  * @author John Lawson
  * 
+ * @param <V> Return type of the Callables
  */
 public class FixedCompletionHandler<V> extends CompletionHandler<V> {
 
 	private int size;
 
-	public FixedCompletionHandler(int size) {
-		this.size = size;
+	/**
+	 * Create a new instance with specified size.
+	 * 
+	 * @param s Size
+	 */
+	public FixedCompletionHandler(final int s) {
+		this.size = s;
 	}
 
-	public void setSize(int size) {
-		this.size = size;
+	/**
+	 * Set the number of tasks to wait for.
+	 * 
+	 * @param s Number of tasks
+	 */
+	public void setSize(final int s) {
+		this.size = s;
 	}
 
+	@Override
 	public void run() {
 		for (int i = 0; i < size; i++) {
 			handleNextTask();

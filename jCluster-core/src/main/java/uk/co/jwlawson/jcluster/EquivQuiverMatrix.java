@@ -16,9 +16,6 @@ package uk.co.jwlawson.jcluster;
 
 import java.util.Arrays;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * A QuiverMatrix where two matrices are considered equal if they are equivalent up to permutations
  * of the rows and columns.
@@ -32,8 +29,9 @@ import org.slf4j.LoggerFactory;
  */
 public class EquivQuiverMatrix extends QuiverMatrix {
 
-	private final Logger log = LoggerFactory.getLogger(getClass());
+	/** Checker for whether two matrices are equivalent. */
 	private final EquivalenceChecker mChecker;
+	/** Cached hashcode. */
 	private int mHashcode;
 
 	/**
@@ -43,7 +41,7 @@ public class EquivQuiverMatrix extends QuiverMatrix {
 	 * @param rows Number of rows in matrix
 	 * @param cols Number of columns in matrix
 	 */
-	public EquivQuiverMatrix(int rows, int cols) {
+	public EquivQuiverMatrix(final int rows, final int cols) {
 		this(rows);
 	}
 
@@ -53,20 +51,20 @@ public class EquivQuiverMatrix extends QuiverMatrix {
 	 * @param size Number of rows and columns
 	 * @see uk.co.jwlawson.jcluster.QuiverMatrix#QuiverMatrix(int, int)
 	 */
-	EquivQuiverMatrix(int size) {
+	EquivQuiverMatrix(final int size) {
 		super(size, size);
 		mChecker = EquivalenceChecker.getInstance(size);
 	}
 
 	/**
-	 * Create a new square matrix with {@code size} rows and columns filled with the data provided
-	 * in {@code values}
+	 * Create a new square matrix with {@code size} rows and columns filled with the data provided in
+	 * {@code values}.
 	 * 
 	 * @param size Number fo rows and columns
 	 * @param values Data to store in the matrix
 	 * @see uk.co.jwlawson.jcluster.QuiverMatrix#QuiverMatrix(int, int, int...)
 	 */
-	public EquivQuiverMatrix(int size, int... values) {
+	public EquivQuiverMatrix(final int size, final int... values) {
 		super(size, size, values);
 		mChecker = EquivalenceChecker.getInstance(size);
 	}
@@ -77,7 +75,7 @@ public class EquivQuiverMatrix extends QuiverMatrix {
 	 * @see uk.co.jwlawson.jcluster.QuiverMatrix#QuiverMatrix(QuiverMatrix)
 	 * @param matrix Matrix to copy the values from
 	 */
-	public EquivQuiverMatrix(QuiverMatrix matrix) {
+	public EquivQuiverMatrix(final QuiverMatrix matrix) {
 		super(matrix);
 		mChecker = EquivalenceChecker.getInstance(matrix.getNumRows());
 	}
@@ -89,7 +87,7 @@ public class EquivQuiverMatrix extends QuiverMatrix {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (obj == null) {
 			return false;
 		}

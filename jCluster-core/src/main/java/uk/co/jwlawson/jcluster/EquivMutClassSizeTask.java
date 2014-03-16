@@ -19,7 +19,6 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
-import nf.fr.eraasoft.pool.PoolException;
 import uk.co.jwlawson.jcluster.pool.Pool;
 
 /**
@@ -32,39 +31,53 @@ import uk.co.jwlawson.jcluster.pool.Pool;
  */
 public class EquivMutClassSizeTask extends MutClassSizeTask<EquivQuiverMatrix> {
 
+	/** Set of all seen matrices. */
 	private final Set<EquivQuiverMatrix> mList;
 
-	public EquivMutClassSizeTask(EquivQuiverMatrix matrix) {
+	/**
+	 * Create a new task to find the mutation class size up to reordering rows and columns of the
+	 * provided matrix.
+	 * 
+	 * @param matrix Initial matrix to find the mutation class of
+	 */
+	public EquivMutClassSizeTask(final EquivQuiverMatrix matrix) {
 		super(matrix);
 		mList = new HashSet<EquivQuiverMatrix>();
 		setIterationsBetweenStats(100);
 	}
 
-	public EquivMutClassSizeTask(QuiverMatrix matrix) {
+	/**
+	 * Create a new task to find the mutation class size up to reordering rows and columns of the
+	 * provided matrix.
+	 * 
+	 * @param matrix Initial matrix to find the mutation class of
+	 */
+	public EquivMutClassSizeTask(final QuiverMatrix matrix) {
 		this(new EquivQuiverMatrix(matrix));
 	}
 
 	@Override
-	protected void setUp(EquivQuiverMatrix m) {
+	protected void setUp(final EquivQuiverMatrix m) {
 		super.setUp(m);
 		mList.add(m);
 	}
 
 	@Override
-	protected MatrixInfo handleResult(MatrixInfo info, int result) {
+	protected MatrixInfo handleResult(final MatrixInfo info, final int result) {
 		info.setEquivMutationClassSize(result);
 		return info;
 	}
 
 	@Override
-	protected boolean matrixSeenBefore(EquivQuiverMatrix newMatrix,
-			Map<EquivQuiverMatrix, LinkHolder<EquivQuiverMatrix>> matrixSet) {
+	protected boolean matrixSeenBefore(final EquivQuiverMatrix newMatrix,
+			final Map<EquivQuiverMatrix, LinkHolder<EquivQuiverMatrix>> matrixSet) {
 		return mList.contains(newMatrix) || super.matrixSeenBefore(newMatrix, matrixSet);
 	}
 
 	@Override
-	protected void handleSeenMatrix(Map<EquivQuiverMatrix, LinkHolder<EquivQuiverMatrix>> matrixSet,
-			EquivQuiverMatrix mat, EquivQuiverMatrix newMatrix, int i) {
+	protected void handleSeenMatrix(
+			final Map<EquivQuiverMatrix, LinkHolder<EquivQuiverMatrix>> matrixSet,
+			final EquivQuiverMatrix mat, final EquivQuiverMatrix newMatrix, final int i) {
 		LinkHolder<EquivQuiverMatrix> newHolder = matrixSet.get(newMatrix);
 		LinkHolder<EquivQuiverMatrix> oldHolder = matrixSet.get(mat);
 		oldHolder.setLinkAt(i);
@@ -80,18 +93,20 @@ public class EquivMutClassSizeTask extends MutClassSizeTask<EquivQuiverMatrix> {
 
 
 	@Override
-	protected void removeHandledQuiver(EquivQuiverMatrix remove, Pool<EquivQuiverMatrix> quiverPool,
-			Pool<LinkHolder<EquivQuiverMatrix>> holderPool,
-			Map<EquivQuiverMatrix, LinkHolder<EquivQuiverMatrix>> matrixSet) {
+	protected void removeHandledQuiver(final EquivQuiverMatrix remove,
+			final Pool<EquivQuiverMatrix> quiverPool,
+			final Pool<LinkHolder<EquivQuiverMatrix>> holderPool,
+			final Map<EquivQuiverMatrix, LinkHolder<EquivQuiverMatrix>> matrixSet) {
 
 		LinkHolder<EquivQuiverMatrix> holder = matrixSet.remove(remove);
 		holderPool.returnObj(holder);
 	}
 
 	@Override
-	protected void removeComplete(EquivQuiverMatrix remove, Pool<EquivQuiverMatrix> quiverPool,
-			Pool<LinkHolder<EquivQuiverMatrix>> holderPool,
-			Map<EquivQuiverMatrix, LinkHolder<EquivQuiverMatrix>> matrixSet) {
+	protected void removeComplete(final EquivQuiverMatrix remove,
+			final Pool<EquivQuiverMatrix> quiverPool,
+			final Pool<LinkHolder<EquivQuiverMatrix>> holderPool,
+			final Map<EquivQuiverMatrix, LinkHolder<EquivQuiverMatrix>> matrixSet) {
 
 		LinkHolder<EquivQuiverMatrix> holder = matrixSet.remove(remove);
 		EquivQuiverMatrix key = holder.getQuiverMatrix();
@@ -105,18 +120,19 @@ public class EquivMutClassSizeTask extends MutClassSizeTask<EquivQuiverMatrix> {
 
 	@Override
 	protected void handleUnseenMatrix(
-			Map<EquivQuiverMatrix, LinkHolder<EquivQuiverMatrix>> matrixSet,
-			Queue<EquivQuiverMatrix> incompleteQuivers, Pool<LinkHolder<EquivQuiverMatrix>> holderPool,
-			EquivQuiverMatrix mat, EquivQuiverMatrix newMatrix, int i) throws PoolException {
+			final Map<EquivQuiverMatrix, LinkHolder<EquivQuiverMatrix>> matrixSet,
+			final Queue<EquivQuiverMatrix> incompleteQuivers,
+			final Pool<LinkHolder<EquivQuiverMatrix>> holderPool, final EquivQuiverMatrix mat,
+			final EquivQuiverMatrix newMatrix, final int i) {
 
 		mList.add(newMatrix);
 		super.handleUnseenMatrix(matrixSet, incompleteQuivers, holderPool, mat, newMatrix, i);
 	}
 
 	@Override
-	protected void teardown(Pool<EquivQuiverMatrix> quiverPool,
-			Pool<LinkHolder<EquivQuiverMatrix>> holderPool,
-			Map<EquivQuiverMatrix, LinkHolder<EquivQuiverMatrix>> matrixSet) {
+	protected void teardown(final Pool<EquivQuiverMatrix> quiverPool,
+			final Pool<LinkHolder<EquivQuiverMatrix>> holderPool,
+			final Map<EquivQuiverMatrix, LinkHolder<EquivQuiverMatrix>> matrixSet) {
 
 		for (EquivQuiverMatrix m : mList) {
 			quiverPool.returnObj(m);

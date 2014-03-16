@@ -22,6 +22,8 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  * 
  * @author John Lawson
  * 
+ * @param <T> Type of matrix expected in the holder
+ * 
  */
 public class LinkHolder<T extends QuiverMatrix> {
 
@@ -31,9 +33,9 @@ public class LinkHolder<T extends QuiverMatrix> {
 	/**
 	 * Create a new {@link LinkHolder} with {@code size} number of links.
 	 * 
-	 * @param size
+	 * @param size Number of links
 	 */
-	public LinkHolder(int size) {
+	public LinkHolder(final int size) {
 		mList = new boolean[size];
 	}
 
@@ -42,10 +44,15 @@ public class LinkHolder<T extends QuiverMatrix> {
 	 * 
 	 * @param matrix Matrix to set
 	 */
-	public void setMatrix(T matrix) {
+	public void setMatrix(final T matrix) {
 		mMatrix = matrix;
 	}
 
+	/**
+	 * Get the matrix.
+	 * 
+	 * @return Matrix
+	 */
 	public T getQuiverMatrix() {
 		return mMatrix;
 	}
@@ -56,7 +63,7 @@ public class LinkHolder<T extends QuiverMatrix> {
 	 * @param index Index to check
 	 * @return true if the link has been set
 	 */
-	public boolean hasLink(int index) {
+	public boolean hasLink(final int index) {
 		return mList[index];
 	}
 
@@ -67,7 +74,7 @@ public class LinkHolder<T extends QuiverMatrix> {
 	 * @throws IllegalArgumentException if the link has already has been set. This allows the program
 	 *         to fail quickly as the algorithms used should not be setting the same link twice.
 	 */
-	public void setLinkAt(int index) {
+	public void setLinkAt(final int index) {
 		if (mList[index]) {
 			throw new RuntimeException("Link already set in " + this);
 		}
@@ -99,7 +106,7 @@ public class LinkHolder<T extends QuiverMatrix> {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (obj == null) {
 			return false;
 		}
@@ -109,7 +116,7 @@ public class LinkHolder<T extends QuiverMatrix> {
 		if (obj.getClass() != getClass()) {
 			return false;
 		}
-		LinkHolder<T> rhs = (LinkHolder<T>) obj;
+		LinkHolder<?> rhs = (LinkHolder<?>) obj;
 		return new EqualsBuilder().append(mMatrix, rhs.mMatrix).append(mList, rhs.mList).isEquals();
 	}
 

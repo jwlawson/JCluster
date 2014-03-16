@@ -1,18 +1,16 @@
 /**
  * Copyright 2014 John Lawson
  * 
- * NumericQuiver.java is part of JCluster.
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * NumericQuiver.java is part of JCluster. Licensed under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  * 
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package uk.co.jwlawson.jcluster;
 
@@ -22,8 +20,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
- * Quiver which has numeric values at each vertex which get mutated along with
- * the matrix.
+ * Quiver which has numeric values at each vertex which get mutated along with the matrix.
  * 
  * @author John Lawson
  * 
@@ -33,7 +30,14 @@ public class NumericQuiver extends Quiver {
 	private final QuiverMatrix mMatrix;
 	private final double[] mValues;
 
-	public NumericQuiver(int rows, int cols, int... data) {
+	/**
+	 * Create a new quiver with the provided data.
+	 * 
+	 * @param rows Number of rows
+	 * @param cols Number of columns
+	 * @param data Data
+	 */
+	public NumericQuiver(final int rows, final int cols, final int... data) {
 		mMatrix = new QuiverMatrix(rows, cols, data);
 
 		int max = Math.max(rows, cols);
@@ -43,7 +47,13 @@ public class NumericQuiver extends Quiver {
 		}
 	}
 
-	public NumericQuiver(QuiverMatrix matrix, double[] values) {
+	/**
+	 * Create a new quiver with the provided numbers at the vertices.
+	 * 
+	 * @param matrix Quiver to base it on
+	 * @param values Values at the vertices
+	 */
+	public NumericQuiver(final QuiverMatrix matrix, final double[] values) {
 		int max = Math.max(matrix.getNumRows(), matrix.getNumCols());
 		if (max != values.length) {
 			throw new IllegalArgumentException();
@@ -52,18 +62,24 @@ public class NumericQuiver extends Quiver {
 		this.mValues = values;
 	}
 
-	public double getValue(int k) {
+	/**
+	 * Get the value at vertex k.
+	 * 
+	 * @param k Vertex to get the value at
+	 * @return Value at k
+	 */
+	public double getValue(final int k) {
 		return mValues[k];
 	}
 
 	/**
-	 * Mutate the quiver at the specified vertex. Remember that the indices
-	 * start at 0.
+	 * Mutate the quiver at the specified vertex. Remember that the indices start at 0.
 	 * 
+	 * @param k Vertex to mutate at
 	 * @return A new quiver which is the mutation of this one.
 	 */
 	@Override
-	public Quiver mutate(int k) {
+	public Quiver mutate(final int k) {
 		QuiverMatrix newMatrix = mMatrix.mutate(k);
 		double[] newValues = Arrays.copyOf(mValues, mValues.length);
 		double pos = 1;
@@ -81,7 +97,7 @@ public class NumericQuiver extends Quiver {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (obj == null) {
 			return false;
 		}
@@ -92,13 +108,11 @@ public class NumericQuiver extends Quiver {
 			return false;
 		}
 		NumericQuiver rhs = (NumericQuiver) obj;
-		return new EqualsBuilder().append(mMatrix, rhs.mMatrix)
-				.append(mValues, rhs.mValues).isEquals();
+		return new EqualsBuilder().append(mMatrix, rhs.mMatrix).append(mValues, rhs.mValues).isEquals();
 	}
 
 	@Override
 	public int hashCode() {
-		return new HashCodeBuilder(23, 43).append(mMatrix).append(mValues)
-				.toHashCode();
+		return new HashCodeBuilder(23, 43).append(mMatrix).append(mValues).toHashCode();
 	}
 }

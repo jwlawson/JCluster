@@ -16,11 +16,20 @@ package uk.co.jwlawson.jcluster;
 
 
 /**
+ * Create tasks to compute information about matrices.
+ * 
  * @author John Lawson
  * 
+ * @param <T> Matrix type to be used in the tasks
  */
-public interface MatrixTaskFactory {
+public interface MatrixTaskFactory<T extends QuiverMatrix> {
 
-	MatrixTask getTask(QuiverMatrix matrix);
+	/**
+	 * Get a new task for the specified matrix.
+	 * 
+	 * @param matrix Matrix to get a new task for
+	 * @return New task
+	 */
+	MatrixTask<T> getTask(T matrix);
 
 }

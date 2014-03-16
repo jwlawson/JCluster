@@ -22,9 +22,14 @@ package uk.co.jwlawson.jcluster;
  * 
  */
 public class IntMatrixPair {
+	/** First matrix in pair. */
 	IntMatrix a;
+	/** Second matrix in pair. */
 	IntMatrix b;
 
+	/**
+	 * Create new instance.
+	 */
 	public IntMatrixPair() {}
 
 	/**
@@ -38,22 +43,23 @@ public class IntMatrixPair {
 	/**
 	 * Set the matrices stored in the pair.
 	 * 
-	 * @param a First matrix
-	 * @param b Second matrix
+	 * @param first First matrix
+	 * @param second Second matrix
 	 */
-	public void set(IntMatrix a, IntMatrix b) {
-		this.a = a;
-		this.b = b;
+	public void set(final IntMatrix first, final IntMatrix second) {
+		this.a = first;
+		this.b = second;
 	}
 
 	/**
-	 * The order of the matrices in the pair is considered when checking equals. A pair
-	 * {@code (a,b)} is not equal to the pair {@code (b,a)}.
+	 * The order of the matrices in the pair is considered when checking equals. A pair {@code (a,b)}
+	 * is not equal to the pair {@code (b,a)}.
 	 * 
 	 * @param obj Object to check equality with
+	 * @return true if equal
 	 */
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (obj == null) {
 			return false;
 		}

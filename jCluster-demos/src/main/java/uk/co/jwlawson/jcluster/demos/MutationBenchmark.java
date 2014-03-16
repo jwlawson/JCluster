@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.co.jwlawson.jcluster.DynkinDiagram;
 import uk.co.jwlawson.jcluster.EquivMutClassSizeTask;
+import uk.co.jwlawson.jcluster.MatrixInfo;
 import uk.co.jwlawson.jcluster.MutClassSizeTask;
 import uk.co.jwlawson.jcluster.QuiverMatrix;
 
@@ -48,14 +49,14 @@ public class MutationBenchmark {
 
 	private Timer runTimedMutTask(QuiverMatrix matrix) {
 		Timer timer = new Timer();
-		Callable<Integer> task = new MutClassSizeTask<QuiverMatrix>(matrix);
+		Callable<MatrixInfo> task = new MutClassSizeTask<QuiverMatrix>(matrix);
 		runTimedTask(task, timer);
 		return timer;
 	}
 
 	private Timer runTimedEquivTask(QuiverMatrix matrix) {
 		Timer timer = new Timer();
-		Callable<Integer> task = new EquivMutClassSizeTask(matrix);
+		Callable<MatrixInfo> task = new EquivMutClassSizeTask(matrix);
 		runTimedTask(task, timer);
 		return timer;
 	}

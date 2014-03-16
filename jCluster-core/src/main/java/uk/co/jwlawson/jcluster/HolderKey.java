@@ -3,43 +3,62 @@ package uk.co.jwlawson.jcluster;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
- * Key object used to lookup {@link LinkHolder} pools in the cache
+ * Key object used to lookup {@link LinkHolder} pools in the cache.
  * 
  * @author John Lawson
  * 
  * @param <V> Type of {@link QuiverMatrix} expected by the holders in the pool
  */
 public class HolderKey<V> {
-	private final int size;
-	private final Class<V> clazz;
+	private final int mSize;
+	private final Class<V> mClazz;
 
-	public HolderKey(int size, Class<V> clazz) {
-		this.size = size;
-		this.clazz = clazz;
+	/**
+	 * Create a new HolderKey.
+	 * 
+	 * @param size Number of links in the holder
+	 * @param clazz Type of matrix expected
+	 */
+	public HolderKey(final int size, final Class<V> clazz) {
+		this.mSize = size;
+		this.mClazz = clazz;
 	}
 
+	/**
+	 * Get the mSize.
+	 * 
+	 * @return Size
+	 */
 	public int getSize() {
-		return size;
+		return mSize;
 	}
 
+	/**
+	 * Get the class object.
+	 * 
+	 * @return class object
+	 */
 	public Class<V> getClassObject() {
-		return clazz;
+		return mClazz;
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (obj == null)
+	public boolean equals(final Object obj) {
+		if (obj == null) {
 			return false;
-		if (this == obj)
+		}
+		if (this == obj) {
 			return true;
-		if (obj.getClass() != getClass())
+		}
+		if (obj.getClass() != getClass()) {
 			return false;
+		}
 		HolderKey<?> rhs = (HolderKey<?>) obj;
-		return (size == rhs.size) && (clazz == rhs.clazz);
+		return (mSize == rhs.mSize) && (mClazz == rhs.mClazz);
 	}
 
 	@Override
 	public int hashCode() {
-		return new HashCodeBuilder(57, 293).append(size).append(clazz).toHashCode();
+		return new HashCodeBuilder(57, 293).append(mSize).append(mClazz).toHashCode();
 	}
 }

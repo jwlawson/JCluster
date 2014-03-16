@@ -15,15 +15,32 @@
 package uk.co.jwlawson.jcluster;
 
 /**
+ * Queue containing results calculated by a CompletionService.
+ * 
+ * @param <T> Type of object in the queue
  * @author John Lawson
  * 
  */
 public interface CompletionResultQueue<T> {
-
+	/**
+	 * Put a new result in the queue.
+	 * 
+	 * @param result Result to put on queue.
+	 */
 	void pushResult(T result);
 
+	/**
+	 * Get the next result from the queue or null if the thread is interrupted.
+	 * 
+	 * @return The next result from the queue.
+	 */
 	T popResult();
 
+	/**
+	 * Check whether the queue has any results waiting.
+	 * 
+	 * @return true if the queue is not empty
+	 */
 	boolean hasResult();
 
 }

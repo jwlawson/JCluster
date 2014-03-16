@@ -15,21 +15,28 @@
 package uk.co.jwlawson.jcluster;
 
 /**
+ * Task to check whether a matrix is mutation finite or not.
+ * 
  * @author John Lawson
  * 
+ * @param <T> Type of matrix which is being checked
  */
 public class FiniteCheck<T extends QuiverMatrix> implements MatrixTask<T> {
 
+	/** Matrix to check. */
 	private T mMatrix;
 
-	public void setMatrix(T matrix) {
+	/** {@inheritDoc} */
+	public void setMatrix(final T matrix) {
 		mMatrix = matrix;
 	}
 
+	/** {@inheritDoc} */
 	public void reset() {}
 
+	/** {@inheritDoc} */
 	public MatrixInfo call() throws Exception {
-		MatrixInfo result = tryCheckInfTask();
+		MatrixInfo result = tryFastCheck();
 		if (!result.hasFiniteSet()) {
 			MatrixInfo size = tryMutClassTask();
 			result.combine(size);
@@ -37,11 +44,23 @@ public class FiniteCheck<T extends QuiverMatrix> implements MatrixTask<T> {
 		return result;
 	}
 
-	private MatrixInfo tryCheckInfTask() throws Exception {
+	/**
+	 * Try the fast infinite check first.
+	 * 
+	 * @return MatrixInfo which contains the results
+	 * @throws Exception if something goes wrong
+	 */
+	private MatrixInfo tryFastCheck() throws Exception {
 		FastInfiniteCheck task = new FastInfiniteCheck(mMatrix);
 		return task.call();
 	}
 
+	/**
+	 * If the fast check wasn't conclusive fall back onto the longer check.
+	 * 
+	 * @return MatrixInfo object with the results
+	 * @throws Exception if something goes wrong
+	 */
 	private MatrixInfo tryMutClassTask() throws Exception {
 		EquivMutClassSizeTask task = new EquivMutClassSizeTask(mMatrix);
 		return task.call();

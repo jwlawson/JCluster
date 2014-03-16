@@ -29,34 +29,54 @@ import uk.co.jwlawson.jcluster.pool.Pool;
  */
 public class FastInfiniteCheck implements MatrixTask<QuiverMatrix> {
 
+	/** Number of random mutations to try before giving up. */
 	private static final int MAX_NUMBER_MUTATIONS = 3000;
 
+	/** Initial matrix to check. */
 	private QuiverMatrix mMatrix;
+	/** Array holding two matrices to put the mutations into. */
 	private final QuiverMatrix[] mutated;
+	/** Listeners called when the task has finished. */
 	private final List<CheckInfListener> mListeners;
 
+	/** Create a new instance. */
 	public FastInfiniteCheck() {
 		mutated = new QuiverMatrix[2];
 		mListeners = new ArrayList<FastInfiniteCheck.CheckInfListener>(1);
 	}
 
-	public FastInfiniteCheck(QuiverMatrix matrix) {
+	/**
+	 * Create a new instance with provided initial matrix to check.
+	 * 
+	 * @param matrix Initial matrix to check if mutation infinite
+	 */
+	public FastInfiniteCheck(final QuiverMatrix matrix) {
 		this();
 		setMatrix(matrix);
 	}
 
-	public void setMatrix(QuiverMatrix matrix) {
+	/** {@inheritDoc} */
+	public void setMatrix(final QuiverMatrix matrix) {
 		mMatrix = matrix;
 	}
 
+	/** {@inheritDoc} */
 	public void reset() {}
 
-	public void addListener(CheckInfListener listener) {
+	/**
+	 * Add a listener which will be called once the task completes.
+	 * 
+	 * @param listener Listener to add
+	 */
+	public void addListener(final CheckInfListener listener) {
 		mListeners.add(listener);
 	}
 
 	/**
 	 * Check whether the quiver matrix is mutation infinite.
+	 * 
+	 * @return MatrixInfo object containing the result of the calculation
+	 * @throws Exception if something goes wrong
 	 */
 	public MatrixInfo call() throws Exception {
 		MatrixInfo result = new MatrixInfo(mMatrix);
@@ -120,8 +140,13 @@ public class FastInfiniteCheck implements MatrixTask<QuiverMatrix> {
 		return false;
 	}
 
-
+	/** Listener called once the calculation is complete. */
 	public interface CheckInfListener {
+		/**
+		 * Called once the matrix has been checked.
+		 * 
+		 * @param matrix Matrix checked
+		 */
 		void matrixChecked(QuiverMatrix matrix);
 	}
 }

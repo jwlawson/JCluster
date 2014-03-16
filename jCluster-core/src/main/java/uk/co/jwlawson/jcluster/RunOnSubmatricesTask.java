@@ -65,40 +65,40 @@ public class RunOnSubmatricesTask implements Callable<MatrixInfo> {
 	}
 
 	public static class Builder {
-		private MatrixTaskFactory mFactory;
-		private QuiverMatrix mMatrix;
-		private CompletionResultQueue<MatrixInfo> mQueue;
-		private MatrixInfoResultHandler mResultHandler;
-		private CompletionHandler<MatrixInfo> mHandler;
-		private Executor mExecutor;
+		private MatrixTaskFactory factory;
+		private QuiverMatrix matrix;
+		private CompletionResultQueue<MatrixInfo> queue;
+		private MatrixInfoResultHandler resultHandler;
+		private CompletionHandler<MatrixInfo> handler;
+		private Executor executor;
 
 		public Builder withFactory(MatrixTaskFactory mFactory) {
-			this.mFactory = mFactory;
+			this.factory = mFactory;
 			return this;
 		}
 
 		public Builder withMatrix(QuiverMatrix mMatrix) {
-			this.mMatrix = mMatrix;
+			this.matrix = mMatrix;
 			return this;
 		}
 
 		public Builder withQueue(CompletionResultQueue<MatrixInfo> mQueue) {
-			this.mQueue = mQueue;
+			this.queue = mQueue;
 			return this;
 		}
 
 		public Builder withResultHandler(MatrixInfoResultHandler mResultHandler) {
-			this.mResultHandler = mResultHandler;
+			this.resultHandler = mResultHandler;
 			return this;
 		}
 
 		public Builder withHandler(CompletionHandler<MatrixInfo> mHandler) {
-			this.mHandler = mHandler;
+			this.handler = mHandler;
 			return this;
 		}
 
 		public Builder withExecutor(Executor mExecutor) {
-			this.mExecutor = mExecutor;
+			this.executor = mExecutor;
 			return this;
 		}
 
@@ -108,11 +108,11 @@ public class RunOnSubmatricesTask implements Callable<MatrixInfo> {
 	}
 
 	private RunOnSubmatricesTask(Builder builder) {
-		this.mFactory = builder.mFactory;
-		this.mMatrix = builder.mMatrix;
-		this.mQueue = builder.mQueue;
-		this.mResultHandler = builder.mResultHandler;
-		this.mHandler = builder.mHandler;
-		this.mExecutor = builder.mExecutor;
+		this.mFactory = builder.factory;
+		this.mMatrix = builder.matrix;
+		this.mQueue = builder.queue;
+		this.mResultHandler = builder.resultHandler;
+		this.mHandler = builder.handler;
+		this.mExecutor = builder.executor;
 	}
 }

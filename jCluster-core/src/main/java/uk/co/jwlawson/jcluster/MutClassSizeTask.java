@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 
-import nf.fr.eraasoft.pool.PoolException;
 import uk.co.jwlawson.jcluster.pool.Pool;
 
 /**
@@ -26,19 +25,50 @@ import uk.co.jwlawson.jcluster.pool.Pool;
  * is fast for small matrices, but larger matrices with larger mutation classes require a huge
  * amount of memory, as each matrix in the class is stored.
  * 
+ * @param <T> Type of matrix which is being used in the calculation
  * @author John Lawson
  * 
  */
 public class MutClassSizeTask<T extends QuiverMatrix> extends AbstractMutClassSizeTask<T> {
 
-	public MutClassSizeTask(T matrix) {
+	/**
+	 * Create a new instance with the specified initial matrix.
+	 * 
+	 * @param matrix Matrix to calculate the mutation class size of
+	 */
+	public MutClassSizeTask(final T matrix) {
 		super(matrix);
 		setIterationsBetweenStats(50000);
 	}
 
 	@Override
-	protected void handleUnseenMatrix(Map<T, LinkHolder<T>> matrixSet, Queue<T> incompleteQuivers,
-			Pool<LinkHolder<T>> holderPool, T mat, T newMatrix, int i) throws PoolException {
+	protected MatrixInfo handleResult(final MatrixInfo info, final int result) {
+		info.setMutationClassSize(result);
+		return info;
+	}
+
+	@Override
+	protected void removeHandledQuiver(final T remove, final Pool<T> quiverPool,
+			final Pool<LinkHolder<T>> holderPool, final Map<T, LinkHolder<T>> matrixSet) {
+
+		LinkHolder<T> holder = matrixSet.remove(remove);
+		holderPool.returnObj(holder);
+		returnMatrix(remove, quiverPool);
+	}
+
+	@Override
+	protected void removeComplete(final T remove, final Pool<T> quiverPool,
+			final Pool<LinkHolder<T>> holderPool, final Map<T, LinkHolder<T>> matrixSet) {
+
+		LinkHolder<T> holder = matrixSet.remove(remove);
+		holderPool.returnObj(holder);
+		returnMatrix(remove, quiverPool);
+	}
+
+	@Override
+	protected void handleUnseenMatrix(final Map<T, LinkHolder<T>> matrixSet,
+			final Queue<T> incompleteQuivers, final Pool<LinkHolder<T>> holderPool, final T mat,
+			final T newMatrix, final int i) {
 		incompleteQuivers.add(newMatrix);
 		LinkHolder<T> newHolder = holderPool.getObj();
 		newHolder.setMatrix(newMatrix);
@@ -49,7 +79,8 @@ public class MutClassSizeTask<T extends QuiverMatrix> extends AbstractMutClassSi
 	}
 
 	@Override
-	protected void handleSeenMatrix(Map<T, LinkHolder<T>> matrixSet, T mat, T newMatrix, int i) {
+	protected void handleSeenMatrix(final Map<T, LinkHolder<T>> matrixSet, final T mat,
+			final T newMatrix, final int i) {
 		LinkHolder<T> newHolder = matrixSet.get(newMatrix);
 		newHolder.setLinkAt(i);
 		LinkHolder<T> oldHolder = matrixSet.get(mat);
@@ -57,18 +88,18 @@ public class MutClassSizeTask<T extends QuiverMatrix> extends AbstractMutClassSi
 	}
 
 	@Override
-	protected Map<T, LinkHolder<T>> getMatrixMap(int size) {
+	protected Map<T, LinkHolder<T>> getMatrixMap(final int size) {
 		return new ConcurrentHashMap<T, LinkHolder<T>>((int) Math.pow(2, 3 * size - 3), 0.7f);
 	}
 
 	@Override
-	protected boolean matrixSeenBefore(T newMatrix, Map<T, LinkHolder<T>> matrixSet) {
+	protected boolean matrixSeenBefore(final T newMatrix, final Map<T, LinkHolder<T>> matrixSet) {
 		return matrixSet.containsKey(newMatrix);
 	}
 
 	@Override
-	protected void teardown(Pool<T> quiverPool, Pool<LinkHolder<T>> holderPool,
-			Map<T, LinkHolder<T>> matrixSet) {
+	protected void teardown(final Pool<T> quiverPool, final Pool<LinkHolder<T>> holderPool,
+			final Map<T, LinkHolder<T>> matrixSet) {
 
 		for (T matrix : matrixSet.keySet()) {
 			LinkHolder<T> holder = matrixSet.remove(matrix);

@@ -34,7 +34,7 @@ public class IntMatrix {
 	 * @param rows Number of rows in the matrix
 	 * @param cols NUmber of columns in the matrix
 	 */
-	public IntMatrix(int rows, int cols) {
+	public IntMatrix(final int rows, final int cols) {
 		mData = new int[rows * cols];
 		mRows = rows;
 		mCols = cols;
@@ -48,7 +48,7 @@ public class IntMatrix {
 	 * @param cols Number of columns in the matrix
 	 * @param data Data contained in the matrix
 	 */
-	public IntMatrix(int rows, int cols, int... data) {
+	public IntMatrix(final int rows, final int cols, final int... data) {
 		checkParam(data.length != rows * cols, "Number of entries must match the size of the matrix");
 		mData = new int[rows * cols];
 		mRows = rows;
@@ -63,14 +63,24 @@ public class IntMatrix {
 	 * 
 	 * @param m Matrix to copy
 	 */
-	protected IntMatrix(IntMatrix m) {
+	protected IntMatrix(final IntMatrix m) {
 		this(m.mRows, m.mCols, m.mData);
 	}
 
+	/**
+	 * Get number of columns.
+	 * 
+	 * @return Number of columns
+	 */
 	public int getNumCols() {
 		return mCols;
 	}
 
+	/**
+	 * Get the number of rows.
+	 * 
+	 * @return Number of rows
+	 */
 	public int getNumRows() {
 		return mRows;
 	}
@@ -84,7 +94,7 @@ public class IntMatrix {
 	 * @throws IllegalArgumentException if the row or column index is less than 0, or greater than the
 	 *         number of rows or columns.
 	 */
-	public int get(int row, int col) {
+	public int get(final int row, final int col) {
 		checkParam(row < 0 || row > mRows,
 				"row must be non-negative and within the bounds. Expected < %d but got %d", mRows, row);
 		checkParam(col < 0 || col > mCols,
@@ -100,7 +110,7 @@ public class IntMatrix {
 	 * @param col Column position
 	 * @return Value stored in matrix
 	 */
-	public int unsafeGet(int row, int col) {
+	public int unsafeGet(final int row, final int col) {
 		return mData[getIndex(row, col)];
 	}
 
@@ -112,7 +122,7 @@ public class IntMatrix {
 	 * @return The value stored at index
 	 * @throws ArrayIndexOutOfBoundsException if index is out of bounds
 	 */
-	public int unsafeGet(int index) {
+	public int unsafeGet(final int index) {
 		return mData[index];
 	}
 
@@ -123,7 +133,7 @@ public class IntMatrix {
 	 * @param col Column index
 	 * @return Index in array
 	 */
-	private int getIndex(int row, int col) {
+	private int getIndex(final int row, final int col) {
 		return row * mCols + col;
 	}
 
@@ -133,7 +143,7 @@ public class IntMatrix {
 	 * @param row The index of the row
 	 * @return An array containing values of the row
 	 */
-	public int[] getRow(int row) {
+	public int[] getRow(final int row) {
 		int[] result = new int[mCols];
 		int count = row * mCols;
 		for (int j = 0; j < mCols; j++) {
@@ -148,7 +158,7 @@ public class IntMatrix {
 	 * @param col The index of the column
 	 * @return An array containing values of the column
 	 */
-	public int[] getCol(int col) {
+	public int[] getCol(final int col) {
 		int[] result = new int[mRows];
 		int count = col;
 		for (int j = 0; j < mRows; j++) {
@@ -163,7 +173,7 @@ public class IntMatrix {
 	 * 
 	 * @param matrix Matrix to copy
 	 */
-	public void set(IntMatrix matrix) {
+	public void set(final IntMatrix matrix) {
 		set(matrix.mRows, matrix.mCols, matrix.mData);
 	}
 
@@ -177,7 +187,7 @@ public class IntMatrix {
 	 * @throws IllegalArgumentException if the array is the wrong size compared to the number of rows
 	 *         and columns
 	 */
-	public void set(int rows, int cols, int... data) {
+	public void set(final int rows, final int cols, final int... data) {
 		checkParam(data.length != rows * cols, "Number of entries must match the size of the matrix");
 		reset();
 		mData = new int[rows * cols];
@@ -196,7 +206,7 @@ public class IntMatrix {
 	 * @param a New value to store
 	 * @throws IllegalArgumentException if the indices are not valid for this matrix
 	 */
-	public void set(int row, int col, int a) {
+	public void set(final int row, final int col, final int a) {
 		checkParam(row < 0 || row > mRows,
 				"row must be non-negative and within the bounds. Expected < %d but got %d", mRows, row);
 		checkParam(col < 0 || col > mCols,
@@ -212,7 +222,7 @@ public class IntMatrix {
 	 * @param col Columns index
 	 * @param a new value to store
 	 */
-	public void unsafeSet(int row, int col, int a) {
+	public void unsafeSet(final int row, final int col, final int a) {
 		mData[getIndex(row, col)] = a;
 	}
 
@@ -238,7 +248,7 @@ public class IntMatrix {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (obj == null) {
 			return false;
 		}
@@ -286,7 +296,7 @@ public class IntMatrix {
 	 * @param mat Matrix to multiply with
 	 * @return A new matrix with the result in
 	 */
-	public IntMatrix multLeft(IntMatrix mat) {
+	public IntMatrix multLeft(final IntMatrix mat) {
 		return multLeft(mat, new IntMatrix(mat.getNumRows(), mCols));
 	}
 
@@ -299,7 +309,7 @@ public class IntMatrix {
 	 * @param mat Matrix to multiply with
 	 * @return A new matrix with the result in
 	 */
-	public IntMatrix multRight(IntMatrix mat) {
+	public IntMatrix multRight(final IntMatrix mat) {
 		return multRight(mat, new IntMatrix(mRows, mat.getNumCols()));
 	}
 
@@ -311,9 +321,10 @@ public class IntMatrix {
 	 * 
 	 * @param mat Matrix to multiply with
 	 * @param container Matrix to store the result in
+	 * @param <T> Type of matrix to return
 	 * @return The container with the result in
 	 */
-	public <T extends IntMatrix> T multLeft(IntMatrix mat, T container) {
+	public <T extends IntMatrix> T multLeft(final IntMatrix mat, final T container) {
 		checkParam(mat == null || container == null, "Cannot multiply null matrices");
 		checkParam(mat.getNumCols() != this.getNumRows(),
 				"Matrix to multiply is wrong size. Expected %d columns but have %d", getNumRows(),
@@ -333,9 +344,10 @@ public class IntMatrix {
 	 * 
 	 * @param mat Matrix to multiply with
 	 * @param container Matrix to store the result in
+	 * @param <T> Type of matrix to return
 	 * @return The container with the result in
 	 */
-	public <T extends IntMatrix> T multRight(IntMatrix mat, T container) {
+	public <T extends IntMatrix> T multRight(final IntMatrix mat, final T container) {
 		checkParam(mat == null || container == null, "Cannot multiply null matrices");
 		checkParam(getNumCols() != mat.getNumRows(),
 				"Matrix to multiply is wrong size. Expected %d rows but have %d", getNumCols(),
@@ -361,7 +373,8 @@ public class IntMatrix {
 	 * @param container Matrix to store the result in
 	 * @return container with the result
 	 */
-	private <T extends IntMatrix> T unsafeMult(IntMatrix left, IntMatrix right, T container) {
+	private <T extends IntMatrix> T unsafeMult(final IntMatrix left, final IntMatrix right,
+			final T container) {
 		container.reset();
 		int colIncrement = right.getNumRows();
 		int leftInd;
@@ -395,7 +408,7 @@ public class IntMatrix {
 	 * @throws IllegalArgumentException if the row or column index are outside the bounds of the
 	 *         matrix
 	 */
-	public IntMatrix submatrix(int row, int col) {
+	public IntMatrix submatrix(final int row, final int col) {
 		return submatrix(row, col, new IntMatrix(getNumRows() - 1, getNumCols() - 1));
 	}
 
@@ -407,9 +420,10 @@ public class IntMatrix {
 	 * @param col Column to remove
 	 * @param result Submatrix returned
 	 * @return Submatrix with removed row and column
+	 * @param <T> Type of matrix to return
 	 * @throws IllegalArgumentException if the parameters do not match those expected.
 	 */
-	public <T extends IntMatrix> T submatrix(int row, int col, T result) {
+	public <T extends IntMatrix> T submatrix(final int row, final int col, final T result) {
 		checkParam(result.mRows != (mRows - 1),
 				"Provided container matrix of the wrong size. Expected %d rows but got %d.", mRows - 1,
 				result.mRows);
@@ -434,7 +448,7 @@ public class IntMatrix {
 	 * @param result Submatrix to return
 	 * @return Submatrix with row and column removed
 	 */
-	private <T extends IntMatrix> T unsafeSubmatrix(int row, int col, T result) {
+	private <T extends IntMatrix> T unsafeSubmatrix(final int row, final int col, final T result) {
 		result.reset();
 		int resInd = 0;
 		int origInd = 0;
@@ -466,7 +480,8 @@ public class IntMatrix {
 	 * @param formatParams Objects to format the string with
 	 * @throws IllegalArgumentException if {@code expression} is true
 	 */
-	private void checkParam(boolean expression, String formatString, Object... formatParams) {
+	private void checkParam(final boolean expression, final String formatString,
+			final Object... formatParams) {
 		if (expression) {
 			String error = String.format(formatString, formatParams);
 			throw new IllegalArgumentException(error);
@@ -499,7 +514,7 @@ public class IntMatrix {
 	 * @param rhs Second matrix to check
 	 * @return true if the matrices are equal as IntMatrix objects
 	 */
-	public static boolean areEqual(IntMatrix lhs, IntMatrix rhs) {
+	public static boolean areEqual(final IntMatrix lhs, final IntMatrix rhs) {
 		if (lhs == null && rhs == null) {
 			return true;
 		}
@@ -526,7 +541,7 @@ public class IntMatrix {
 	 * @param a Matrix to calculate the hashcode of
 	 * @return Hashcode of the matrix as if it were an IntMatrix
 	 */
-	public static int hashCode(IntMatrix a) {
+	public static int hashCode(final IntMatrix a) {
 		int hashcode = 113;
 		for (int i = 0; i < a.mData.length; i++) {
 			hashcode *= 523;
