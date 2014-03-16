@@ -16,11 +16,10 @@ package uk.co.jwlawson.jcluster;
 
 import java.util.Map;
 import java.util.Queue;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 
-import uk.co.jwlawson.jcluster.pool.Pool;
 import nf.fr.eraasoft.pool.PoolException;
+import uk.co.jwlawson.jcluster.pool.Pool;
 
 /**
  * Base class which finds the number of matrices in the mutation class of the initial matrix. This
@@ -30,8 +29,7 @@ import nf.fr.eraasoft.pool.PoolException;
  * @author John Lawson
  * 
  */
-public class MutClassSizeTask<T extends QuiverMatrix> extends AbstractMutClassSizeTask<T> implements
-		Callable<Integer> {
+public class MutClassSizeTask<T extends QuiverMatrix> extends AbstractMutClassSizeTask<T> {
 
 	public MutClassSizeTask(T matrix) {
 		super(matrix);

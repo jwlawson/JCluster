@@ -16,15 +16,11 @@ package uk.co.jwlawson.jcluster;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,9 +40,9 @@ public class MutClassSizeTaskTest {
 				new MutClassSizeTask<QuiverMatrix>(DynkinDiagram.A4.getMatrix());
 		ExecutorService exec = Executors.newSingleThreadExecutor();
 
-		Future<Integer> future = exec.submit(task);
+		Future<MatrixInfo> future = exec.submit(task);
 		try {
-			int value = future.get();
+			int value = future.get().getMutationClassSize();
 			assertEquals(144, value);
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
@@ -65,9 +61,9 @@ public class MutClassSizeTaskTest {
 				new MutClassSizeTask<QuiverMatrix>(DynkinDiagram.A3.getMatrix());
 		ExecutorService exec = Executors.newSingleThreadExecutor();
 
-		Future<Integer> future = exec.submit(task);
+		Future<MatrixInfo> future = exec.submit(task);
 		try {
-			int value = future.get();
+			int value = future.get().getMutationClassSize();
 			assertEquals(14, value);
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
@@ -85,9 +81,9 @@ public class MutClassSizeTaskTest {
 				new MutClassSizeTask<QuiverMatrix>(DynkinDiagram.A5.getMatrix());
 		ExecutorService exec = Executors.newSingleThreadExecutor();
 
-		Future<Integer> future = exec.submit(task);
+		Future<MatrixInfo> future = exec.submit(task);
 		try {
-			int value = future.get();
+			int value = future.get().getMutationClassSize();
 			assertEquals(1980, value);
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
@@ -105,9 +101,9 @@ public class MutClassSizeTaskTest {
 				new MutClassSizeTask<QuiverMatrix>(DynkinDiagram.D5.getMatrix());
 		ExecutorService exec = Executors.newSingleThreadExecutor();
 
-		Future<Integer> future = exec.submit(task);
+		Future<MatrixInfo> future = exec.submit(task);
 		try {
-			int value = future.get();
+			int value = future.get().getMutationClassSize();
 			assertEquals(2184, value);
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
@@ -118,24 +114,4 @@ public class MutClassSizeTaskTest {
 		}
 	}
 
-	@Ignore("Takes ages and not really a test")
-	@Test
-	public void testAllSmallMatrices() {
-		Executor exec = Executors.newSingleThreadExecutor();
-		CompletionService<Integer> pool = new ExecutorCompletionService<Integer>(exec);
-		for (DynkinDiagram d : DynkinDiagram.TEST_SET) {
-			MutClassSizeTask<QuiverMatrix> task = new MutClassSizeTask<QuiverMatrix>(d.getMatrix());
-			pool.submit(task);
-		}
-		for (DynkinDiagram d : DynkinDiagram.TEST_SET) {
-			try {
-				int value = pool.take().get();
-				log.info("Found {} quivers in class of {}", value, d.toString());
-			} catch (ExecutionException e) {
-				throw new RuntimeException(e);
-			} catch (InterruptedException e) {
-				throw new RuntimeException(e);
-			}
-		}
-	}
 }

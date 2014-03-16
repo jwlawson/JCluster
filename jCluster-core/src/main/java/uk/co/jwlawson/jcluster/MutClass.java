@@ -1,7 +1,7 @@
 /**
  * Copyright 2014 John Lawson
  * 
- * MatrixTask.java is part of JCluster. Licensed under the Apache License, Version 2.0 (the
+ * MutClass.java is part of JCluster. Licensed under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance with the License. You may obtain a
  * copy of the License at
  * 
@@ -14,18 +14,25 @@
  */
 package uk.co.jwlawson.jcluster;
 
-import java.util.concurrent.Callable;
-
 /**
  * @author John Lawson
  * 
  */
-public interface MatrixTask<T extends QuiverMatrix> extends Callable<MatrixInfo> {
+public class MutClass implements MatrixTask {
 
-	public void setMatrix(T matrix);
+	public void setMatrix(QuiverMatrix matrix) {
+		// TODO Auto-generated method stub
 
-	public void reset();
+	}
 
-	public MatrixInfo call() throws Exception;
+	public void reset() {
+		// TODO Auto-generated method stub
+
+	}
+
+	public MatrixInfo call() throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }

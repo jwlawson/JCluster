@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.co.jwlawson.jcluster.pool.Pool;
 
-public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> {
+public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> implements MatrixTask<T> {
 
 	/** Value returned when the calculation was stopped prematurely */
 	public final static int STOP = Integer.MIN_VALUE;
@@ -39,15 +39,27 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private final T mInitialMatrix;
+	private T mInitialMatrix;
 	private boolean mShouldRun;
 	private int mIterationsBetweenStats;
 	private final List<StatsListener> mStatsListeners;
 
-	public AbstractMutClassSizeTask(T matrix) {
-		mInitialMatrix = matrix;
+	public AbstractMutClassSizeTask() {
 		mStatsListeners = new ArrayList<AbstractMutClassSizeTask.StatsListener>();
 		addListener(new StatsLogger());
+	}
+
+	public AbstractMutClassSizeTask(T matrix) {
+		this();
+		setMatrix(matrix);
+	}
+
+	public void setMatrix(T matrix) {
+		mInitialMatrix = matrix;
+	}
+
+	public void reset() {
+		mShouldRun = true;
 	}
 
 	/**
@@ -79,8 +91,14 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> {
 	 * @return The size of the mutation class, or -1 if infinite
 	 * @throws Exception
 	 */
-	public Integer call() throws Exception {
+	public MatrixInfo call() throws Exception {
 		log.debug("MutClassSizeTask started for {}", mInitialMatrix);
+		MatrixInfo result = new MatrixInfo(mInitialMatrix);
+		result.setMutationClassSize(getMutationClassSize());
+		return result;
+	}
+
+	private Integer getMutationClassSize() throws PoolException {
 		int size = getSize(mInitialMatrix);
 		int numMatrices = 0;
 
