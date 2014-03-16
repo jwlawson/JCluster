@@ -40,7 +40,7 @@ public class EquivMutClassSizeTaskTest {
 		EquivMutClassSizeTask task = new EquivMutClassSizeTask(matrix);
 		int result;
 		try {
-			result = task.call().getMutationClassSize();
+			result = task.call().getEquivMutationClassSize();
 			assertEquals(4, result);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -53,7 +53,7 @@ public class EquivMutClassSizeTaskTest {
 		EquivMutClassSizeTask task = new EquivMutClassSizeTask(matrix);
 		int result;
 		try {
-			result = task.call().getMutationClassSize();
+			result = task.call().getEquivMutationClassSize();
 			assertEquals(6, result);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -66,7 +66,7 @@ public class EquivMutClassSizeTaskTest {
 		EquivMutClassSizeTask task = new EquivMutClassSizeTask(matrix);
 		int result;
 		try {
-			result = task.call().getMutationClassSize();
+			result = task.call().getEquivMutationClassSize();
 			assertEquals(67, result);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -80,7 +80,7 @@ public class EquivMutClassSizeTaskTest {
 		EquivMutClassSizeTask task = new EquivMutClassSizeTask(matrix);
 		int result;
 		try {
-			result = task.call().getMutationClassSize();
+			result = task.call().getEquivMutationClassSize();
 			assertEquals(246, result);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -93,7 +93,7 @@ public class EquivMutClassSizeTaskTest {
 		EquivMutClassSizeTask task = new EquivMutClassSizeTask(matrix);
 		int result;
 		try {
-			result = task.call().getMutationClassSize();
+			result = task.call().getEquivMutationClassSize();
 			assertEquals(26, result);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -107,7 +107,7 @@ public class EquivMutClassSizeTaskTest {
 		EquivMutClassSizeTask task = new EquivMutClassSizeTask(matrix);
 		int result;
 		try {
-			result = task.call().getMutationClassSize();
+			result = task.call().getEquivMutationClassSize();
 			assertEquals(150, result);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -121,7 +121,7 @@ public class EquivMutClassSizeTaskTest {
 		EquivMutClassSizeTask task = new EquivMutClassSizeTask(matrix);
 		int result;
 		try {
-			result = task.call().getMutationClassSize();
+			result = task.call().getEquivMutationClassSize();
 			assertEquals(416, result);
 		} catch (Exception e) {
 			throw new RuntimeException(e);

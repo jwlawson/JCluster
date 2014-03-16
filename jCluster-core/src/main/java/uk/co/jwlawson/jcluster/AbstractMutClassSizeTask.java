@@ -93,12 +93,42 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> implement
 	 */
 	public MatrixInfo call() throws Exception {
 		log.debug("MutClassSizeTask started for {}", mInitialMatrix);
-		MatrixInfo result = new MatrixInfo(mInitialMatrix);
-		result.setMutationClassSize(getMutationClassSize());
+		MatrixInfo result = handleResult(getMatrixInfo(), getMutationClassSize());
 		return result;
 	}
 
-	private Integer getMutationClassSize() throws PoolException {
+	/**
+	 * Insert the result from the calculation into the MatrixInfo object which will be returned from
+	 * the {@link AbstractMutClassSizeTask#call()} method. This can be used to ensure that the result
+	 * is inserted at the right point in the MatrixInfo, or to provide a different MatrixInfo object
+	 * if required.
+	 * 
+	 * @param info MatrixInfo containing initial matrix and any known info about it
+	 * @param result Mutation class size just calculated
+	 * @return MatrixInfo object to be returned by the call() method
+	 */
+	protected MatrixInfo handleResult(MatrixInfo info, int result) {
+		info.setMutationClassSize(result);
+		return info;
+	}
+
+	/**
+	 * Get the MatrixInfo object which should be returned by call()
+	 * 
+	 * @return Matrix info object
+	 */
+	protected MatrixInfo getMatrixInfo() {
+		MatrixInfo result = new MatrixInfo(mInitialMatrix);
+		return result;
+	}
+
+	/**
+	 * Calculate the size of the mutation class.
+	 * 
+	 * @return
+	 * @throws PoolException
+	 */
+	protected Integer getMutationClassSize() throws PoolException {
 		int size = getSize(mInitialMatrix);
 		int numMatrices = 0;
 

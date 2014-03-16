@@ -47,8 +47,13 @@ public class EquivMutClassSizeTask extends MutClassSizeTask<EquivQuiverMatrix> {
 	@Override
 	protected void setUp(EquivQuiverMatrix m) {
 		super.setUp(m);
-
 		mList.add(m);
+	}
+
+	@Override
+	protected MatrixInfo handleResult(MatrixInfo info, int result) {
+		info.setEquivMutationClassSize(result);
+		return info;
 	}
 
 	@Override

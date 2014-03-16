@@ -50,14 +50,14 @@ public class FindInfExtensionTask implements Callable<Set<QuiverMatrix>> {
 
 	public Set<QuiverMatrix> call() throws Exception {
 		int size = mInitialMatrix.getNumRows();
-		ExecutorCompletionService<QuiverMatrix> pool =
-				new ExecutorCompletionService<QuiverMatrix>(mExecutor);
+		ExecutorCompletionService<MatrixInfo> pool =
+				new ExecutorCompletionService<MatrixInfo>(mExecutor);
 		final Pool<QuiverMatrix> matrixPool =
 				Pools.getQuiverMatrixPool(mEnlargedMatrix.getNumRows(), mEnlargedMatrix.getNumCols(),
 						QuiverMatrix.class);
 
 		for (int num = 0; num < Math.pow(5, size); num++) {
-			CheckInfTask task = getEnlargedCheckInfTask(size, matrixPool, num);
+			FastInfiniteCheck task = getEnlargedCheckInfTask(size, matrixPool, num);
 			pool.submit(task);
 			if (num % 100000 == 0) {
 				log.debug("{} CheckInfTasksSubmitted out of {}", num, Math.pow(5, size));
@@ -69,7 +69,7 @@ public class FindInfExtensionTask implements Callable<Set<QuiverMatrix>> {
 			if (num % 100000 == 0) {
 				log.debug("{} Infinite matrices found out of {}", num, Math.pow(5, size));
 			}
-			QuiverMatrix res = pool.take().get();
+			MatrixInfo res = pool.take().get();
 			if (res != null) {
 //				infiniteMatrices.add(res);
 			}
@@ -78,12 +78,10 @@ public class FindInfExtensionTask implements Callable<Set<QuiverMatrix>> {
 		return infiniteMatrices;
 	}
 
-	private CheckInfTask getEnlargedCheckInfTask(int size, final Pool<QuiverMatrix> matrixPool,
+	private FastInfiniteCheck getEnlargedCheckInfTask(int size, final Pool<QuiverMatrix> matrixPool,
 			int num) throws Exception {
 		QuiverMatrix matrix = addVertexToMatrix(size, matrixPool, num);
-		CheckInfTask task =
-				new CheckInfTask(matrix, Pools.getQuiverMatrixPool(matrix.getNumRows(),
-						matrix.getNumCols(), QuiverMatrix.class));
+		FastInfiniteCheck task = new FastInfiniteCheck(matrix);
 		return task;
 	}
 

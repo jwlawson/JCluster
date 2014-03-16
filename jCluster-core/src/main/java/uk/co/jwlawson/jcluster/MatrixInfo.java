@@ -25,6 +25,7 @@ public class MatrixInfo {
 	private final QuiverMatrix matrix;
 	private Optional<Boolean> finite = Optional.absent();
 	private Optional<Integer> mutClassSize = Optional.absent();
+	private Optional<Integer> equivMutSize = Optional.absent();
 	private Optional<Boolean> minMutInf = Optional.absent();
 	private Optional<DynkinDiagram> diagram = Optional.absent();
 
@@ -95,6 +96,9 @@ public class MatrixInfo {
 		if (mutClassSize > 0) {
 			noSideSetFinite(true);
 		}
+		if (mutClassSize == -1) {
+			noSideSetFinite(false);
+		}
 		noSideSetMutationClassSize(mutClassSize);
 	}
 
@@ -115,6 +119,50 @@ public class MatrixInfo {
 	 */
 	public int getMutationClassSize() {
 		return mutClassSize.get();
+	}
+
+	/**
+	 * Check whether the size of the mutation class up to reordering rows and columns has been set.
+	 * 
+	 * @return true if the size has been set
+	 */
+	public boolean hasEquivMutationClassSize() {
+		return equivMutSize.isPresent();
+	}
+
+	/**
+	 * Set the value of the size of mutation class of this matrix up to reordering rows and columns.
+	 * 
+	 * @param mutClassSize Size of the mutation class
+	 */
+	public void setEquivMutationClassSize(int mutClassSize) {
+		if (mutClassSize > 0) {
+			noSideSetFinite(true);
+		}
+		if (mutClassSize == -1) {
+			noSideSetFinite(false);
+		}
+		noSideSetEquivMutationClassSize(mutClassSize);
+	}
+
+	/**
+	 * Set the size of the mutation class up to reordering rows and columns without setting any of the
+	 * side effects.
+	 * 
+	 * @param mutClassSize Size of the mutation class
+	 */
+	private void noSideSetEquivMutationClassSize(int mutClassSize) {
+		this.equivMutSize = Optional.of(mutClassSize);
+	}
+
+	/**
+	 * Get the size of the mutation class of the matrix up to reordering rows and columns.
+	 * 
+	 * @return The size of the mutation class
+	 * @throws IllegalStateException if the size has not been set
+	 */
+	public int getEquivMutationClassSize() {
+		return equivMutSize.get();
 	}
 
 	/**
@@ -154,8 +202,8 @@ public class MatrixInfo {
 	 * @return true if minimally mutation infinite
 	 * @throws IllegalStateException if not set
 	 */
-	public int isMinMutInf() {
-		return mutClassSize.get();
+	public boolean isMinMutInf() {
+		return minMutInf.get();
 	}
 
 	/**
@@ -195,5 +243,23 @@ public class MatrixInfo {
 	 */
 	public DynkinDiagram getDynkinDiagram() {
 		return diagram.get();
+	}
+
+	public void combine(MatrixInfo info) {
+		if (!hasFiniteSet() && info.hasFiniteSet()) {
+			noSideSetFinite(info.isFinite());
+		}
+		if (!hasMutationClassSize() && info.hasMutationClassSize()) {
+			noSideSetMutationClassSize(info.getMutationClassSize());
+		}
+		if (!hasEquivMutationClassSize() && info.hasEquivMutationClassSize()) {
+			noSideSetEquivMutationClassSize(info.getEquivMutationClassSize());
+		}
+		if (!hasMinMutInfSet() && info.hasMinMutInfSet()) {
+			noSideSetMinMutInf(info.isMinMutInf());
+		}
+		if (!hasDynkinDiagram() && info.hasDynkinDiagram()) {
+			noSideSetDynkinDiagram(info.getDynkinDiagram());
+		}
 	}
 }
