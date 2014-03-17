@@ -22,19 +22,23 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import uk.co.jwlawson.jcluster.pool.Pool;
+
 /**
  * @author John Lawson
  * 
  */
-public class RunOnSubmatricesTask implements Callable<MatrixInfo> {
+public class RunOnSubmatricesTask<T extends QuiverMatrix> implements Callable<MatrixInfo> {
 
-	private final MatrixTaskFactory mFactory;
+	private final MatrixTaskFactory<T> mFactory;
 	private final QuiverMatrix mMatrix;
 	private final CompletionResultQueue<MatrixInfo> mQueue;
 	private final MatrixInfoResultHandler mResultHandler;
 	private final CompletionHandler<MatrixInfo> mHandler;
 	private final Executor mExecutor;
+	private Pool<T> mPool;
 
+	@Override
 	public MatrixInfo call() throws Exception {
 		CompletionService<MatrixInfo> exec = new ExecutorCompletionService<MatrixInfo>(mExecutor);
 
@@ -58,56 +62,56 @@ public class RunOnSubmatricesTask implements Callable<MatrixInfo> {
 
 		for (int i = 0; i < mMatrix.getNumRows(); i++) {
 			for (int j = 0; j < mMatrix.getNumCols(); j++) {
-				MatrixTask task = mFactory.getTask(mMatrix.submatrix(i, j));
+				MatrixTask<T> task = mFactory.getTask(mMatrix.submatrix(i, j, mPool.getObj()));
 				exec.submit(task);
 			}
 		}
 	}
 
-	public static class Builder {
-		private MatrixTaskFactory factory;
-		private QuiverMatrix matrix;
+	public static class Builder<T extends QuiverMatrix> {
+		private MatrixTaskFactory<T> factory;
+		private T matrix;
 		private CompletionResultQueue<MatrixInfo> queue;
 		private MatrixInfoResultHandler resultHandler;
 		private CompletionHandler<MatrixInfo> handler;
 		private Executor executor;
 
-		public Builder withFactory(MatrixTaskFactory mFactory) {
+		public Builder<T> withFactory(MatrixTaskFactory<T> mFactory) {
 			this.factory = mFactory;
 			return this;
 		}
 
-		public Builder withMatrix(QuiverMatrix mMatrix) {
+		public Builder<T> withMatrix(T mMatrix) {
 			this.matrix = mMatrix;
 			return this;
 		}
 
-		public Builder withQueue(CompletionResultQueue<MatrixInfo> mQueue) {
+		public Builder<T> withQueue(CompletionResultQueue<MatrixInfo> mQueue) {
 			this.queue = mQueue;
 			return this;
 		}
 
-		public Builder withResultHandler(MatrixInfoResultHandler mResultHandler) {
+		public Builder<T> withResultHandler(MatrixInfoResultHandler mResultHandler) {
 			this.resultHandler = mResultHandler;
 			return this;
 		}
 
-		public Builder withHandler(CompletionHandler<MatrixInfo> mHandler) {
+		public Builder<T> withHandler(CompletionHandler<MatrixInfo> mHandler) {
 			this.handler = mHandler;
 			return this;
 		}
 
-		public Builder withExecutor(Executor mExecutor) {
+		public Builder<T> withExecutor(Executor mExecutor) {
 			this.executor = mExecutor;
 			return this;
 		}
 
-		public RunOnSubmatricesTask build() {
-			return new RunOnSubmatricesTask(this);
+		public RunOnSubmatricesTask<T> build() {
+			return new RunOnSubmatricesTask<T>(this);
 		}
 	}
 
-	private RunOnSubmatricesTask(Builder builder) {
+	private RunOnSubmatricesTask(Builder<T> builder) {
 		this.mFactory = builder.factory;
 		this.mMatrix = builder.matrix;
 		this.mQueue = builder.queue;
