@@ -381,13 +381,14 @@ public class IntMatrix {
 		int leftIndStart = 0;
 		int rightInd;
 		int calcInd = 0;
+		int[] data = ((IntMatrix) container).mData;
 		for (int i = 0; i < left.getNumRows(); i++) {
 			for (int j = 0; j < right.getNumCols(); j++) {
 				leftInd = leftIndStart;
 				rightInd = j;
-				container.mData[calcInd] = 0;
+				data[calcInd] = 0;
 				while (leftInd < leftIndStart + left.getNumCols()) {
-					container.mData[calcInd] += left.mData[leftInd] * right.mData[rightInd];
+					data[calcInd] += left.mData[leftInd] * right.mData[rightInd];
 					leftInd++;
 					rightInd += colIncrement;
 				}
@@ -424,12 +425,12 @@ public class IntMatrix {
 	 * @throws IllegalArgumentException if the parameters do not match those expected.
 	 */
 	public <T extends IntMatrix> T submatrix(final int row, final int col, final T result) {
-		checkParam(result.mRows != (mRows - 1),
+		checkParam(result.getNumRows() != (mRows - 1),
 				"Provided container matrix of the wrong size. Expected %d rows but got %d.", mRows - 1,
-				result.mRows);
-		checkParam(result.mCols != (mCols - 1),
+				result.getNumRows());
+		checkParam(result.getNumCols() != (mCols - 1),
 				"Provided container matrix of the wrong size. Expected %d columns but got %d.", mCols - 1,
-				result.mCols);
+				result.getNumCols());
 		checkParam(row < 0 || row >= mRows,
 				"Row index not contained in the matrix. Expected 0 < row < %d but got %d", getNumRows(),
 				row);
@@ -452,7 +453,8 @@ public class IntMatrix {
 		result.reset();
 		int resInd = 0;
 		int origInd = 0;
-		while (resInd < result.mRows * result.mCols) {
+		int[] data = ((IntMatrix) result).mData;
+		while (resInd < result.getNumRows() * result.getNumCols()) {
 			boolean changed;
 			do {
 				changed = false;
@@ -465,7 +467,7 @@ public class IntMatrix {
 					changed = true;
 				}
 			} while (changed);
-			result.mData[resInd++] = mData[origInd++];
+			data[resInd++] = mData[origInd++];
 		}
 		return result;
 	}
