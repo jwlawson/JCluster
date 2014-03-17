@@ -27,6 +27,10 @@ public interface MatrixTaskFactory<T extends QuiverMatrix> {
 	/**
 	 * Get a new task for the specified matrix.
 	 * 
+	 * <p>
+	 * Some caching of tasks can be implemented provided that the {@link MatrixTask#reset()} and
+	 * {@link MatrixTask#setMatrix(QuiverMatrix)} methods are called.
+	 * 
 	 * @param matrix Matrix to get a new task for
 	 * @return New task
 	 */

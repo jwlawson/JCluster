@@ -21,20 +21,31 @@ package uk.co.jwlawson.jcluster;
  * 
  * @param <T> Type of matrix which is being checked
  */
-public class FiniteCheck<T extends QuiverMatrix> implements MatrixTask<T> {
+public class FiniteCheck implements MatrixTask<QuiverMatrix> {
 
 	/** Matrix to check. */
-	private T mMatrix;
+	private QuiverMatrix mMatrix;
+	/** Fast check task. */
+	private final FastInfiniteCheck mFastCheck;
+	/** Slower mutation class check. Loaded lazily as not always needed. */
+	private EquivMutClassSizeTask mSlowCheck;
 
-	/** {@inheritDoc} */
-	public void setMatrix(final T matrix) {
+	/**
+	 * Create a new task to check whether a matrix is finite.
+	 */
+	public FiniteCheck() {
+		mFastCheck = new FastInfiniteCheck();
+	}
+
+	@Override
+	public void setMatrix(final QuiverMatrix matrix) {
 		mMatrix = matrix;
 	}
 
-	/** {@inheritDoc} */
+	@Override
 	public void reset() {}
 
-	/** {@inheritDoc} */
+	@Override
 	public MatrixInfo call() throws Exception {
 		MatrixInfo result = tryFastCheck();
 		if (!result.hasFiniteSet()) {
@@ -51,8 +62,8 @@ public class FiniteCheck<T extends QuiverMatrix> implements MatrixTask<T> {
 	 * @throws Exception if something goes wrong
 	 */
 	private MatrixInfo tryFastCheck() throws Exception {
-		FastInfiniteCheck task = new FastInfiniteCheck(mMatrix);
-		return task.call();
+		mFastCheck.setMatrix(mMatrix);
+		return mFastCheck.call();
 	}
 
 	/**
@@ -62,8 +73,13 @@ public class FiniteCheck<T extends QuiverMatrix> implements MatrixTask<T> {
 	 * @throws Exception if something goes wrong
 	 */
 	private MatrixInfo tryMutClassTask() throws Exception {
-		EquivMutClassSizeTask task = new EquivMutClassSizeTask(mMatrix);
-		return task.call();
+		if (mSlowCheck == null) {
+			mSlowCheck = new EquivMutClassSizeTask(mMatrix);
+		} else {
+			mSlowCheck.reset();
+			mSlowCheck.setMatrix(new EquivQuiverMatrix(mMatrix));
+		}
+		return mSlowCheck.call();
 	}
 
 }
