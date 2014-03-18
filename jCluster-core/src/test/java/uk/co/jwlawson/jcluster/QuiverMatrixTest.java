@@ -61,7 +61,8 @@ public class QuiverMatrixTest {
 	@Test
 	public void testEnlarge() {
 		QuiverMatrix m = new QuiverMatrix(3, 3, 0, 2, -2, -2, 0, 2, 2, -2, 0);
-		QuiverMatrix exp = new QuiverMatrix(4, 4, 0, 2, -2, 0, -2, 0, 2, 0, 2, -2, 0, 0, 0, 0, 0, 0);
+		QuiverMatrix exp =
+				new QuiverMatrix(4, 4, 0, 2, -2, 0, -2, 0, 2, 0, 2, -2, 0, 0, 0, 0, 0, 0);
 
 		assertEquals("Enlargin 3x3 to 4x4", exp, m.enlargeMatrix(1, 1));
 	}
@@ -70,20 +71,20 @@ public class QuiverMatrixTest {
 	public void testEnlarge2() {
 		QuiverMatrix m = new QuiverMatrix(3, 3, 0, 2, -2, -2, 0, 2, 2, -2, 0);
 		QuiverMatrix exp =
-				new QuiverMatrix(5, 5, 0, 2, -2, 0, 0, -2, 0, 2, 0, 0, 2, -2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-						0, 0, 0);
+				new QuiverMatrix(5, 5, 0, 2, -2, 0, 0, -2, 0, 2, 0, 0, 2, -2, 0, 0, 0, 0, 0, 0, 0,
+						0, 0, 0, 0, 0, 0);
 
-		assertEquals("Enlargin 3x3 to 4x4", exp, m.enlargeMatrix(2, 2));
+		assertEquals("Enlargin 3x3 to 5x5", exp, m.enlargeMatrix(2, 2));
 	}
 
 	@Test
 	public void test5Mut() {
 		QuiverMatrix m =
-				new QuiverMatrix(5, 5, 0, 0, -1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, -1, 1, -1, 0, 1, 0, -1, 0,
-						-1, -1, 1, 0);
+				new QuiverMatrix(5, 5, 0, 0, -1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, -1, 1, -1, 0, 1, 0,
+						-1, 0, -1, -1, 1, 0);
 		QuiverMatrix exp =
-				new QuiverMatrix(5, 5, 0, 0, -1, 1, 0, 0, 0, 0, 1, -1, 1, 0, 0, 0, -1, -1, -1, 0, 0, 1, 0,
-						1, 1, -1, 0);
+				new QuiverMatrix(5, 5, 0, 0, -1, 1, 0, 0, 0, 0, 1, -1, 1, 0, 0, 0, -1, -1, -1, 0,
+						0, 1, 0, 1, 1, -1, 0);
 
 		assertEquals(exp, m.mutate(4));
 	}

@@ -15,6 +15,7 @@
 package uk.co.jwlawson.jcluster;
 
 
+
 /**
  * Matrix of integers.
  * 
@@ -498,6 +499,61 @@ public class IntMatrix {
 				}
 			} while (changed);
 			data[resInd++] = mData[origInd++];
+		}
+		return result;
+	}
+
+	/**
+	 * Provides a new matrix which has added rows and columns filled with zeros.
+	 * 
+	 * This can be used to add vertices to the quiver.
+	 * 
+	 * @param extraRows Number of extra rows to add
+	 * @param extraCols Number of extra columns to add
+	 * @return The enlarged matrix
+	 * @throws IllegalArgumentException if non-positive values of extra row or columns provided or
+	 *         the supplied matrix is the wrong size
+	 */
+	public <T extends IntMatrix> T enlargeMatrix(int extraRows, int extraCols, T result) {
+		checkParam(result == null,
+				"Cannot store the results in a null matrix. Use the 2 parameter method instead");
+		checkParam(extraRows < 0, "Number of extra rows to add must be non-negative. Got: %d",
+				extraRows);
+		checkParam(extraCols < 0, "Number of extra columns to add must be non-negative. Got: %d",
+				extraCols);
+		checkParam(
+				result.getNumRows() != mRows + extraRows,
+				"Supplied matrix must have the same number of rows as this plus the number to be added. Expected: %d Actual: %d",
+				mRows + extraRows, result.getNumRows());
+		checkParam(
+				result.getNumCols() != mCols + extraCols,
+				"Supplied matrix must have the same number of columns as this plus the number to be added. Expected: %d Actual: %d",
+				mCols + extraCols, result.getNumCols());
+		return unsafeEnlargeMatrix(extraRows, extraCols, result);
+	}
+
+	/**
+	 * Provides a new matrix which has added rows and columns filled with zeros. No bounds checking
+	 * is done, so use the public method instead.
+	 * 
+	 * This can be used to add vertices to the quiver.
+	 * 
+	 * @param extraRows Number of extra rows to add
+	 * @param extraCols Number of extra columns to add
+	 * @return The enlarged matrix
+	 */
+	private <T extends IntMatrix> T unsafeEnlargeMatrix(int extraRows, int extraCols, T result) {
+		int[] values = ((IntMatrix) result).mData;
+		int sub = 0;
+		for (int index = 0; index < values.length; index++) {
+			if (index % (mCols + extraCols) >= mCols) {
+				values[index] = 0;
+				sub++;
+			} else if (index >= mRows * (mCols + extraCols)) {
+				values[index] = 0;
+			} else {
+				values[index] = mData[index - sub];
+			}
 		}
 		return result;
 	}

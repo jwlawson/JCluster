@@ -152,4 +152,38 @@ public class IntMatrixTest {
 		IntMatrix m = new IntMatrix(4, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4);
 		assertEquals(-1, m.getZeroRow());
 	}
+
+	@Test
+	public void testEnlarge3To6() {
+		IntMatrix m = new IntMatrix(3, 3, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+		IntMatrix exp =
+				new IntMatrix(6, 6, 1, 2, 3, 0, 0, 0, 4, 5, 6, 0, 0, 0, 7, 8, 9, 0, 0, 0, 0, 0, 0,
+						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+
+		assertEquals(exp, m.enlargeMatrix(3, 3, new IntMatrix(6, 6)));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testEnlargeInvalidRows() {
+		IntMatrix m = new IntMatrix(2, 2);
+		m.enlargeMatrix(-1, 1, new IntMatrix(1, 3));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testEnlargeInvalidCols() {
+		IntMatrix m = new IntMatrix(3, 4);
+		m.enlargeMatrix(2, -2, new IntMatrix(5, 2));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testEnlargeInvalidContainerRows() {
+		IntMatrix m = new IntMatrix(2, 2);
+		m.enlargeMatrix(1, 1, new IntMatrix(2, 3));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testEnlargeInvalidContainerCols() {
+		IntMatrix m = new IntMatrix(2, 2);
+		m.enlargeMatrix(1, 3, new IntMatrix(3, 3));
+	}
 }

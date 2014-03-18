@@ -14,8 +14,6 @@
  */
 package uk.co.jwlawson.jcluster;
 
-import java.util.Arrays;
-
 import uk.co.jwlawson.jcluster.pool.Pool;
 
 /**
@@ -126,30 +124,7 @@ public class QuiverMatrix extends IntMatrix {
 		}
 	}
 
-	/**
-	 * Provides a new matrix which has added rows and columns filled with zeros.
-	 * 
-	 * This can be used to add vertices to the quiver.
-	 * 
-	 * @param extraRows Number of extra rows to add
-	 * @param extraCols Number of extra columns to add
-	 * @return The enlarged matrix
-	 */
-	public QuiverMatrix enlargeMatrix(int extraRows, int extraCols) {
-		int rows = this.getNumRows();
-		int cols = this.getNumCols();
-		int newRows = rows + extraRows;
-		int newCols = cols + extraCols;
-		int[] values = new int[newRows * newCols];
-		Arrays.fill(values, 0);
-		for (int i = 0; i < rows; i++) {
-			for (int j = 0; j < cols; j++) {
-				values[i * newCols + j] = this.unsafeGet(i, j);
-			}
-		}
-		QuiverMatrix result = new QuiverMatrix(newRows, newCols, values);
-		return result;
-	}
+
 
 	/**
 	 * Creates a copy of this matrix.
@@ -176,6 +151,10 @@ public class QuiverMatrix extends IntMatrix {
 			}
 		}
 		return false;
+	}
+	
+	public QuiverMatrix enlargeMatrix(int numRows, int numCols){
+		return enlargeMatrix(numRows, numCols, new QuiverMatrix(getNumRows() + numRows, getNumCols() + numCols));
 	}
 
 	@Override

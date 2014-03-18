@@ -60,8 +60,8 @@ public class FindInfExtensionTask implements Callable<Set<QuiverMatrix>> {
 		ExecutorCompletionService<MatrixInfo> pool =
 				new ExecutorCompletionService<MatrixInfo>(mExecutor);
 		final Pool<QuiverMatrix> matrixPool =
-				Pools.getQuiverMatrixPool(mEnlargedMatrix.getNumRows(), mEnlargedMatrix.getNumCols(),
-						QuiverMatrix.class);
+				Pools.getQuiverMatrixPool(mEnlargedMatrix.getNumRows(),
+						mEnlargedMatrix.getNumCols(), QuiverMatrix.class);
 
 		for (int num = 0; num < Math.pow(5, size); num++) {
 			FastInfiniteCheck task = getEnlargedCheckInfTask(size, matrixPool, num);
