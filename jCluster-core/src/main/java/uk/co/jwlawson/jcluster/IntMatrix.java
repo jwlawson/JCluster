@@ -280,21 +280,6 @@ public class IntMatrix {
 		return -1;
 	}
 
-	private int getZeroRowDoubleLoop() {
-		for (int i = 0; i < mRows; i++) {
-			boolean zero = true;
-			for (int j = 0; j < mCols; j++) {
-				if (mData[getIndex(i, j)] != 0) {
-					zero = false;
-				}
-			}
-			if (zero) {
-				return i;
-			}
-		}
-		return -1;
-	}
-
 	@Override
 	public boolean equals(final Object obj) {
 		if (obj == null) {

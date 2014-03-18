@@ -26,10 +26,16 @@ import org.slf4j.LoggerFactory;
 import uk.co.jwlawson.jcluster.pool.Pool;
 
 /**
+ * Abstract class which holds the main algorithm to find th size of the mutation class.
+ * 
+ * <p>
+ * The map stores any matrices which have been seen but are not complete. By using matrices which
+ * implement {@link Object#equals(Object)} and {@link Object#hashCode()} in different ways the type
+ * of mutation class will change.
  * 
  * @author John Lawson
  * 
- * @param <T>
+ * @param <T> Type of matrix to find the mutation class size of
  */
 public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> implements MatrixTask<T> {
 
@@ -200,7 +206,7 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> implement
 				numMatrices++;
 				stats.iterationComplete();
 			} while (!incompleteQuivers.isEmpty() && mShouldRun);
-			log.info("Graph completed. Vertices: {}", numMatrices);
+			log.debug("Graph completed. Vertices: {}", numMatrices);
 			if (mShouldRun) {
 				return numMatrices;
 			} else {
