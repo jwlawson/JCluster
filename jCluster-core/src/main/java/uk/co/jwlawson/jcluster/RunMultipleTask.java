@@ -62,19 +62,19 @@ public abstract class RunMultipleTask<T extends QuiverMatrix> implements MatrixT
 		mHandler.setQueue(mQueue);
 		Thread handlerThread = new Thread(mHandler);
 		handlerThread.start();
-		log.trace("Handler thread started");
+		log.debug("Handler thread started");
 
 		ExecutorService resultThread = Executors.newSingleThreadExecutor();
 		Future<MatrixInfo> resultFuture = resultThread.submit(mResultHandler);
-		log.trace("Result thread started");
+		log.debug("Result thread started");
 
 		submitTasks(exec);
-		log.trace("Tasks submitted");
+		log.debug("Tasks submitted");
 
 		handlerThread.join();
 		mResultHandler.allResultsQueued();
-		resultThread.shutdownNow();
-		log.trace("All results queued for handling");
+//		resultThread.shutdownNow();
+		log.debug("All results queued for handling. Waiting for result.");
 
 		return resultFuture.get();
 	}

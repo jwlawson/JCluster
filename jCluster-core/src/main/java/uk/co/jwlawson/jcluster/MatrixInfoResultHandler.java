@@ -70,10 +70,12 @@ public abstract class MatrixInfoResultHandler implements Callable<MatrixInfo> {
 		while (mQueue.hasResult() || running) {
 			try {
 				MatrixInfo info = mQueue.popResult();
-				handleResult(info);
+				if (info != null) {
+					handleResult(info);
+				}
 			} catch (InterruptedException e) {
 				Thread.interrupted();
-				log.info("Thread interrupted", e);
+				log.info("Thread interrupted");
 			}
 		}
 		return getFinal();

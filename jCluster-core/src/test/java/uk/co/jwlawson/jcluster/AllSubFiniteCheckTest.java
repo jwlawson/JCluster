@@ -18,6 +18,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author John Lawson
@@ -25,8 +27,11 @@ import org.junit.Test;
  */
 public class AllSubFiniteCheckTest {
 
+	private final Logger log = LoggerFactory.getLogger(getClass());
+
 	@Test
 	public void testA4() {
+		log.debug("starting test for A4");
 		QuiverMatrix mat = DynkinDiagram.A4.getMatrix();
 		AllSubFiniteCheck<QuiverMatrix> task = new AllSubFiniteCheck<QuiverMatrix>(mat);
 
@@ -40,6 +45,7 @@ public class AllSubFiniteCheckTest {
 
 	@Test
 	public void testD5() {
+		log.debug("starting test for D5");
 		QuiverMatrix mat = DynkinDiagram.D5.getMatrix();
 		AllSubFiniteCheck<QuiverMatrix> task = new AllSubFiniteCheck<QuiverMatrix>(mat);
 
@@ -53,6 +59,7 @@ public class AllSubFiniteCheckTest {
 
 	@Test
 	public void testInf() {
+		log.debug("starting test for infinite matrix");
 		QuiverMatrix mat =
 				new QuiverMatrix(5, 5, 0, 1, 0, 0, 1, -1, 0, 1, 1, 0, 0, -1, 0, 1, 0, 0, -1, -1, 0,
 						0, -1, 0, 0, 0, 0);

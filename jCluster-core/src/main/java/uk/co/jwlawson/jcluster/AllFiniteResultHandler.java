@@ -16,11 +16,16 @@ package uk.co.jwlawson.jcluster;
 
 import javax.annotation.Nullable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * @author John Lawson
  * 
  */
 public class AllFiniteResultHandler extends MatrixInfoResultHandler {
+
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	/** Whether all results so far were finite. */
 	private boolean allFinite = true;
@@ -43,6 +48,7 @@ public class AllFiniteResultHandler extends MatrixInfoResultHandler {
 			throw new IllegalStateException("Cannot handle result which is unknown");
 		}
 		if (!matrix.isFinite()) {
+			log.debug("Infinite matrix found. Requesting stop.");
 			allFinite = false;
 			if (task != null) {
 				task.requestStop();
