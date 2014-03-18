@@ -260,6 +260,27 @@ public class IntMatrix {
 	 * @return Index of row full of zeros
 	 */
 	public int getZeroRow() {
+		boolean isZero = false;
+		int row = -1;
+		for (int ind = 0; ind < mData.length; ind++) {
+			if (ind % mCols == 0) {
+				if (isZero) {
+					return row;
+				}
+				row++;
+				isZero = true;
+			}
+			if (mData[ind] != 0) {
+				isZero = false;
+			}
+		}
+		if (isZero) {
+			return row;
+		}
+		return -1;
+	}
+
+	private int getZeroRowDoubleLoop() {
 		for (int i = 0; i < mRows; i++) {
 			boolean zero = true;
 			for (int j = 0; j < mCols; j++) {
