@@ -73,6 +73,7 @@ public class MatrixInfo {
 	public void setFinite(final boolean f) {
 		if (f) {
 			noSideSetMinMutInf(false);
+			noSideSetAllSubmatricesFinite(true);
 		}
 		noSideSetFinite(f);
 	}
@@ -113,6 +114,8 @@ public class MatrixInfo {
 	public void setMutationClassSize(final int classSize) {
 		if (classSize > 0) {
 			noSideSetFinite(true);
+			noSideSetMinMutInf(false);
+			noSideSetAllSubmatricesFinite(true);
 		}
 		if (classSize == -1) {
 			noSideSetFinite(false);
@@ -156,6 +159,8 @@ public class MatrixInfo {
 	public void setEquivMutationClassSize(final int classSize) {
 		if (classSize > 0) {
 			noSideSetFinite(true);
+			noSideSetMinMutInf(false);
+			noSideSetAllSubmatricesFinite(true);
 		}
 		if (classSize == -1) {
 			noSideSetFinite(false);
@@ -200,8 +205,7 @@ public class MatrixInfo {
 	public void setMinMutInf(final boolean result) {
 		if (result) {
 			noSideSetFinite(false);
-			noSideSetMutationClassSize(-1);
-			setAllSubmatricesFinite(true);
+			noSideSetAllSubmatricesFinite(true);
 		}
 		noSideSetMinMutInf(result);
 	}
@@ -294,7 +298,7 @@ public class MatrixInfo {
 			noSideSetDynkinDiagram(info.getDynkinDiagram());
 		}
 		if (!hasAllSubmatricesFinite() && info.hasAllSubmatricesFinite()) {
-			setAllSubmatricesFinite(info.getAllSubmatricesFinite());
+			noSideSetAllSubmatricesFinite(info.getAllSubmatricesFinite());
 		}
 	}
 
@@ -323,6 +327,17 @@ public class MatrixInfo {
 	 * @param allFinite Value to set
 	 */
 	public void setAllSubmatricesFinite(boolean allFinite) {
+		if (!allFinite) {
+			noSideSetMinMutInf(false);
+		}
+		if (allFinite && finite.isPresent() && finite.get() == false) {
+			noSideSetMinMutInf(true);
+		}
+		noSideSetAllSubmatricesFinite(allFinite);
+	}
+
+	private void noSideSetAllSubmatricesFinite(boolean allFinite) {
 		submatricesFinite = Optional.of(allFinite);
 	}
+
 }

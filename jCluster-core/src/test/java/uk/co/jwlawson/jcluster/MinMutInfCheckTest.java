@@ -14,6 +14,7 @@
  */
 package uk.co.jwlawson.jcluster;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.concurrent.ExecutionException;
@@ -30,7 +31,7 @@ import org.junit.Test;
 public class MinMutInfCheckTest {
 
 	@Test
-	public void test() {
+	public void testMinMutInf() {
 		QuiverMatrix mat =
 				new QuiverMatrix(4, 4, 0, 1, 0, 0, -1, 0, 1, 1, 0, -1, 0, 1, 0, -1, -1, 0);
 		MinMutInfCheck<QuiverMatrix> task = new MinMutInfCheck<QuiverMatrix>();
@@ -49,5 +50,48 @@ public class MinMutInfCheckTest {
 			throw new RuntimeException(e);
 		}
 	}
+
+	@Test
+	public void testNotMinMutInf() {
+		QuiverMatrix mat =
+				new QuiverMatrix(5, 5, 0, 1, 0, 0, 1, -1, 0, 1, 1, 1, 0, -1, 0, 1, 0, 0, -1, -1, 0,
+						0, -1, -1, 0, 0, 0);
+		MinMutInfCheck<QuiverMatrix> task = new MinMutInfCheck<QuiverMatrix>();
+		task.setMatrix(mat);
+
+		ExecutorService exec = Executors.newSingleThreadExecutor();
+		Future<MatrixInfo> future = exec.submit(task);
+
+		MatrixInfo result;
+		try {
+			result = future.get();
+			assertFalse(result.isMinMutInf());
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		} catch (ExecutionException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Test
+	public void testNotInfinite() {
+		QuiverMatrix mat = DynkinDiagram.A6.getMatrix();
+		MinMutInfCheck<QuiverMatrix> task = new MinMutInfCheck<QuiverMatrix>();
+		task.setMatrix(mat);
+
+		ExecutorService exec = Executors.newSingleThreadExecutor();
+		Future<MatrixInfo> future = exec.submit(task);
+
+		MatrixInfo result;
+		try {
+			result = future.get();
+			assertFalse(result.isMinMutInf());
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		} catch (ExecutionException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 
 }
