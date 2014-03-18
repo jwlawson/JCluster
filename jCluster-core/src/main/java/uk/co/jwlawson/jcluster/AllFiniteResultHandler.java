@@ -14,8 +14,6 @@
  */
 package uk.co.jwlawson.jcluster;
 
-import javax.annotation.Nullable;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,16 +28,8 @@ public class AllFiniteResultHandler extends MatrixInfoResultHandler {
 	/** Whether all results so far were finite. */
 	private boolean allFinite = true;
 
-	/** Task creating the results. */
-	@Nullable
-	private MatrixTask<?> task;
-
 	public AllFiniteResultHandler(MatrixInfo initial) {
 		super(initial);
-	}
-
-	public void setTask(MatrixTask<?> task) {
-		this.task = task;
 	}
 
 	@Override
@@ -48,11 +38,9 @@ public class AllFiniteResultHandler extends MatrixInfoResultHandler {
 			throw new IllegalStateException("Cannot handle result which is unknown");
 		}
 		if (!matrix.isFinite()) {
-			log.debug("Infinite matrix found. Requesting stop.");
+			log.debug("Infinite matrix found {}. Requesting stop.", matrix.getMatrix());
 			allFinite = false;
-			if (task != null) {
-				task.requestStop();
-			}
+			requestStop();
 		}
 	}
 

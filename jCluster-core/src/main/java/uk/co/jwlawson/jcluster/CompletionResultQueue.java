@@ -44,4 +44,10 @@ public interface CompletionResultQueue<T> {
 	 */
 	boolean hasResult();
 
+	/**
+	 * Inform the queue that all possible results have been queued up and no further results will be
+	 * pushed onto it.
+	 */
+	void allResultsQueued();
+
 }

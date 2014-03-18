@@ -61,7 +61,9 @@ public abstract class CompletionHandler<V> implements Runnable {
 		Future<V> future;
 		try {
 			future = service.take();
-			queue.pushResult(future.get());
+			V result = future.get();
+			log.trace("Result pushed to queue {}", result);
+			queue.pushResult(result);
 		} catch (InterruptedException e) {
 			log.error("{} interrupted", getClass().getSimpleName(), e);
 			Thread.currentThread().interrupt();

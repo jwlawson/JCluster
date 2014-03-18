@@ -18,6 +18,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import uk.co.jwlawson.jcluster.pool.Pool;
 
 /**
@@ -28,6 +31,8 @@ import uk.co.jwlawson.jcluster.pool.Pool;
  * 
  */
 public class FastInfiniteCheck implements MatrixTask<QuiverMatrix> {
+
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	/** Number of random mutations to try before giving up. */
 	private static final int MAX_NUMBER_MUTATIONS = 3000;
@@ -127,6 +132,8 @@ public class FastInfiniteCheck implements MatrixTask<QuiverMatrix> {
 				/* Alternate between mutating the two matrices in the array. */
 				mutated[counter % 2].mutate(rand, mutated[++counter % 2]);
 				if (mutated[counter % 2].isInfinite()) {
+					log.debug("Infinite matrix found {} for initial {}", mutated[counter % 2],
+							mMatrix);
 					return true;
 				}
 				lastMutation = rand;

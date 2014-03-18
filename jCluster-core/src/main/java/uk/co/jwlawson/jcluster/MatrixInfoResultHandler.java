@@ -16,6 +16,8 @@ package uk.co.jwlawson.jcluster;
 
 import java.util.concurrent.Callable;
 
+import javax.annotation.Nullable;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,22 +27,65 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class MatrixInfoResultHandler implements Callable<MatrixInfo> {
 
+	/** Logger instance. */
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
+	/** Queue that the new results are being left in. */
 	private CompletionResultQueue<MatrixInfo> mQueue;
+	/** True if the task is still creating new results. */
 	private boolean running = true;
+	/** Initial matri. */
 	private final MatrixInfo mInitial;
 
+	/** Task creating the results. */
+	@Nullable
+	private MatrixTask<?> task;
+
+	/**
+	 * Create a new instance to combine results from the tasks into the supplied MatrixInfo object.
+	 * 
+	 * @param initial Info about the matrix to store the final result
+	 */
 	public MatrixInfoResultHandler(MatrixInfo initial) {
 		mInitial = initial;
 	}
 
+	/**
+	 * Set the queue which holds the results of the calculations which are to be handled.
+	 * 
+	 * @param queue Queue of results
+	 */
 	public void setQueue(CompletionResultQueue<MatrixInfo> queue) {
 		mQueue = queue;
 	}
 
+	/**
+	 * Get the original MatrixInfo object. Used by subclasses to combine the information from the
+	 * results with the original info.
+	 */
 	protected MatrixInfo getInitial() {
 		return mInitial;
+	}
+
+	/**
+	 * Set the main task which is being run and which is relying on the results from this.
+	 * 
+	 * @param task Task which is waiting for the results from this
+	 */
+	public void setTask(MatrixTask<?> task) {
+		this.task = task;
+	}
+
+	/**
+	 * Request that the overlying task stops if it has been set.
+	 * <p>
+	 * This should be used if the results from the calculations carried out so far has determined
+	 * the final information required, so no further calculations are required.
+	 */
+	protected void requestStop() {
+		if (task != null) {
+			task.requestStop();
+		}
 	}
 
 	/**
@@ -63,6 +108,7 @@ public abstract class MatrixInfoResultHandler implements Callable<MatrixInfo> {
 	 */
 	public void allResultsQueued() {
 		running = false;
+		mQueue.allResultsQueued();
 	}
 
 	@Override
@@ -71,11 +117,13 @@ public abstract class MatrixInfoResultHandler implements Callable<MatrixInfo> {
 			try {
 				MatrixInfo info = mQueue.popResult();
 				if (info != null) {
+					log.trace("Queue pop result timed out");
 					handleResult(info);
 				}
 			} catch (InterruptedException e) {
-				Thread.interrupted();
-				log.info("Thread interrupted");
+			}
+			if (Thread.interrupted()) {
+				log.info("Thread interrupted. Running: {}", running);
 			}
 		}
 		return getFinal();

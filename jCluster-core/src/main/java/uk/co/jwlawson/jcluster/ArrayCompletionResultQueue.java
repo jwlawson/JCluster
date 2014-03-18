@@ -96,5 +96,8 @@ public class ArrayCompletionResultQueue<T> implements CompletionResultQueue<T> {
 		return !queue.isEmpty();
 	}
 
+	@Override
+	public void allResultsQueued() {}
+
 
 }

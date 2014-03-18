@@ -184,17 +184,39 @@ public class QuiverMatrix extends IntMatrix {
 		return result;
 	}
 
-	public <T extends QuiverMatrix> T submatrix(int row, int col, T result) {
-		result = super.submatrix(row, col, result);
+	/**
+	 * Get the sub-quiver by removing the k-th vertex.
+	 * 
+	 * <p>
+	 * If the sub-quiver contains a zero row (i.e. a vertex that has no arrows to or from it) then
+	 * it is removed and the submatix of the result is returned instead.
+	 * 
+	 * @param k Vertex index t remove
+	 * @param result Matrix to put the result into
+	 * @return Sub-quiver from removing vertex
+	 */
+	public <T extends QuiverMatrix> T subQuiver(int k, T result) {
+		result = super.submatrix(k, k, result);
 		int zero = result.getZeroRow();
 		if (zero != -1) {
-			@SuppressWarnings("unchecked")
-			Pool<T> pool =
-					(Pool<T>) Pools.getQuiverMatrixPool(result.getNumRows() - 1,
-							result.getNumCols() - 1, result.getClass());
-			result = result.submatrix(zero, zero, pool.getObj());
+			Pool<T> pool = getSubmatrixPool(result);
+			result = result.subQuiver(zero, pool.getObj());
 		}
 		return result;
+	}
+
+	/**
+	 * Get the pool supplying QuiverMatrix objects of a size 1 less than the specified matrix.
+	 * 
+	 * @param result Type of matrix to be provided by the pool.
+	 * @return Matrix pool
+	 */
+	private <T extends QuiverMatrix> Pool<T> getSubmatrixPool(T result) {
+		@SuppressWarnings("unchecked")
+		Pool<T> pool =
+				(Pool<T>) Pools.getQuiverMatrixPool(result.getNumRows() - 1,
+						result.getNumCols() - 1, result.getClass());
+		return pool;
 	}
 
 	private void checkParam(boolean expression, String formatString, Object... formatParams) {

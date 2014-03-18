@@ -25,18 +25,44 @@ public class VariableCompletionHandler<V> extends CompletionHandler<V> {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
+	/** Number of results waiting to be handled. */
 	private int numUnhandled;
-	private boolean waitIfEmpty = false;
+	/**
+	 * True if the handler should wait for more results when there are no results to handle
+	 * immediately. Set to true by default, so that once the handler is started it won't return
+	 * straight away.
+	 */
+	private boolean waitIfEmpty = true;
+	/** True if waiting on this object. */
+	private boolean waiting = false;
 
+	/**
+	 * Set whether the handler should wait for more results if there are no more results to handle
+	 * immediately. If set to false and the handler is currently waiting then this will wake the
+	 * handler.
+	 * 
+	 * @param waitIfEmpty true if should wait for more results
+	 */
 	public void setWaitIfEmpty(boolean waitIfEmpty) {
 		this.waitIfEmpty = waitIfEmpty;
+		log.trace("Handler set to wait: {}. Currently waiting: {}", waitIfEmpty, waiting);
+		synchronized (this) {
+			if (waiting && !waitIfEmpty) {
+				notify();
+			}
+		}
 	}
 
+	/**
+	 * Inform the handler that a new result will be available once computed.
+	 * <p>
+	 * If the handler is waiting for a result then this will wake it.
+	 */
 	public void taskAdded() {
 
 		synchronized (this) {
 			numUnhandled++;
-			if (numUnhandled == 1) {
+			if (waiting) {
 				notify();
 			}
 		}
@@ -48,24 +74,25 @@ public class VariableCompletionHandler<V> extends CompletionHandler<V> {
 		while (numUnhandled > 0 || waitIfEmpty) {
 
 			if (numUnhandled == 0) {
-				log.debug("Waiting for new tasks");
+				log.trace("Waiting for new tasks");
 
 				try {
 					synchronized (this) {
+						waiting = true;
 						wait();
+						waiting = false;
 					}
 				} catch (InterruptedException e) {
-					log.error("Interrupt", e);
+					log.info("Thread {} interrupted", Thread.currentThread());
 				}
 			}
-
 			handleNextTask();
 
 			synchronized (this) {
 				numUnhandled--;
 			}
-			log.trace("Task handled");
 		}
+		log.trace("Handler finished");
 
 	}
 

@@ -52,6 +52,7 @@ public abstract class RunMultipleTask<T extends QuiverMatrix> implements MatrixT
 
 	public void setResultHandler(MatrixInfoResultHandler resultHandler) {
 		this.mResultHandler = resultHandler;
+		mResultHandler.setTask(this);
 	}
 
 	@Override
@@ -73,7 +74,8 @@ public abstract class RunMultipleTask<T extends QuiverMatrix> implements MatrixT
 
 		handlerThread.join();
 		mResultHandler.allResultsQueued();
-//		resultThread.shutdownNow();
+		log.debug("Thread interrupting");
+		resultThread.shutdownNow();
 		log.debug("All results queued for handling. Waiting for result.");
 
 		return resultFuture.get();

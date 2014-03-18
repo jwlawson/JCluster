@@ -33,9 +33,9 @@ public class AllSubFiniteCheck<T extends QuiverMatrix> extends RunMultipleTask<T
 	private final MatrixTaskFactory<QuiverMatrix> mFactory;
 	private T mInitial;
 	private final ExecutorService mService;
-	private final MatrixInfoResultHandler mResultHandler;
 	private final VariableCompletionHandler<MatrixInfo> mHandler;
 	private Pool<T> mPool;
+	private boolean shouldStop = false;
 
 	public AllSubFiniteCheck(T matrix) {
 		this(new Builder<T>().withInitial(matrix).validate());
@@ -51,19 +51,21 @@ public class AllSubFiniteCheck<T extends QuiverMatrix> extends RunMultipleTask<T
 
 	@Override
 	public void requestStop() {
-		mService.shutdownNow();
+		shouldStop = true;
+		mService.shutdown();
 	}
 
 	@Override
 	protected void submitTasks(CompletionService<MatrixInfo> exec) {
 		mHandler.setWaitIfEmpty(true);
 		for (int i = 0; i < mInitial.getNumRows(); i++) {
-			for (int j = 0; j < mInitial.getNumCols(); j++) {
-				MatrixTask<QuiverMatrix> task =
-						mFactory.getTask(mInitial.submatrix(i, j, mPool.getObj()));
-				exec.submit(task);
-				mHandler.taskAdded();
+			if (shouldStop) {
+				mHandler.setWaitIfEmpty(false);
+				return;
 			}
+			MatrixTask<QuiverMatrix> task = mFactory.getTask(mInitial.subQuiver(i, mPool.getObj()));
+			exec.submit(task);
+			mHandler.taskAdded();
 		}
 		mHandler.setWaitIfEmpty(false);
 	}
@@ -75,7 +77,6 @@ public class AllSubFiniteCheck<T extends QuiverMatrix> extends RunMultipleTask<T
 		this.mPool = builder.mPool;
 		setExecutor(mService);
 		setQueue(builder.mQueue);
-		this.mResultHandler = builder.mResultHandler;
 		setResultHandler(builder.mResultHandler);
 		this.mHandler = builder.mHandler;
 		setHandler(builder.mHandler);
