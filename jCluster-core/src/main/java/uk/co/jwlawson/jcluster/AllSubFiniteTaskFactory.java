@@ -22,8 +22,7 @@ public class AllSubFiniteTaskFactory<T extends QuiverMatrix> implements MatrixTa
 
 	@Override
 	public MatrixTask<T> getTask(T matrix) {
-		// TODO Auto-generated method stub
-		return null;
+		return new AllSubFiniteCheck<T>(matrix);
 	}
 
 }

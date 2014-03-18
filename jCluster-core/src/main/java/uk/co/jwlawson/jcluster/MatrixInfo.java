@@ -273,9 +273,10 @@ public class MatrixInfo {
 	 *         matrix
 	 */
 	public void combine(final MatrixInfo info) {
-		if (IntMatrix.areEqual(matrix, info.matrix)) {
+		if (!IntMatrix.areEqual(matrix, info.matrix)) {
 			throw new IllegalArgumentException(
-					"Cannot combine two MatrixInfo objects with different matrices");
+					"Cannot combine two MatrixInfo objects with different matrices. " + matrix
+							+ " and " + info.matrix);
 		}
 		if (!hasFiniteSet() && info.hasFiniteSet()) {
 			noSideSetFinite(info.isFinite());

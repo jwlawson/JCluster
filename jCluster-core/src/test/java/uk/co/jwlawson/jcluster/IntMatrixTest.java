@@ -148,6 +148,12 @@ public class IntMatrixTest {
 	}
 
 	@Test
+	public void testFirstZeroRow() {
+		IntMatrix m = new IntMatrix(4, 4, 0, 0, 0, 0, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4);
+		assertEquals(0, m.getZeroRow());
+	}
+
+	@Test
 	public void testNonZeroRow() {
 		IntMatrix m = new IntMatrix(4, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4);
 		assertEquals(-1, m.getZeroRow());

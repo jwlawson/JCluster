@@ -259,17 +259,19 @@ public class IntMatrix {
 	 * 
 	 * @return Index of row full of zeros
 	 */
-	// TODO Implement better using index
 	public int getZeroRow() {
-		for (int i = 0; i < mRows; i++) {
-			boolean zero = true;
-			for (int j = 0; j < mCols && zero; j++) {
-				if (mData[getIndex(i, j)] != 0) {
-					zero = false;
+		boolean isZero = false;
+		int row = -1;
+		for (int ind = 0; ind < mData.length; ind++) {
+			if (ind % mCols == 0) {
+				if (isZero) {
+					return row;
 				}
+				row++;
+				isZero = true;
 			}
-			if (zero) {
-				return i;
+			if (mData[ind] != 0) {
+				isZero = false;
 			}
 		}
 		return -1;
