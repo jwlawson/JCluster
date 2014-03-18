@@ -16,6 +16,8 @@ package uk.co.jwlawson.jcluster;
 
 import java.util.Arrays;
 
+import uk.co.jwlawson.jcluster.pool.Pool;
+
 /**
  * The basic quiver with methods to mutate the quiver at its vertices.
  * 
@@ -40,8 +42,8 @@ public class QuiverMatrix extends IntMatrix {
 	}
 
 	/**
-	 * Create a new QuiverMatrix with set number of rows and columns. The provided array must have the
-	 * correct number of entries and be in row-major form.
+	 * Create a new QuiverMatrix with set number of rows and columns. The provided array must have
+	 * the correct number of entries and be in row-major form.
 	 * 
 	 * That is {@code row 1},{row 2}, ... } }.
 	 * 
@@ -81,7 +83,8 @@ public class QuiverMatrix extends IntMatrix {
 	 * @return New mutated matrix.
 	 */
 	public <T extends QuiverMatrix> T mutate(int k, T result) {
-		checkParam(result == null, "Do not call this method with null - use the one parameter method.");
+		checkParam(result == null,
+				"Do not call this method with null - use the one parameter method.");
 		int rows = getNumRows();
 		int cols = getNumCols();
 		checkParam(
@@ -102,8 +105,8 @@ public class QuiverMatrix extends IntMatrix {
 	 * Remember that the indexing starts at 0.
 	 * 
 	 * @param k Index to mutate on.
-	 * @param result The matrix to insert the new matrix. Ensure it is the right size as no checks are
-	 *        done.
+	 * @param result The matrix to insert the new matrix. Ensure it is the right size as no checks
+	 *        are done.
 	 * @return New mutated matrix.
 	 */
 	private <S extends QuiverMatrix> void unsafeMutate(int k, S result, int rows, int cols) {
@@ -177,7 +180,21 @@ public class QuiverMatrix extends IntMatrix {
 
 	@Override
 	public QuiverMatrix submatrix(int i, int j) {
-		return submatrix(i, j, new QuiverMatrix(getNumRows() - 1, getNumCols() - 1));
+		QuiverMatrix result = submatrix(i, j, new QuiverMatrix(getNumRows() - 1, getNumCols() - 1));
+		return result;
+	}
+
+	public <T extends QuiverMatrix> T submatrix(int row, int col, T result) {
+		result = super.submatrix(row, col, result);
+		int zero = result.getZeroRow();
+		if (zero != -1) {
+			@SuppressWarnings("unchecked")
+			Pool<T> pool =
+					(Pool<T>) Pools.getQuiverMatrixPool(result.getNumRows() - 1,
+							result.getNumCols() - 1, result.getClass());
+			result = result.submatrix(zero, zero, pool.getObj());
+		}
+		return result;
 	}
 
 	private void checkParam(boolean expression, String formatString, Object... formatParams) {

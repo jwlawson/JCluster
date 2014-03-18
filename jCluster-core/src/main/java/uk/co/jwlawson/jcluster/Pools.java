@@ -18,7 +18,7 @@ import nf.fr.eraasoft.pool.ObjectPool;
 import uk.co.jwlawson.jcluster.pool.Pool;
 import uk.co.jwlawson.jcluster.pool.PoolCache;
 import uk.co.jwlawson.jcluster.pool.PoolCacheImpl;
-import uk.co.jwlawson.jcluster.pool.dummy.DummyPoolFactory;
+import uk.co.jwlawson.jcluster.pool.furious.FuriousPoolFactory;
 
 /**
  * Convenience class to provide an ObjectPool of QuiverMatrix objects. Caches the instances so that
@@ -29,11 +29,11 @@ import uk.co.jwlawson.jcluster.pool.dummy.DummyPoolFactory;
  */
 public class Pools {
 
-	private static PoolCache poolCache = new PoolCacheImpl(new DummyPoolFactory());
+	private static PoolCache poolCache = new PoolCacheImpl(new FuriousPoolFactory());
 
 	/**
-	 * Get the instance of {@link ObjectPool} which provides objects which extend {@link QuiverMatrix}
-	 * . The class provided will be the type of objects returned by the pool.
+	 * Get the instance of {@link ObjectPool} which provides objects which extend
+	 * {@link QuiverMatrix} . The class provided will be the type of objects returned by the pool.
 	 * 
 	 * <p>
 	 * The pool is thread local, so only return objects which have been borrowed in the same thread.

@@ -33,8 +33,9 @@ public interface CompletionResultQueue<T> {
 	 * Get the next result from the queue or null if the thread is interrupted.
 	 * 
 	 * @return The next result from the queue.
+	 * @throws InterruptedException
 	 */
-	T popResult();
+	T popResult() throws InterruptedException;
 
 	/**
 	 * Check whether the queue has any results waiting.

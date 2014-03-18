@@ -12,7 +12,7 @@
 		<!-- encoders are assigned the type ch.qos.logback.classic.encoder.PatternLayoutEncoder 
 			by default -->
 		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-			<level>INFO</level>
+			<level>TRACE</level>
 		</filter>
 
 		<encoder>
@@ -42,6 +42,10 @@
 
 	<logger name="uk.co.jwlawson.jcluster" level="DEBUG" additivity="false">
 		<appender-ref ref="FILE" />
+	</logger>
+	
+	<logger name="uk.co.jwlawson.jcluster.RunMultipleTask" level="TRACE" additivity="false">
+	    <appender-ref ref="STDOUT"/>
 	</logger>
 
 	<!-- Strictly speaking, the level attribute is not necessary since -->

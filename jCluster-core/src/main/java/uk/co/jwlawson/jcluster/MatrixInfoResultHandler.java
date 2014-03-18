@@ -16,14 +16,32 @@ package uk.co.jwlawson.jcluster;
 
 import java.util.concurrent.Callable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * @author John Lawson
  * 
  */
 public abstract class MatrixInfoResultHandler implements Callable<MatrixInfo> {
 
-	private CompletionResultQueue<MatrixInfo> queue;
+	private final Logger log = LoggerFactory.getLogger(getClass());
+
+	private CompletionResultQueue<MatrixInfo> mQueue;
 	private boolean running = true;
+	private final MatrixInfo mInitial;
+
+	public MatrixInfoResultHandler(MatrixInfo initial) {
+		mInitial = initial;
+	}
+
+	public void setQueue(CompletionResultQueue<MatrixInfo> queue) {
+		mQueue = queue;
+	}
+
+	protected MatrixInfo getInitial() {
+		return mInitial;
+	}
 
 	/**
 	 * Handle the new result.
@@ -40,8 +58,8 @@ public abstract class MatrixInfoResultHandler implements Callable<MatrixInfo> {
 	protected abstract MatrixInfo getFinal();
 
 	/**
-	 * Inform the handler that all results have been queued, so once the queue is empty there will be
-	 * no more.
+	 * Inform the handler that all results have been queued, so once the queue is empty there will
+	 * be no more.
 	 */
 	public void allResultsQueued() {
 		running = false;
@@ -49,9 +67,14 @@ public abstract class MatrixInfoResultHandler implements Callable<MatrixInfo> {
 
 	@Override
 	public MatrixInfo call() throws Exception {
-		while (queue.hasResult() || running) {
-			MatrixInfo info = queue.popResult();
-			handleResult(info);
+		while (mQueue.hasResult() || running) {
+			try {
+				MatrixInfo info = mQueue.popResult();
+				handleResult(info);
+			} catch (InterruptedException e) {
+				Thread.interrupted();
+				log.info("Thread interrupted", e);
+			}
 		}
 		return getFinal();
 	}

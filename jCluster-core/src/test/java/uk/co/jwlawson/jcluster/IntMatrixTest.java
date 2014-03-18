@@ -140,4 +140,16 @@ public class IntMatrixTest {
 		IntMatrix m1 = new IntMatrix(2, 3);
 		m.submatrix(1, 1, m1);
 	}
+
+	@Test
+	public void testZeroRow() {
+		IntMatrix m = new IntMatrix(3, 3, 1, 2, 3, 0, 0, 0, 1, 2, 3);
+		assertEquals(1, m.getZeroRow());
+	}
+
+	@Test
+	public void testNonZeroRow() {
+		IntMatrix m = new IntMatrix(4, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4);
+		assertEquals(-1, m.getZeroRow());
+	}
 }

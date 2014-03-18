@@ -16,8 +16,12 @@ package uk.co.jwlawson.jcluster;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nullable;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Queue containing results calculated by a CompletionService.
@@ -30,6 +34,8 @@ import javax.annotation.Nullable;
  * 
  */
 public class ArrayCompletionResultQueue<T> implements CompletionResultQueue<T> {
+
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	/** Default size of the queue. */
 	private static final int DEF_SIZE = 100;
@@ -62,26 +68,22 @@ public class ArrayCompletionResultQueue<T> implements CompletionResultQueue<T> {
 		try {
 			queue.put(result);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			log.error("Thread interrupted", e);
 		}
 	}
 
 	/**
-	 * Get the next result from the queue or null if the thread is interrupted.
+	 * Get the next result from the queue.
 	 * <p>
 	 * Will block if no results are available.
 	 * 
 	 * @return The next result from the queue.
+	 * @throws InterruptedException if thread get interrupted
 	 */
 	@Override
 	@Nullable
-	public T popResult() {
-		try {
-			return queue.take();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		return null;
+	public T popResult() throws InterruptedException {
+		return queue.poll(1, TimeUnit.SECONDS);
 	}
 
 	/**

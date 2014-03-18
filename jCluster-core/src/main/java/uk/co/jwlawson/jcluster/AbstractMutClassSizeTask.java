@@ -69,13 +69,13 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> implement
 		setMatrix(matrix);
 	}
 
-	/** {@inheritDoc} */
+	@Override
 	public final void setMatrix(final T matrix) {
 		mInitialMatrix = matrix;
 	}
 
-	/** {@inheritDoc} */
-	public final void reset() {
+	@Override
+	public void reset() {
 		mShouldRun = true;
 	}
 
@@ -108,6 +108,7 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> implement
 	 * @return The size of the mutation class, or -1 if infinite
 	 * @throws Exception if something goes wrong in the calculation
 	 */
+	@Override
 	public final MatrixInfo call() throws Exception {
 		log.debug("MutClassSizeTask started for {}", mInitialMatrix);
 		MatrixInfo result = handleResult(getMatrixInfo(), getMutationClassSize());
@@ -116,9 +117,9 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> implement
 
 	/**
 	 * Insert the result from the calculation into the MatrixInfo object which will be returned from
-	 * the {@link AbstractMutClassSizeTask#call()} method. This can be used to ensure that the result
-	 * is inserted at the right point in the MatrixInfo, or to provide a different MatrixInfo object
-	 * if required.
+	 * the {@link AbstractMutClassSizeTask#call()} method. This can be used to ensure that the
+	 * result is inserted at the right point in the MatrixInfo, or to provide a different MatrixInfo
+	 * object if required.
 	 * 
 	 * @param info MatrixInfo containing initial matrix and any known info about it
 	 * @param result Mutation class size just calculated
@@ -185,7 +186,8 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> implement
 							if (newMatrix.isInfinite()) {
 								return INFINITE;
 							}
-							handleUnseenMatrix(matrixSet, incompleteQuivers, holderPool, mat, newMatrix, i);
+							handleUnseenMatrix(matrixSet, incompleteQuivers, holderPool, mat,
+									newMatrix, i);
 						}
 					}
 				}
@@ -218,9 +220,10 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> implement
 	protected void setUp(final T pooledInitial) {}
 
 	/**
-	 * Request that the calculation be stopped at the next convenient place. If called the calculation
-	 * will return {@link AbstractMutClassSizeTask#STOP}.
+	 * Request that the calculation be stopped at the next convenient place. If called the
+	 * calculation will return {@link AbstractMutClassSizeTask#STOP}.
 	 */
+	@Override
 	public final void requestStop() {
 		log.debug("{} has been requested to stop", getClass().getSimpleName());
 		mShouldRun = false;
@@ -236,7 +239,8 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> implement
 	}
 
 	/**
-	 * Get the {@link Pool} which provides {@link LinkHolder} objects which expect matrices of Type T.
+	 * Get the {@link Pool} which provides {@link LinkHolder} objects which expect matrices of Type
+	 * T.
 	 * 
 	 * @param size Number of links in each {@link LinkHolder}
 	 * @return Pool of {@link LinkHolder} objects
@@ -392,15 +396,16 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> implement
 			Map<T, LinkHolder<T>> matrixSet);
 
 	/**
-	 * Check whether we need to mutate the vertex at the specified index, or whether that mutation has
-	 * already been considered.
+	 * Check whether we need to mutate the vertex at the specified index, or whether that mutation
+	 * has already been considered.
 	 * 
 	 * @param matrix Matrix to check
 	 * @param i Index to mutate at
 	 * @param matrixSet Map containing {@link LinkHolder} objects
 	 * @return true if should mutate at the index
 	 */
-	private boolean shouldMutateAt(final T matrix, final int i, final Map<T, LinkHolder<T>> matrixSet) {
+	private boolean shouldMutateAt(final T matrix, final int i,
+			final Map<T, LinkHolder<T>> matrixSet) {
 		LinkHolder<T> holder = matrixSet.get(matrix);
 		return holder != null && !holder.hasLink(i);
 	}
@@ -461,9 +466,10 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> implement
 
 		@Override
 		public final String toString() {
-			String.format("Handled %d matrices with %d found but not handled", numConsidered, numInMap);
-			return String.format("Handled %d matrices with %d found but not handled", numConsidered,
+			String.format("Handled %d matrices with %d found but not handled", numConsidered,
 					numInMap);
+			return String.format("Handled %d matrices with %d found but not handled",
+					numConsidered, numInMap);
 		}
 
 		/**
@@ -518,6 +524,7 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> implement
 		 * 
 		 * @param stats The Stats object which has just been updated
 		 */
+		@Override
 		public void statsUpdated(final AbstractMutClassSizeTask<?>.Stats stats) {
 			log.debug(stats.toString());
 		}

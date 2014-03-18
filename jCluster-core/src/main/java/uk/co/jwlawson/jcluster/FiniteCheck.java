@@ -49,8 +49,14 @@ public class FiniteCheck implements MatrixTask<QuiverMatrix> {
 	public MatrixInfo call() throws Exception {
 		MatrixInfo result = tryFastCheck();
 		if (!result.hasFiniteSet()) {
-			MatrixInfo size = tryMutClassTask();
-			result.combine(size);
+			MatrixInfo sizeInfo = tryMutClassTask();
+			int size = sizeInfo.getEquivMutationClassSize();
+			if (size == -1) {
+				result.setFinite(false);
+			} else {
+				result.setEquivMutationClassSize(size);
+				result.setFinite(true);
+			}
 		}
 		return result;
 	}
@@ -81,5 +87,8 @@ public class FiniteCheck implements MatrixTask<QuiverMatrix> {
 		}
 		return mSlowCheck.call();
 	}
+
+	@Override
+	public void requestStop() {}
 
 }

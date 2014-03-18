@@ -34,6 +34,8 @@ public class MatrixInfo {
 	private Optional<Boolean> minMutInf = Optional.absent();
 	/** The dynkin diagram the matrix is (if any). */
 	private Optional<DynkinDiagram> diagram = Optional.absent();
+	/** Whether all submatrices are finite. */
+	private Optional<Boolean> submatricesFinite = Optional.absent();
 
 	/**
 	 * Create a new MatrixInfo for the provided matrix.
@@ -162,8 +164,8 @@ public class MatrixInfo {
 	}
 
 	/**
-	 * Set the size of the mutation class up to reordering rows and columns without setting any of the
-	 * side effects.
+	 * Set the size of the mutation class up to reordering rows and columns without setting any of
+	 * the side effects.
 	 * 
 	 * @param classSize Size of the mutation class
 	 */
@@ -199,12 +201,14 @@ public class MatrixInfo {
 		if (result) {
 			noSideSetFinite(false);
 			noSideSetMutationClassSize(-1);
+			setAllSubmatricesFinite(true);
 		}
 		noSideSetMinMutInf(result);
 	}
 
 	/**
-	 * Set whether the matrix is minimally mutation infinite without setting any of the side effects.
+	 * Set whether the matrix is minimally mutation infinite without setting any of the side
+	 * effects.
 	 * 
 	 * @param result true if the matrix is minimally mutation infinite
 	 */
@@ -265,10 +269,11 @@ public class MatrixInfo {
 	 * Combine the info on the matrix stored in the two MatrixInfo objects.
 	 * 
 	 * @param info MatrixInfo object containing information about the same matrix
-	 * @throws IllegalArgumentException if {@code info} contains information about a different matrix
+	 * @throws IllegalArgumentException if {@code info} contains information about a different
+	 *         matrix
 	 */
 	public void combine(final MatrixInfo info) {
-		if (!matrix.equals(info.matrix)) {
+		if (IntMatrix.areEqual(matrix, info.matrix)) {
 			throw new IllegalArgumentException(
 					"Cannot combine two MatrixInfo objects with different matrices");
 		}
@@ -287,5 +292,36 @@ public class MatrixInfo {
 		if (!hasDynkinDiagram() && info.hasDynkinDiagram()) {
 			noSideSetDynkinDiagram(info.getDynkinDiagram());
 		}
+		if (!hasAllSubmatricesFinite() && info.hasAllSubmatricesFinite()) {
+			setAllSubmatricesFinite(info.getAllSubmatricesFinite());
+		}
+	}
+
+	/**
+	 * Check whether it is known if all submatrices are finite.
+	 * 
+	 * @return true if all submatrices are finite
+	 */
+	public boolean hasAllSubmatricesFinite() {
+		return submatricesFinite.isPresent();
+	}
+
+	/**
+	 * Get whether all submatrices are finite.
+	 * 
+	 * @return true if they are
+	 * @throws IllegalStateException if not known
+	 */
+	public boolean getAllSubmatricesFinite() {
+		return submatricesFinite.get();
+	}
+
+	/**
+	 * Set the value of whether all submatrices are finite.
+	 * 
+	 * @param allFinite Value to set
+	 */
+	public void setAllSubmatricesFinite(boolean allFinite) {
+		submatricesFinite = Optional.of(allFinite);
 	}
 }

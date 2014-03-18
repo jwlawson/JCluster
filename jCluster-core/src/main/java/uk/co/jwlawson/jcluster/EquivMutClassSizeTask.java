@@ -63,6 +63,12 @@ public class EquivMutClassSizeTask extends MutClassSizeTask<EquivQuiverMatrix> {
 	}
 
 	@Override
+	public void reset() {
+		super.reset();
+		mList.clear();
+	}
+
+	@Override
 	protected MatrixInfo handleResult(final MatrixInfo info, final int result) {
 		info.setEquivMutationClassSize(result);
 		return info;

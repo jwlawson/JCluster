@@ -1,9 +1,9 @@
 /**
  * Copyright 2014 John Lawson
  * 
- * FastInfiniteCheckTest.java is part of JCluster. Licensed under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance with the License. You may obtain a
- * copy of the License at
+ * FastInfiniteCheckTest.java is part of JCluster. Licensed under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the License. You may obtain
+ * a copy of the License at
  * 
  * http://www.apache.org/licenses/LICENSE-2.0
  * 
@@ -15,6 +15,7 @@
 package uk.co.jwlawson.jcluster;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
@@ -69,5 +70,20 @@ public class FastInfiniteCheckTest {
 		}
 
 		threadPool.shutdown();
+	}
+
+	@Test
+	public void testInf() {
+		QuiverMatrix mat =
+				new QuiverMatrix(4, 4, 0, 1, 0, 0, -1, 0, 1, 1, 0, -1, 0, 1, 0, -1, -1, 0);
+		FastInfiniteCheck task = new FastInfiniteCheck(mat);
+
+		try {
+			MatrixInfo info = task.call();
+			assertTrue(info.hasFiniteSet());
+			assertFalse(info.isFinite());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }

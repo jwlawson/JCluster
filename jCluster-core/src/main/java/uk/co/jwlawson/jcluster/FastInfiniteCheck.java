@@ -56,11 +56,13 @@ public class FastInfiniteCheck implements MatrixTask<QuiverMatrix> {
 	}
 
 	/** {@inheritDoc} */
+	@Override
 	public void setMatrix(final QuiverMatrix matrix) {
 		mMatrix = matrix;
 	}
 
 	/** {@inheritDoc} */
+	@Override
 	public void reset() {}
 
 	/**
@@ -78,6 +80,7 @@ public class FastInfiniteCheck implements MatrixTask<QuiverMatrix> {
 	 * @return MatrixInfo object containing the result of the calculation
 	 * @throws Exception if something goes wrong
 	 */
+	@Override
 	public MatrixInfo call() throws Exception {
 		MatrixInfo result = new MatrixInfo(mMatrix);
 		if (isInfinte()) {
@@ -97,7 +100,8 @@ public class FastInfiniteCheck implements MatrixTask<QuiverMatrix> {
 	 */
 	private boolean isInfinte() {
 		Pool<QuiverMatrix> matrixPool =
-				Pools.getQuiverMatrixPool(mMatrix.getNumRows(), mMatrix.getNumCols(), QuiverMatrix.class);
+				Pools.getQuiverMatrixPool(mMatrix.getNumRows(), mMatrix.getNumCols(),
+						QuiverMatrix.class);
 
 		try {
 			// All 2x2 matrices are mutation finite
@@ -149,4 +153,7 @@ public class FastInfiniteCheck implements MatrixTask<QuiverMatrix> {
 		 */
 		void matrixChecked(QuiverMatrix matrix);
 	}
+
+	@Override
+	public void requestStop() {}
 }

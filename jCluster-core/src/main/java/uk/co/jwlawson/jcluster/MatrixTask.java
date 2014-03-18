@@ -38,11 +38,19 @@ public interface MatrixTask<T extends QuiverMatrix> extends Callable<MatrixInfo>
 	void reset();
 
 	/**
+	 * Request the task to stop. Used if the required result has been found and the calculation does
+	 * not need to be run further.
+	 */
+	void requestStop();
+
+
+	/**
 	 * Perform the calculation on the matrix.
 	 * 
 	 * @return MatrixInfo object containing the result of the calculation
 	 * @throws Exception if an error is encountered during the calculation
 	 */
+	@Override
 	MatrixInfo call() throws Exception;
 
 }

@@ -14,11 +14,16 @@
  */
 package uk.co.jwlawson.jcluster;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * @author John Lawson
  * 
  */
 public class VariableCompletionHandler<V> extends CompletionHandler<V> {
+
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	private int numUnhandled;
 	private boolean waitIfEmpty = false;
@@ -35,19 +40,22 @@ public class VariableCompletionHandler<V> extends CompletionHandler<V> {
 				notify();
 			}
 		}
-
+		log.trace("Task added");
 	}
 
+	@Override
 	public void run() {
 		while (numUnhandled > 0 || waitIfEmpty) {
 
 			if (numUnhandled == 0) {
-				synchronized (this) {
-					try {
+				log.debug("Waiting for new tasks");
+
+				try {
+					synchronized (this) {
 						wait();
-					} catch (InterruptedException e) {
-						e.printStackTrace();
 					}
+				} catch (InterruptedException e) {
+					log.error("Interrupt", e);
 				}
 			}
 
@@ -56,6 +64,7 @@ public class VariableCompletionHandler<V> extends CompletionHandler<V> {
 			synchronized (this) {
 				numUnhandled--;
 			}
+			log.trace("Task handled");
 		}
 
 	}
