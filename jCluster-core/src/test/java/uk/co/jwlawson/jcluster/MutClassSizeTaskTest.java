@@ -114,4 +114,24 @@ public class MutClassSizeTaskTest {
 		}
 	}
 
+	@Test
+	public void testInf() {
+		QuiverMatrix mat =
+				new QuiverMatrix(4, 4, 0, 1, 0, 0, -1, 0, 1, 1, 0, -1, 0, 1, 0, -1, -1, 0);
+		MutClassSizeTask<QuiverMatrix> task = new MutClassSizeTask<QuiverMatrix>(mat);
+		ExecutorService exec = Executors.newSingleThreadExecutor();
+
+		Future<MatrixInfo> future = exec.submit(task);
+		try {
+			int value = future.get().getMutationClassSize();
+			assertEquals(-1, value);
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		} catch (ExecutionException e) {
+			throw new RuntimeException(e);
+		} finally {
+			exec.shutdown();
+		}
+	}
+
 }

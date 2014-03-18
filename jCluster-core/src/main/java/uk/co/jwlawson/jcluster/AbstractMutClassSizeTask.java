@@ -184,6 +184,8 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> implement
 							}
 						} else {
 							if (newMatrix.isInfinite()) {
+								log.debug("Infinite matrix found {} in classs of {}", newMatrix,
+										mInitialMatrix);
 								return INFINITE;
 							}
 							handleUnseenMatrix(matrixSet, incompleteQuivers, holderPool, mat,

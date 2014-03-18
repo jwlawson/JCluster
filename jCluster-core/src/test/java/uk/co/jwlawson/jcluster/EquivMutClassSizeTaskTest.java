@@ -16,8 +16,12 @@ package uk.co.jwlawson.jcluster;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -73,7 +77,6 @@ public class EquivMutClassSizeTaskTest {
 		}
 	}
 
-	@Ignore("Takes over 10 seconds")
 	@Test
 	public void testD7() {
 		QuiverMatrix matrix = DynkinDiagram.D7.getMatrix();
@@ -100,7 +103,6 @@ public class EquivMutClassSizeTaskTest {
 		}
 	}
 
-	@Ignore("Takes over 12 seconds")
 	@Test
 	public void testA7() {
 		QuiverMatrix matrix = DynkinDiagram.A7.getMatrix();
@@ -114,7 +116,6 @@ public class EquivMutClassSizeTaskTest {
 		}
 	}
 
-//	@Ignore("Takes over 30 seconds")
 	@Test
 	public void testE7() {
 		QuiverMatrix matrix = DynkinDiagram.E7.getMatrix();
@@ -127,4 +128,25 @@ public class EquivMutClassSizeTaskTest {
 			throw new RuntimeException(e);
 		}
 	}
+
+	@Test
+	public void testInf() {
+		EquivQuiverMatrix mat =
+				new EquivQuiverMatrix(4, 0, 1, 0, 0, -1, 0, 1, 1, 0, -1, 0, 1, 0, -1, -1, 0);
+		EquivMutClassSizeTask task = new EquivMutClassSizeTask(mat);
+		ExecutorService exec = Executors.newSingleThreadExecutor();
+
+		Future<MatrixInfo> future = exec.submit(task);
+		try {
+			int value = future.get().getEquivMutationClassSize();
+			assertEquals(-1, value);
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		} catch (ExecutionException e) {
+			throw new RuntimeException(e);
+		} finally {
+			exec.shutdown();
+		}
+	}
+
 }

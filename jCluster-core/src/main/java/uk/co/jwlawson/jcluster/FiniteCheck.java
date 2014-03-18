@@ -68,6 +68,7 @@ public class FiniteCheck implements MatrixTask<QuiverMatrix> {
 	 * @throws Exception if something goes wrong
 	 */
 	private MatrixInfo tryFastCheck() throws Exception {
+		mFastCheck.reset();
 		mFastCheck.setMatrix(mMatrix);
 		return mFastCheck.call();
 	}
