@@ -68,7 +68,7 @@ public class ArrayCompletionResultQueue<T> implements CompletionResultQueue<T> {
 		try {
 			queue.put(result);
 		} catch (InterruptedException e) {
-			log.error("Thread interrupted", e);
+			log.error("Thread interrupted {}", Thread.currentThread().getName(), e);
 		}
 	}
 
@@ -86,8 +86,8 @@ public class ArrayCompletionResultQueue<T> implements CompletionResultQueue<T> {
 		try {
 			return queue.poll(1, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
-			log.info("Thread interrupted while fetching result. Interrupted: {}",
-					Thread.interrupted(), e);
+			log.info("Thread {} interrupted while fetching result. Interrupted: {}", Thread
+					.currentThread().getName(), Thread.interrupted(), e);
 			return null;
 		}
 	}

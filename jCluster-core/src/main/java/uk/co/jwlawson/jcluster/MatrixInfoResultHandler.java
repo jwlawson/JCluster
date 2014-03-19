@@ -38,8 +38,6 @@ public abstract class MatrixInfoResultHandler implements Callable<MatrixInfo> {
 	private boolean waiting = false;
 	/** Initial matrix. */
 	private final MatrixInfo mInitial;
-	/** Thread that is taking results from the queue. */
-	private Thread mConsumerThread;
 
 	/** Task creating the results. */
 	@Nullable
@@ -125,9 +123,12 @@ public abstract class MatrixInfoResultHandler implements Callable<MatrixInfo> {
 	@Override
 	public MatrixInfo call() throws Exception {
 		log.debug("Result handler started");
-		mConsumerThread = Thread.currentThread();
 		while (mQueue.hasResult() || running) {
 
+			/*
+			 * TODO This is a really bad way of doing this. Using interrupts would be better but seems to
+			 * cause problems.
+			 */
 			if (!mQueue.hasResult()) {
 				try {
 					log.debug("Sleeping");
@@ -137,6 +138,7 @@ public abstract class MatrixInfoResultHandler implements Callable<MatrixInfo> {
 						waiting = false;
 					}
 				} catch (InterruptedException e) {
+					log.debug("Caught interrupt in thread {}", Thread.currentThread().getName());
 				}
 			} else {
 
@@ -148,9 +150,8 @@ public abstract class MatrixInfoResultHandler implements Callable<MatrixInfo> {
 						log.trace("Queue pop result timed out");
 					}
 				} catch (InterruptedException e) {
-					waiting = false;
-					log.info("Thread interrupted. Running: {}. Is interrupted: {}", running,
-							Thread.interrupted(), e);
+					log.info("Caught interrupt in thread {}. Running: {}", Thread.currentThread().getName(),
+							running, e);
 				}
 			}
 		}

@@ -65,9 +65,9 @@ public abstract class CompletionHandler<V> implements Runnable {
 			V result = future.get();
 			log.debug("Result pushed to queue {}", result);
 			queue.pushResult(result);
+
 		} catch (InterruptedException e) {
-			log.error("{} interrupted", getClass().getSimpleName(), e);
-			Thread.currentThread().interrupt();
+			log.error("Caught interrupt in thread {}", Thread.currentThread().getName(), e);
 		} catch (ExecutionException e) {
 			log.error("Exception in executing task", e);
 			throw new RuntimeException("Exception in executing task", e);

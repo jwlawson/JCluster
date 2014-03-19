@@ -19,6 +19,9 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import uk.co.jwlawson.jcluster.MutClassSizeTask.NewMatrixSeenListener;
 import uk.co.jwlawson.jcluster.pool.Pool;
 
@@ -31,6 +34,8 @@ import com.google.common.base.Preconditions;
 public class RunMutationClass extends RunMultipleTask<EquivQuiverMatrix> implements
 		NewMatrixSeenListener<EquivQuiverMatrix> {
 
+	private final Logger log = LoggerFactory.getLogger(getClass());
+
 	public static RunMutationClass getInstance(EquivQuiverMatrix matrix) {
 		return Builder.builder().withInitial(matrix).build();
 	}
@@ -42,7 +47,6 @@ public class RunMutationClass extends RunMultipleTask<EquivQuiverMatrix> impleme
 	private final BlockingQueue<EquivQuiverMatrix> mQueue;
 	private boolean mRunning = true;
 	private boolean mWaiting = false;
-	private final int mNumSeen = 0;
 
 	protected RunMutationClass(Builder<?> builder) {
 		super(builder);
@@ -75,6 +79,7 @@ public class RunMutationClass extends RunMultipleTask<EquivQuiverMatrix> impleme
 				submitTaskFor(mat);
 			} catch (InterruptedException e) {
 				// No more matrices to wait for
+				log.debug("Caught interrupt in thread {}", Thread.currentThread().getName());
 			}
 		}
 		calcThread.shutdown();
@@ -87,6 +92,7 @@ public class RunMutationClass extends RunMultipleTask<EquivQuiverMatrix> impleme
 			m.set(matrix);
 			mQueue.put(m);
 		} catch (InterruptedException e) {
+			log.debug("Caught interrupt in thread {}", Thread.currentThread().getName());
 		}
 	}
 
@@ -95,7 +101,8 @@ public class RunMutationClass extends RunMultipleTask<EquivQuiverMatrix> impleme
 	public void allMatricesSeen() {
 		mRunning = false;
 		if (mWaiting) {
-			System.out.println("Interrupting");
+			log.debug("Interrupting thread {} from thread {}", mSubmittingThread.getName(), Thread
+					.currentThread().getName());
 			mSubmittingThread.interrupt();
 		}
 	}
@@ -127,8 +134,8 @@ public class RunMutationClass extends RunMultipleTask<EquivQuiverMatrix> impleme
 
 			if (mPool == null) {
 				Pool<EquivQuiverMatrix> pool =
-						Pools.getQuiverMatrixPool(mInitial.getNumRows() - 1,
-								mInitial.getNumCols() - 1, EquivQuiverMatrix.class);
+						Pools.getQuiverMatrixPool(mInitial.getNumRows() - 1, mInitial.getNumCols() - 1,
+								EquivQuiverMatrix.class);
 				mPool = pool;
 			}
 			return this;
@@ -139,6 +146,11 @@ public class RunMutationClass extends RunMultipleTask<EquivQuiverMatrix> impleme
 			return new RunMutationClass(this);
 		}
 
+		/*
+		 * Not too sure why this throws a check warning. The implementation is overloading a method
+		 * which returns Builder<V,S> but here the V is fixed, so we lose a type.
+		 */
+		@SuppressWarnings("unchecked")
 		public static Builder<?> builder() {
 			return new Builder2();
 		}

@@ -86,7 +86,7 @@ public class VariableCompletionHandler<V> extends CompletionHandler<V> {
 						log.trace("Handler woken");
 						waiting = false;
 					} catch (InterruptedException e) {
-						log.info("Thread {} interrupted, {}", Thread.currentThread(), e);
+						log.info("Thread {} interrupted", Thread.currentThread().getName(), e);
 					}
 				}
 			} else {
