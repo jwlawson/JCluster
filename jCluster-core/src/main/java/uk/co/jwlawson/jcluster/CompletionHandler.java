@@ -60,6 +60,7 @@ public abstract class CompletionHandler<V> implements Runnable {
 	protected void handleNextTask() {
 		Future<V> future;
 		try {
+			log.debug("Waiting for new result to queue up");
 			future = service.take();
 			V result = future.get();
 			log.debug("Result pushed to queue {}", result);
@@ -72,5 +73,4 @@ public abstract class CompletionHandler<V> implements Runnable {
 			throw new RuntimeException("Exception in executing task", e);
 		}
 	}
-
 }

@@ -74,6 +74,7 @@ public class VariableCompletionHandler<V> extends CompletionHandler<V> {
 	@Override
 	public void run() {
 		while (numUnhandled > 0 || waitIfEmpty) {
+			log.trace("Running. unhandled:{} Wait:{}", numUnhandled, waitIfEmpty);
 
 			if (numUnhandled == 0) {
 				log.trace("Waiting for new tasks");
@@ -84,18 +85,18 @@ public class VariableCompletionHandler<V> extends CompletionHandler<V> {
 						wait();
 						log.trace("Handler woken");
 						waiting = false;
-						break;
-						// Break here as don't know if we were woken as a new task was added or if
-						// the handler was told not to wait for any new tasks.
 					} catch (InterruptedException e) {
 						log.info("Thread {} interrupted, {}", Thread.currentThread(), e);
 					}
 				}
-			}
-			handleNextTask();
+			} else {
+				log.debug("Handling task");
+				handleNextTask();
+				log.debug("Task handled");
 
-			synchronized (this) {
-				numUnhandled--;
+				synchronized (this) {
+					numUnhandled--;
+				}
 			}
 		}
 		log.debug("Handler finished");
