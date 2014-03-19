@@ -380,8 +380,9 @@ public abstract class AbstractMutClassSizeTask<T extends QuiverMatrix> implement
 	 * @param newMatrix Unseen matrix
 	 * @param i Index mutated at to get unseen matrix
 	 */
-	protected abstract void handleUnseenMatrix(Map<T, LinkHolder<T>> matrixSet,
-			Queue<T> incompleteQuivers, Pool<LinkHolder<T>> holderPool, T mat, T newMatrix, int i);
+	protected abstract void handleUnseenMatrix(final Map<T, LinkHolder<T>> matrixSet,
+			final Queue<T> incompleteQuivers, final Pool<LinkHolder<T>> holderPool, final T mat,
+			final T newMatrix, final int i);
 
 	/**
 	 * Check whether the matrix has been seen before in the mutation process.

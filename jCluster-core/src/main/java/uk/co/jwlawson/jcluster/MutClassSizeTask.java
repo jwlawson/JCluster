@@ -14,6 +14,8 @@
  */
 package uk.co.jwlawson.jcluster;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,6 +33,8 @@ import uk.co.jwlawson.jcluster.pool.Pool;
  */
 public class MutClassSizeTask<T extends QuiverMatrix> extends AbstractMutClassSizeTask<T> {
 
+	private final List<NewMatrixSeenListener<T>> mListeners;
+
 	/**
 	 * Create a new instance with the specified initial matrix.
 	 * 
@@ -39,6 +43,11 @@ public class MutClassSizeTask<T extends QuiverMatrix> extends AbstractMutClassSi
 	public MutClassSizeTask(final T matrix) {
 		super(matrix);
 		setIterationsBetweenStats(50000);
+		mListeners = new ArrayList<MutClassSizeTask.NewMatrixSeenListener<T>>(2);
+	}
+
+	public void addNewMatrixListener(NewMatrixSeenListener<T> listener) {
+		mListeners.add(listener);
 	}
 
 	@Override
@@ -69,6 +78,9 @@ public class MutClassSizeTask<T extends QuiverMatrix> extends AbstractMutClassSi
 	protected void handleUnseenMatrix(final Map<T, LinkHolder<T>> matrixSet,
 			final Queue<T> incompleteQuivers, final Pool<LinkHolder<T>> holderPool, final T mat,
 			final T newMatrix, final int i) {
+		for (NewMatrixSeenListener<T> lis : mListeners) {
+			lis.newMatrixSeen(newMatrix);
+		}
 		incompleteQuivers.add(newMatrix);
 		LinkHolder<T> newHolder = holderPool.getObj();
 		newHolder.setMatrix(newMatrix);
@@ -101,10 +113,34 @@ public class MutClassSizeTask<T extends QuiverMatrix> extends AbstractMutClassSi
 	protected void teardown(final Pool<T> quiverPool, final Pool<LinkHolder<T>> holderPool,
 			final Map<T, LinkHolder<T>> matrixSet) {
 
+		for (NewMatrixSeenListener<T> lis : mListeners) {
+			lis.allMatricesSeen();
+		}
 		for (T matrix : matrixSet.keySet()) {
 			LinkHolder<T> holder = matrixSet.remove(matrix);
 			holderPool.returnObj(holder);
 			quiverPool.returnObj(matrix);
 		}
+	}
+
+	/**
+	 * Get a callback each time a new matrix is seen in the computation of the mutation class.
+	 * 
+	 * @author John Lawson
+	 * 
+	 */
+	public interface NewMatrixSeenListener<T extends QuiverMatrix> {
+
+		/**
+		 * Called when a new matrix is computed.
+		 * 
+		 * @param matrix
+		 */
+		void newMatrixSeen(final T matrix);
+
+		/**
+		 * Called once the mutation class is complete and all matrices have been seen.
+		 */
+		void allMatricesSeen();
 	}
 }
