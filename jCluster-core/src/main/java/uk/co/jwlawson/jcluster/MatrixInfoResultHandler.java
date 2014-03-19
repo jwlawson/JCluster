@@ -83,8 +83,8 @@ public abstract class MatrixInfoResultHandler implements Callable<MatrixInfo> {
 	/**
 	 * Request that the overlying task stops if it has been set.
 	 * <p>
-	 * This should be used if the results from the calculations carried out so far has determined
-	 * the final information required, so no further calculations are required.
+	 * This should be used if the results from the calculations carried out so far has determined the
+	 * final information required, so no further calculations are required.
 	 */
 	protected void requestStop() {
 		if (task != null) {
@@ -107,8 +107,8 @@ public abstract class MatrixInfoResultHandler implements Callable<MatrixInfo> {
 	protected abstract MatrixInfo getFinal();
 
 	/**
-	 * Inform the handler that all results have been queued, so once the queue is empty there will
-	 * be no more.
+	 * Inform the handler that all results have been queued, so once the queue is empty there will be
+	 * no more.
 	 */
 	public void allResultsQueued() {
 		running = false;
@@ -124,32 +124,34 @@ public abstract class MatrixInfoResultHandler implements Callable<MatrixInfo> {
 
 	@Override
 	public MatrixInfo call() throws Exception {
+		log.debug("Result handler started");
 		mConsumerThread = Thread.currentThread();
 		while (mQueue.hasResult() || running) {
 
 			if (!mQueue.hasResult()) {
 				try {
+					log.debug("Sleeping");
 					synchronized (this) {
 						waiting = true;
 						wait(100);
 						waiting = false;
-						break;
 					}
 				} catch (InterruptedException e) {
 				}
-			}
+			} else {
 
-			try {
-				MatrixInfo info = mQueue.popResult();
-				if (info != null) {
-					handleResult(info);
-				} else {
-					log.trace("Queue pop result timed out");
+				try {
+					MatrixInfo info = mQueue.popResult();
+					if (info != null) {
+						handleResult(info);
+					} else {
+						log.trace("Queue pop result timed out");
+					}
+				} catch (InterruptedException e) {
+					waiting = false;
+					log.info("Thread interrupted. Running: {}. Is interrupted: {}", running,
+							Thread.interrupted(), e);
 				}
-			} catch (InterruptedException e) {
-				waiting = false;
-				log.info("Thread interrupted. Running: {}. Is interrupted: {}", running,
-						Thread.interrupted(), e);
 			}
 		}
 		return getFinal();

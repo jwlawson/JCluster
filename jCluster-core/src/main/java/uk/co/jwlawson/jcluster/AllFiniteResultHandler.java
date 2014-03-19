@@ -34,6 +34,7 @@ public class AllFiniteResultHandler extends MatrixInfoResultHandler {
 
 	@Override
 	protected void handleResult(MatrixInfo matrix) {
+		log.debug("Handling result for matrix {}", matrix.getMatrix());
 		if (!matrix.hasFiniteSet()) {
 			throw new IllegalStateException("Cannot handle result which is unknown");
 		}
@@ -46,6 +47,7 @@ public class AllFiniteResultHandler extends MatrixInfoResultHandler {
 
 	@Override
 	protected MatrixInfo getFinal() {
+		log.debug("Final info requested");
 		MatrixInfo info = getInitial();
 		info.setAllSubmatricesFinite(allFinite);
 		return info;

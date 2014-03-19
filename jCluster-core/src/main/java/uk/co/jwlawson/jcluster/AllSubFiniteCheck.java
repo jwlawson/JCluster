@@ -22,8 +22,9 @@ package uk.co.jwlawson.jcluster;
  */
 public class AllSubFiniteCheck<T extends QuiverMatrix> extends RunSubmatrices<T> {
 
+	@SuppressWarnings("unchecked")
 	public static <S extends QuiverMatrix> AllSubFiniteCheck<S> getInstance(S matrix) {
-		return Builder.builder().withInitial(matrix).build(matrix);
+		return (AllSubFiniteCheck<S>) Builder.builder().withInitial(matrix).build();
 	}
 
 	public AllSubFiniteCheck(Builder<T, ?> builder) {
@@ -61,10 +62,6 @@ public class AllSubFiniteCheck<T extends QuiverMatrix> extends RunSubmatrices<T>
 			return new AllSubFiniteCheck<T>(this);
 		}
 
-		@SuppressWarnings("unchecked")
-		private <S extends QuiverMatrix> AllSubFiniteCheck<S> build(S matrix) {
-			return new AllSubFiniteCheck<S>((Builder<S, ?>) this);
-		}
 
 		public static <T extends QuiverMatrix> Builder<T, ?> builder() {
 			return new Builder2<T>();
