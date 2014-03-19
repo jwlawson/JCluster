@@ -83,7 +83,13 @@ public class ArrayCompletionResultQueue<T> implements CompletionResultQueue<T> {
 	@Override
 	@Nullable
 	public T popResult() throws InterruptedException {
-		return queue.poll(1, TimeUnit.SECONDS);
+		try {
+			return queue.poll(1, TimeUnit.SECONDS);
+		} catch (InterruptedException e) {
+			log.info("Thread interrupted while fetching result. Interrupted: {}",
+					Thread.interrupted(), e);
+			return null;
+		}
 	}
 
 	/**

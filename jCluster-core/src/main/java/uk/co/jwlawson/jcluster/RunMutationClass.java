@@ -14,6 +14,7 @@
  */
 package uk.co.jwlawson.jcluster;
 
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -38,13 +39,16 @@ public class RunMutationClass extends RunMultipleTask<EquivQuiverMatrix> impleme
 	private final EquivMutClassSizeTask mTask;
 	private final Pool<EquivQuiverMatrix> mPool;
 	private Thread mSubmittingThread;
-	private BlockingQueue<EquivQuiverMatrix> mQueue;
-	private boolean mRunning;
+	private final BlockingQueue<EquivQuiverMatrix> mQueue;
+	private boolean mRunning = true;
+	private boolean mWaiting = false;
+	private final int mNumSeen = 0;
 
 	protected RunMutationClass(Builder<?> builder) {
 		super(builder);
 		mMatrix = builder.mInitial;
 		mPool = builder.mPool;
+		mQueue = new ArrayBlockingQueue<EquivQuiverMatrix>(10);
 
 		mTask = new EquivMutClassSizeTask(mMatrix);
 		mTask.addNewMatrixListener(this);
@@ -63,9 +67,11 @@ public class RunMutationClass extends RunMultipleTask<EquivQuiverMatrix> impleme
 		ExecutorService calcThread = Executors.newSingleThreadExecutor();
 		calcThread.submit(mTask);
 
-		while (mRunning) {
+		while (!mQueue.isEmpty() || mRunning) {
 			try {
+				mWaiting = true;
 				EquivQuiverMatrix mat = mQueue.take();
+				mWaiting = false;
 				submitTaskFor(mat);
 			} catch (InterruptedException e) {
 				// No more matrices to wait for
@@ -88,7 +94,10 @@ public class RunMutationClass extends RunMultipleTask<EquivQuiverMatrix> impleme
 	@Override
 	public void allMatricesSeen() {
 		mRunning = false;
-		mSubmittingThread.interrupt();
+		if (mWaiting) {
+			System.out.println("Interrupting");
+			mSubmittingThread.interrupt();
+		}
 	}
 
 

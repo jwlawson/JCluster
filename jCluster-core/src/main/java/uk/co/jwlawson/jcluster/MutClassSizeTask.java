@@ -20,6 +20,9 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import uk.co.jwlawson.jcluster.pool.Pool;
 
 /**
@@ -44,6 +47,7 @@ public class MutClassSizeTask<T extends QuiverMatrix> extends AbstractMutClassSi
 		super(matrix);
 		setIterationsBetweenStats(50000);
 		mListeners = new ArrayList<MutClassSizeTask.NewMatrixSeenListener<T>>(2);
+		mListeners.add(new NewMatrixLogger());
 	}
 
 	public void addNewMatrixListener(NewMatrixSeenListener<T> listener) {
@@ -142,5 +146,21 @@ public class MutClassSizeTask<T extends QuiverMatrix> extends AbstractMutClassSi
 		 * Called once the mutation class is complete and all matrices have been seen.
 		 */
 		void allMatricesSeen();
+	}
+
+	private class NewMatrixLogger implements NewMatrixSeenListener<T> {
+
+		private final Logger log = LoggerFactory.getLogger(MutClassSizeTask.class);
+
+		@Override
+		public void newMatrixSeen(T matrix) {
+			log.trace("New matrix seen {}", matrix);
+		}
+
+		@Override
+		public void allMatricesSeen() {
+			log.trace("All matrices seen. Mutation class complete.");
+		}
+
 	}
 }

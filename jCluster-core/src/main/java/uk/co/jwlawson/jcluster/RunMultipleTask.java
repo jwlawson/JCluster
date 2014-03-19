@@ -88,11 +88,20 @@ public abstract class RunMultipleTask<T extends QuiverMatrix> implements MatrixT
 
 		handlerThread.join();
 		mResultHandler.allResultsQueued();
-		log.debug("Thread interrupting");
-		resultThread.shutdownNow();
+
 		log.debug("All results queued for handling. Waiting for result.");
 
-		return resultFuture.get();
+		if (Thread.currentThread().isInterrupted()) {
+			log.debug("The current thread is interrupted?! Clearing: {} {}", Thread.interrupted(),
+					Thread.interrupted());
+		}
+		MatrixInfo result = null;
+		try {
+			result = resultFuture.get();
+		} catch (InterruptedException e) {
+			log.debug("Caught interrupt. Info: {}", result);
+		}
+		return result;
 	}
 
 	@Override

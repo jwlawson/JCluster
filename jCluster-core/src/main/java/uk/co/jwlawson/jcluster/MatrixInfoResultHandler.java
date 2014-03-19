@@ -34,8 +34,12 @@ public abstract class MatrixInfoResultHandler implements Callable<MatrixInfo> {
 	private CompletionResultQueue<MatrixInfo> mQueue;
 	/** True if the task is still creating new results. */
 	private boolean running = true;
-	/** Initial matri. */
+	/** True if currently blocking. */
+	private boolean waiting = false;
+	/** Initial matrix. */
 	private final MatrixInfo mInitial;
+	/** Thread that is taking results from the queue. */
+	private Thread mConsumerThread;
 
 	/** Task creating the results. */
 	@Nullable
@@ -109,24 +113,50 @@ public abstract class MatrixInfoResultHandler implements Callable<MatrixInfo> {
 	public void allResultsQueued() {
 		running = false;
 		mQueue.allResultsQueued();
+
+		synchronized (this) {
+			if (waiting) {
+				log.debug("Interrupting waiting for result");
+				notify();
+			}
+		}
 	}
 
 	@Override
 	public MatrixInfo call() throws Exception {
+		mConsumerThread = Thread.currentThread();
 		while (mQueue.hasResult() || running) {
+
+			if (!mQueue.hasResult()) {
+				try {
+					synchronized (this) {
+						waiting = true;
+						wait(100);
+						waiting = false;
+						break;
+					}
+				} catch (InterruptedException e) {
+				}
+			}
+
 			try {
 				MatrixInfo info = mQueue.popResult();
 				if (info != null) {
-					log.trace("Queue pop result timed out");
 					handleResult(info);
+				} else {
+					log.trace("Queue pop result timed out");
 				}
 			} catch (InterruptedException e) {
-			}
-			if (Thread.interrupted()) {
-				log.info("Thread interrupted. Running: {}", running);
+				waiting = false;
+				log.info("Thread interrupted. Running: {}. Is interrupted: {}", running,
+						Thread.interrupted(), e);
 			}
 		}
 		return getFinal();
+	}
+
+	public boolean isWaiting() {
+		return waiting;
 	}
 
 }
