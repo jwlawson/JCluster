@@ -12,12 +12,12 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package uk.co.jwlawson.jcluster;
+package uk.co.jwlawson.jcluster.data;
 
 import java.util.EnumSet;
 
 /**
- * Provides easy lookup for the matrices from non-affine Dynkin Diagrams. These matrices represent
+ *uk.co.jwlawson.jcluster.data.QuiverMatrixes from non-affine Dynkin Diagrams. These matrices represent
  * mutation-finite quivers which generate cluster algebras of finite type.
  * 
  * @author John Lawson

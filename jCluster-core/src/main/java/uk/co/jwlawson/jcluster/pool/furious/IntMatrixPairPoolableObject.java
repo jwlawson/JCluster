@@ -17,7 +17,7 @@ package uk.co.jwlawson.jcluster.pool.furious;
 import nf.fr.eraasoft.pool.PoolException;
 import nf.fr.eraasoft.pool.PoolableObject;
 import nf.fr.eraasoft.pool.PoolableObjectBase;
-import uk.co.jwlawson.jcluster.IntMatrixPair;
+import uk.co.jwlawson.jcluster.data.IntMatrixPair;
 
 /**
  * {@link PoolableObject} which provides a factory method for creating new {@link IntMatrixPair}

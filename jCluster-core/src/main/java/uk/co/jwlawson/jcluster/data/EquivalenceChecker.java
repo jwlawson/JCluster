@@ -12,7 +12,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package uk.co.jwlawson.jcluster;
+package uk.co.jwlawson.jcluster.data;
 
 import java.util.Arrays;
 
@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.co.jwlawson.jcluster.pool.Pool;
+import uk.co.jwlawson.jcluster.pool.Pools;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -88,9 +89,9 @@ public final class EquivalenceChecker {
 				 */
 				@Override
 				public Boolean load(final IntMatrixPair key) throws Exception {
-					boolean result = areUncachedEquivalent(key.a, key.b);
+					boolean result = areUncachedEquivalent(key.getA(), key.getB());
 					IntMatrixPair opp = new IntMatrixPair();
-					opp.set(key.b, key.a);
+					opp.set(key.getB(), key.getA());
 					mPermCache.put(opp, result);
 					return result;
 				}

@@ -27,6 +27,9 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.co.jwlawson.jcluster.data.MatrixInfo;
+import uk.co.jwlawson.jcluster.data.QuiverMatrix;
+
 /**
  * @author John Lawson
  * @param <T> Type of QuiverMatrix handled by tasks

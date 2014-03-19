@@ -19,11 +19,11 @@ import java.util.concurrent.Callable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.co.jwlawson.jcluster.DynkinDiagram;
 import uk.co.jwlawson.jcluster.EquivMutClassSizeTask;
-import uk.co.jwlawson.jcluster.MatrixInfo;
 import uk.co.jwlawson.jcluster.MutClassSizeTask;
-import uk.co.jwlawson.jcluster.QuiverMatrix;
+import uk.co.jwlawson.jcluster.data.DynkinDiagram;
+import uk.co.jwlawson.jcluster.data.MatrixInfo;
+import uk.co.jwlawson.jcluster.data.QuiverMatrix;
 
 /**
  * @author John Lawson

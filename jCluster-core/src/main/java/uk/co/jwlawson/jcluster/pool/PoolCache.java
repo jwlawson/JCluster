@@ -14,12 +14,12 @@
  */
 package uk.co.jwlawson.jcluster.pool;
 
-import uk.co.jwlawson.jcluster.HolderKey;
-import uk.co.jwlawson.jcluster.IntMatrixPair;
-import uk.co.jwlawson.jcluster.LinkHolder;
-import uk.co.jwlawson.jcluster.QuiverKey;
-import uk.co.jwlawson.jcluster.QuiverMatrix;
 import nf.fr.eraasoft.pool.ObjectPool;
+import uk.co.jwlawson.jcluster.data.HolderKey;
+import uk.co.jwlawson.jcluster.data.IntMatrixPair;
+import uk.co.jwlawson.jcluster.data.LinkHolder;
+import uk.co.jwlawson.jcluster.data.QuiverKey;
+import uk.co.jwlawson.jcluster.data.QuiverMatrix;
 
 /**
  * @author John Lawson

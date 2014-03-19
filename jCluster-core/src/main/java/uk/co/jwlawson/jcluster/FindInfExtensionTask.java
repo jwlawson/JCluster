@@ -23,7 +23,10 @@ import java.util.concurrent.ExecutorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.co.jwlawson.jcluster.data.MatrixInfo;
+import uk.co.jwlawson.jcluster.data.QuiverMatrix;
 import uk.co.jwlawson.jcluster.pool.Pool;
+import uk.co.jwlawson.jcluster.pool.Pools;
 
 /**
  * Task to find all mutation-infinite quivers achieved by adding vertices to the initial quiver.

@@ -14,6 +14,9 @@
  */
 package uk.co.jwlawson.jcluster;
 
+import uk.co.jwlawson.jcluster.data.MatrixInfo;
+import uk.co.jwlawson.jcluster.data.QuiverMatrix;
+
 
 
 /**

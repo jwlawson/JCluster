@@ -23,7 +23,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.co.jwlawson.jcluster.MutClassSizeTask.NewMatrixSeenListener;
+import uk.co.jwlawson.jcluster.data.EquivQuiverMatrix;
 import uk.co.jwlawson.jcluster.pool.Pool;
+import uk.co.jwlawson.jcluster.pool.Pools;
 
 import com.google.common.base.Preconditions;
 

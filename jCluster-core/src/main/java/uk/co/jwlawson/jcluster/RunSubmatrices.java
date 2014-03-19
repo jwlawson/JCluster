@@ -14,7 +14,9 @@
  */
 package uk.co.jwlawson.jcluster;
 
+import uk.co.jwlawson.jcluster.data.QuiverMatrix;
 import uk.co.jwlawson.jcluster.pool.Pool;
+import uk.co.jwlawson.jcluster.pool.Pools;
 
 import com.google.common.base.Preconditions;
 

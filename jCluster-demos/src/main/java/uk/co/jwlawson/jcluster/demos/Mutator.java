@@ -19,8 +19,8 @@ import java.util.Scanner;
 
 import org.apache.commons.lang3.math.NumberUtils;
 
-import uk.co.jwlawson.jcluster.DynkinDiagram;
-import uk.co.jwlawson.jcluster.PolynomialQuiver;
+import uk.co.jwlawson.jcluster.data.DynkinDiagram;
+import uk.co.jwlawson.jcluster.data.PolynomialQuiver;
 
 /**
  * @author John

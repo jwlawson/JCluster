@@ -14,7 +14,7 @@
  */
 package uk.co.jwlawson.jcluster.pool.multiway;
 
-import uk.co.jwlawson.jcluster.IntMatrixPair;
+import uk.co.jwlawson.jcluster.data.IntMatrixPair;
 import uk.co.jwlawson.jcluster.pool.Pool;
 
 import com.github.benmanes.multiway.LoadingMultiwayPool;
@@ -33,10 +33,12 @@ public class IntMatrixPairMultiwayPoolAdaptor implements Pool<IntMatrixPair> {
 		this.pool = pool;
 	}
 
+	@Override
 	public IntMatrixPair getObj() {
 		return pool.borrow(KEY);
 	}
 
+	@Override
 	public void returnObj(IntMatrixPair obj) {
 		pool.release(obj);
 	}

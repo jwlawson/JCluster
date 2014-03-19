@@ -14,6 +14,8 @@
  */
 package uk.co.jwlawson.jcluster;
 
+import uk.co.jwlawson.jcluster.data.QuiverMatrix;
+
 
 /**
  * Create tasks to compute information about matrices.

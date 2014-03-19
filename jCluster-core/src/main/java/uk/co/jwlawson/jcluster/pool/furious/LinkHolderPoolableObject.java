@@ -17,8 +17,8 @@ package uk.co.jwlawson.jcluster.pool.furious;
 import nf.fr.eraasoft.pool.PoolException;
 import nf.fr.eraasoft.pool.PoolableObject;
 import nf.fr.eraasoft.pool.PoolableObjectBase;
-import uk.co.jwlawson.jcluster.LinkHolder;
-import uk.co.jwlawson.jcluster.QuiverMatrix;
+import uk.co.jwlawson.jcluster.data.LinkHolder;
+import uk.co.jwlawson.jcluster.data.QuiverMatrix;
 
 /**
  * {@link PoolableObject} which provides a factory method for new {@link LinkHolder} objects.

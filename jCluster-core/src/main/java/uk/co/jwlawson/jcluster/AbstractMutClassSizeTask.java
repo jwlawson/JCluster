@@ -23,7 +23,11 @@ import java.util.Queue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.co.jwlawson.jcluster.data.LinkHolder;
+import uk.co.jwlawson.jcluster.data.MatrixInfo;
+import uk.co.jwlawson.jcluster.data.QuiverMatrix;
 import uk.co.jwlawson.jcluster.pool.Pool;
+import uk.co.jwlawson.jcluster.pool.Pools;
 
 /**
  * Abstract class which holds the main algorithm to find th size of the mutation class.

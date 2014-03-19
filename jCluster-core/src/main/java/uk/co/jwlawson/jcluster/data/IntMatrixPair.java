@@ -12,7 +12,8 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package uk.co.jwlawson.jcluster;
+package uk.co.jwlawson.jcluster.data;
+
 
 /**
  * Class to store a pair of {@link IntMatrixPair} objects. The order of the matrices is important in
@@ -23,9 +24,9 @@ package uk.co.jwlawson.jcluster;
  */
 public class IntMatrixPair {
 	/** First matrix in pair. */
-	IntMatrix a;
+	private IntMatrix a;
 	/** Second matrix in pair. */
-	IntMatrix b;
+	private IntMatrix b;
 
 	/**
 	 * Create new instance.
@@ -38,6 +39,14 @@ public class IntMatrixPair {
 	public void reset() {
 		a = null;
 		b = null;
+	}
+
+	public IntMatrix getA() {
+		return a;
+	}
+
+	public IntMatrix getB() {
+		return b;
 	}
 
 	/**

@@ -1,9 +1,9 @@
-package uk.co.jwlawson.jcluster;
+package uk.co.jwlawson.jcluster.data;
 
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
- * Key object used to lookup {@link LinkHolder} pools in the cache.
+ *uk.co.jwlawson.jcluster.data.QuiverMatrixnkHolder} pools in the cache.
  * 
  * @author John Lawson
  * 

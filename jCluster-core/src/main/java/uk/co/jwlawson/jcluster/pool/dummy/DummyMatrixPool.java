@@ -3,8 +3,8 @@ package uk.co.jwlawson.jcluster.pool.dummy;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
-import uk.co.jwlawson.jcluster.QuiverKey;
-import uk.co.jwlawson.jcluster.QuiverMatrix;
+import uk.co.jwlawson.jcluster.data.QuiverKey;
+import uk.co.jwlawson.jcluster.data.QuiverMatrix;
 import uk.co.jwlawson.jcluster.pool.Pool;
 
 public class DummyMatrixPool<T extends QuiverMatrix> implements Pool<T> {
@@ -26,6 +26,7 @@ public class DummyMatrixPool<T extends QuiverMatrix> implements Pool<T> {
 		}
 	}
 
+	@Override
 	public T getObj() {
 		try {
 			return constructor.newInstance(rows, cols);
@@ -40,6 +41,7 @@ public class DummyMatrixPool<T extends QuiverMatrix> implements Pool<T> {
 		}
 	}
 
+	@Override
 	public void returnObj(T object) {
 		object = null;
 	}

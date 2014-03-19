@@ -17,6 +17,8 @@ package uk.co.jwlawson.jcluster;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.co.jwlawson.jcluster.data.MatrixInfo;
+
 /**
  * @author John Lawson
  * 

@@ -14,8 +14,8 @@
  */
 package uk.co.jwlawson.jcluster.pool.multiway;
 
-import uk.co.jwlawson.jcluster.QuiverKey;
-import uk.co.jwlawson.jcluster.QuiverMatrix;
+import uk.co.jwlawson.jcluster.data.QuiverKey;
+import uk.co.jwlawson.jcluster.data.QuiverMatrix;
 import uk.co.jwlawson.jcluster.pool.Pool;
 
 import com.github.benmanes.multiway.LoadingMultiwayPool;
@@ -39,6 +39,7 @@ public class QuiverMatrixMultiwayPoolAdaptor<T extends QuiverMatrix> implements 
 	 * 
 	 * @see uk.co.jwlawson.jcluster.Pool#getObj()
 	 */
+	@Override
 	public T getObj() {
 		return pool.borrow(key);
 	}
@@ -48,6 +49,7 @@ public class QuiverMatrixMultiwayPoolAdaptor<T extends QuiverMatrix> implements 
 	 * 
 	 * @see uk.co.jwlawson.jcluster.Pool#returnObj(java.lang.Object)
 	 */
+	@Override
 	public void returnObj(T obj) {
 		obj.reset();
 		try {

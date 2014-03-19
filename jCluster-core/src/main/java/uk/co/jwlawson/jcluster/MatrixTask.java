@@ -16,6 +16,9 @@ package uk.co.jwlawson.jcluster;
 
 import java.util.concurrent.Callable;
 
+import uk.co.jwlawson.jcluster.data.MatrixInfo;
+import uk.co.jwlawson.jcluster.data.QuiverMatrix;
+
 /**
  * Task to compute a property of a matrix. The result will be returned in a MatrixInfo object.
  * 

@@ -12,13 +12,13 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package uk.co.jwlawson.jcluster;
+package uk.co.jwlawson.jcluster.data;
 
 import java.util.Arrays;
 
 /**
- * A QuiverMatrix where two matrices are considered equal if they are equivalent up to permutations
- * of the rows and columns.
+ * uk.co.jwlawson.jcluster.data.QuiverMatrixre considered equal if they are equivalent up to
+ * permutations of the rows and columns.
  * 
  * <p>
  * This is much harder to compute than the normal matrix equals method, so the
@@ -37,42 +37,38 @@ public class EquivQuiverMatrix extends QuiverMatrix {
 	/**
 	 * Create a new matrix with {@code rows} number of rows and {@code cols} number of columns.
 	 * 
-	 * @see uk.co.jwlawson.jcluster.QuiverMatrix#QuiverMatrix(int, int)
-	 * @param rows Number of rows in matrix
+	 * @see uk.co.jwlawson.jcluster.data.QuiverMatrix#Quiveruk of rows in matrix
 	 * @param cols Number of columns in matrix
 	 */
 	public EquivQuiverMatrix(final int rows, final int cols) {
-		this(rows);
+		super(rows, cols);
+		mChecker = EquivalenceChecker.getInstance(rows);
 	}
 
 	/**
 	 * Create a new square matrix with {@code size} rows and columns.
 	 * 
 	 * @param size Number of rows and columns
-	 * @see uk.co.jwlawson.jcluster.QuiverMatrix#QuiverMatrix(int, int)
-	 */
-	EquivQuiverMatrix(final int size) {
-		super(size, size);
-		mChecker = EquivalenceChecker.getInstance(size);
-	}
-
-	/**
-	 * Create a new square matrix with {@code size} rows and columns filled with the data provided in
-	 * {@code values}.
+	 * @see uk.co.jwlawson.jcluster.data.QuiverMatrix#Quk.co.jwlawson.jcluster.data.
+	 *      QuiverMatrixuiverMatrix(final int size) { super(size, size); mChecker =
+	 *      EquivalenceChecker.getInstance(size); }
 	 * 
-	 * @param size Number fo rows and columns
+	 *      /** Create a new square matrix with {@code size} rows and columns filled with the data
+	 *      provided in {@code values}.
+	 * 
+	 * @param size Number of rows and columns
 	 * @param values Data to store in the matrix
-	 * @see uk.co.jwlawson.jcluster.QuiverMatrix#QuiverMatrix(int, int, int...)
+	 * @see uk.co.jwlawson.jcluster.data.QuiverMatuk.co.jwlawson.jcluster.data.QuiverMatrix
 	 */
-	public EquivQuiverMatrix(final int size, final int... values) {
-		super(size, size, values);
-		mChecker = EquivalenceChecker.getInstance(size);
+	public EquivQuiverMatrix(final int rows, final int cols, final int... values) {
+		super(rows, cols, values);
+		mChecker = EquivalenceChecker.getInstance(rows);
 	}
 
 	/**
 	 * Create a new matrix which copies the values in {@code matrix}.
 	 * 
-	 * @see uk.co.jwlawson.jcluster.QuiverMatrix#QuiverMatrix(QuiverMatrix)
+	 * @see uk.co.jwlawson.jcluster.data.Quivuk.co.jwlawson.jcluster.data.QuiverMatrix
 	 * @param matrix Matrix to copy the values from
 	 */
 	public EquivQuiverMatrix(final QuiverMatrix matrix) {
@@ -110,7 +106,7 @@ public class EquivQuiverMatrix extends QuiverMatrix {
 	 * 
 	 * (non-Javadoc)
 	 * 
-	 * @see uk.co.jwlawson.jcluster.QuiverMatrix#hashCode()
+	 * @see uk.co.jwlawson.jcluster.data.QuiverMatrix
 	 */
 	@Override
 	public int hashCode() {

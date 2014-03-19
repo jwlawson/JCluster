@@ -16,8 +16,8 @@ package uk.co.jwlawson.jcluster.pool.multiway;
 
 import java.lang.reflect.Constructor;
 
-import uk.co.jwlawson.jcluster.QuiverKey;
-import uk.co.jwlawson.jcluster.QuiverMatrix;
+import uk.co.jwlawson.jcluster.data.QuiverKey;
+import uk.co.jwlawson.jcluster.data.QuiverMatrix;
 
 import com.github.benmanes.multiway.ResourceLoader;
 import com.google.common.cache.CacheBuilder;
@@ -57,6 +57,7 @@ public class QuiverMatrixResourceLoader<T extends QuiverMatrix> implements
 				});
 	}
 
+	@Override
 	public T load(QuiverKey<T> key) throws Exception {
 		Constructor<T> cons = constructorCache.get(key);
 		return cons.newInstance(key.getRows(), key.getCols());

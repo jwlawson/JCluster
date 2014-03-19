@@ -24,6 +24,12 @@ import java.util.concurrent.Future;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import uk.co.jwlawson.jcluster.data.DynkinDiagram;
+import uk.co.jwlawson.jcluster.data.EquivQuiverMatrix;
+import uk.co.jwlawson.jcluster.data.EquivalenceChecker;
+import uk.co.jwlawson.jcluster.data.MatrixInfo;
+import uk.co.jwlawson.jcluster.data.QuiverMatrix;
+
 /**
  * @author John Lawson
  * 
@@ -132,7 +138,7 @@ public class EquivMutClassSizeTaskTest {
 	@Test
 	public void testInf() {
 		EquivQuiverMatrix mat =
-				new EquivQuiverMatrix(4, 0, 1, 0, 0, -1, 0, 1, 1, 0, -1, 0, 1, 0, -1, -1, 0);
+				new EquivQuiverMatrix(4, 4, 0, 1, 0, 0, -1, 0, 1, 1, 0, -1, 0, 1, 0, -1, -1, 0);
 		EquivMutClassSizeTask task = new EquivMutClassSizeTask(mat);
 		ExecutorService exec = Executors.newSingleThreadExecutor();
 

@@ -14,11 +14,11 @@
  */
 package uk.co.jwlawson.jcluster.pool;
 
-import uk.co.jwlawson.jcluster.HolderKey;
-import uk.co.jwlawson.jcluster.IntMatrixPair;
-import uk.co.jwlawson.jcluster.LinkHolder;
-import uk.co.jwlawson.jcluster.QuiverKey;
-import uk.co.jwlawson.jcluster.QuiverMatrix;
+import uk.co.jwlawson.jcluster.data.HolderKey;
+import uk.co.jwlawson.jcluster.data.IntMatrixPair;
+import uk.co.jwlawson.jcluster.data.LinkHolder;
+import uk.co.jwlawson.jcluster.data.QuiverKey;
+import uk.co.jwlawson.jcluster.data.QuiverMatrix;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -48,6 +48,7 @@ public class PoolCacheImpl implements PoolCache {
 		poolFactory = factory;
 	}
 
+	@Override
 	public <T extends QuiverMatrix> Pool<T> getQuiverMatrixPool(QuiverKey<T> key) {
 		@SuppressWarnings("unchecked")
 		LoadingCache<QuiverKey<T>, Pool<T>> cache =
@@ -55,6 +56,7 @@ public class PoolCacheImpl implements PoolCache {
 		return cache.getUnchecked(key);
 	}
 
+	@Override
 	public <T extends QuiverMatrix> Pool<LinkHolder<T>> getHolderPool(HolderKey<T> key) {
 		@SuppressWarnings("unchecked")
 		LoadingCache<HolderKey<T>, Pool<LinkHolder<T>>> cache =
@@ -62,6 +64,7 @@ public class PoolCacheImpl implements PoolCache {
 		return cache.getUnchecked(key);
 	}
 
+	@Override
 	public Pool<IntMatrixPair> getIntMatrixPairPool() {
 		return pairPoolCache.getUnchecked(PAIR_KEY);
 	}

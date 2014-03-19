@@ -19,6 +19,11 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
+import uk.co.jwlawson.jcluster.data.EquivQuiverMatrix;
+import uk.co.jwlawson.jcluster.data.IntMatrix;
+import uk.co.jwlawson.jcluster.data.LinkHolder;
+import uk.co.jwlawson.jcluster.data.MatrixInfo;
+import uk.co.jwlawson.jcluster.data.QuiverMatrix;
 import uk.co.jwlawson.jcluster.pool.Pool;
 
 /**

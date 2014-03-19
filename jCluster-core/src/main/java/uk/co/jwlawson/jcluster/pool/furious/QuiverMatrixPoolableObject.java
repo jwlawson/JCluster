@@ -23,7 +23,7 @@ import nf.fr.eraasoft.pool.PoolableObjectBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.co.jwlawson.jcluster.QuiverMatrix;
+import uk.co.jwlawson.jcluster.data.QuiverMatrix;
 
 /**
  * Object factory required for pooling QuiverMatrix objects.

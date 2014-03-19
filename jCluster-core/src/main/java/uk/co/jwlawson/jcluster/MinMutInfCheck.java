@@ -17,6 +17,9 @@ package uk.co.jwlawson.jcluster;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.co.jwlawson.jcluster.data.MatrixInfo;
+import uk.co.jwlawson.jcluster.data.QuiverMatrix;
+
 /**
  * Check whether a matrix is minimally mutation infinite.
  * 

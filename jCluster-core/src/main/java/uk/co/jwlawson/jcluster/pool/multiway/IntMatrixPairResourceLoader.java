@@ -14,7 +14,7 @@
  */
 package uk.co.jwlawson.jcluster.pool.multiway;
 
-import uk.co.jwlawson.jcluster.IntMatrixPair;
+import uk.co.jwlawson.jcluster.data.IntMatrixPair;
 
 import com.github.benmanes.multiway.ResourceLoader;
 
@@ -24,6 +24,7 @@ import com.github.benmanes.multiway.ResourceLoader;
  */
 public class IntMatrixPairResourceLoader implements ResourceLoader<Integer, IntMatrixPair> {
 
+	@Override
 	public IntMatrixPair load(Integer key) throws Exception {
 		return new IntMatrixPair();
 	}

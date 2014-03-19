@@ -24,6 +24,10 @@ import java.util.concurrent.Future;
 
 import org.junit.Test;
 
+import uk.co.jwlawson.jcluster.data.DynkinDiagram;
+import uk.co.jwlawson.jcluster.data.MatrixInfo;
+import uk.co.jwlawson.jcluster.data.QuiverMatrix;
+
 /**
  * @author John Lawson
  * 

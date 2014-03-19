@@ -14,6 +14,10 @@
  */
 package uk.co.jwlawson.jcluster;
 
+import uk.co.jwlawson.jcluster.data.EquivQuiverMatrix;
+import uk.co.jwlawson.jcluster.data.MatrixInfo;
+import uk.co.jwlawson.jcluster.data.QuiverMatrix;
+
 /**
  * Task to check whether a matrix is mutation finite or not.
  * 

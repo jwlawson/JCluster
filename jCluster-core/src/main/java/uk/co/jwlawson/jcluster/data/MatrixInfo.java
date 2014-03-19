@@ -12,7 +12,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package uk.co.jwlawson.jcluster;
+package uk.co.jwlawson.jcluster.data;
 
 import com.google.common.base.Optional;
 
@@ -169,8 +169,8 @@ public class MatrixInfo {
 	}
 
 	/**
-	 * Set the size of the mutation class up to reordering rows and columns without setting any of
-	 * the side effects.
+	 * Set the size of the mutation class up to reordering rows and columns without setting any of the
+	 * side effects.
 	 * 
 	 * @param classSize Size of the mutation class
 	 */
@@ -211,8 +211,7 @@ public class MatrixInfo {
 	}
 
 	/**
-	 * Set whether the matrix is minimally mutation infinite without setting any of the side
-	 * effects.
+	 * Set whether the matrix is minimally mutation infinite without setting any of the side effects.
 	 * 
 	 * @param result true if the matrix is minimally mutation infinite
 	 */
@@ -273,14 +272,13 @@ public class MatrixInfo {
 	 * Combine the info on the matrix stored in the two MatrixInfo objects.
 	 * 
 	 * @param info MatrixInfo object containing information about the same matrix
-	 * @throws IllegalArgumentException if {@code info} contains information about a different
-	 *         matrix
+	 * @throws IllegalArgumentException if {@code info} contains information about a different matrix
 	 */
 	public void combine(final MatrixInfo info) {
 		if (!IntMatrix.areEqual(matrix, info.matrix)) {
 			throw new IllegalArgumentException(
-					"Cannot combine two MatrixInfo objects with different matrices. " + matrix
-							+ " and " + info.matrix);
+					"Cannot combine two MatrixInfo objects with different matrices. " + matrix + " and "
+							+ info.matrix);
 		}
 		if (!hasFiniteSet() && info.hasFiniteSet()) {
 			noSideSetFinite(info.isFinite());

@@ -12,13 +12,13 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package uk.co.jwlawson.jcluster;
+package uk.co.jwlawson.jcluster.data;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
- * Holder object to track which mutations of a {@link QuiverMatrix} have been considered.
+ *uk.co.jwlawson.jcluster.data.QuiverMatrixons of a {@link QuiverMatrix} have been considered.
  * 
  * @author John Lawson
  * 

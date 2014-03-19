@@ -14,11 +14,11 @@
  */
 package uk.co.jwlawson.jcluster.pool.dummy;
 
-import uk.co.jwlawson.jcluster.HolderKey;
-import uk.co.jwlawson.jcluster.IntMatrixPair;
-import uk.co.jwlawson.jcluster.LinkHolder;
-import uk.co.jwlawson.jcluster.QuiverKey;
-import uk.co.jwlawson.jcluster.QuiverMatrix;
+import uk.co.jwlawson.jcluster.data.HolderKey;
+import uk.co.jwlawson.jcluster.data.IntMatrixPair;
+import uk.co.jwlawson.jcluster.data.LinkHolder;
+import uk.co.jwlawson.jcluster.data.QuiverKey;
+import uk.co.jwlawson.jcluster.data.QuiverMatrix;
 import uk.co.jwlawson.jcluster.pool.Pool;
 import uk.co.jwlawson.jcluster.pool.PoolFactory;
 
@@ -28,14 +28,17 @@ import uk.co.jwlawson.jcluster.pool.PoolFactory;
  */
 public class DummyPoolFactory implements PoolFactory {
 
+	@Override
 	public <T extends QuiverMatrix> Pool<T> createQuiverPool(QuiverKey<T> key) {
 		return new DummyMatrixPool<T>(key);
 	}
 
+	@Override
 	public <T extends QuiverMatrix> Pool<LinkHolder<T>> createLinkHolderPool(HolderKey<T> key) {
 		return new DummyHolderPool<T>(key);
 	}
 
+	@Override
 	public Pool<IntMatrixPair> createIntMatrixPairPool() {
 		return new DummyPairPool();
 	}

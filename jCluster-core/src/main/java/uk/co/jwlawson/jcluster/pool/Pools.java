@@ -12,12 +12,14 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package uk.co.jwlawson.jcluster;
+package uk.co.jwlawson.jcluster.pool;
 
 import nf.fr.eraasoft.pool.ObjectPool;
-import uk.co.jwlawson.jcluster.pool.Pool;
-import uk.co.jwlawson.jcluster.pool.PoolCache;
-import uk.co.jwlawson.jcluster.pool.PoolCacheImpl;
+import uk.co.jwlawson.jcluster.data.HolderKey;
+import uk.co.jwlawson.jcluster.data.IntMatrixPair;
+import uk.co.jwlawson.jcluster.data.LinkHolder;
+import uk.co.jwlawson.jcluster.data.QuiverKey;
+import uk.co.jwlawson.jcluster.data.QuiverMatrix;
 import uk.co.jwlawson.jcluster.pool.dummy.DummyPoolFactory;
 
 /**

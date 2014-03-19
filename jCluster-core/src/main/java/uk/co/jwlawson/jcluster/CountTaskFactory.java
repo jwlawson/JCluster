@@ -16,6 +16,8 @@ package uk.co.jwlawson.jcluster;
 
 import org.apache.commons.lang3.mutable.MutableInt;
 
+import uk.co.jwlawson.jcluster.data.QuiverMatrix;
+
 /**
  * @author John Lawson
  * 

@@ -14,9 +14,9 @@
  */
 package uk.co.jwlawson.jcluster.pool.dummy;
 
-import uk.co.jwlawson.jcluster.HolderKey;
-import uk.co.jwlawson.jcluster.LinkHolder;
-import uk.co.jwlawson.jcluster.QuiverMatrix;
+import uk.co.jwlawson.jcluster.data.HolderKey;
+import uk.co.jwlawson.jcluster.data.LinkHolder;
+import uk.co.jwlawson.jcluster.data.QuiverMatrix;
 import uk.co.jwlawson.jcluster.pool.Pool;
 
 /**

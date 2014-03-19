@@ -1,9 +1,9 @@
-package uk.co.jwlawson.jcluster;
+package uk.co.jwlawson.jcluster.data;
 
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
- * Key object used to store the {@link QuiverMatrix} pools in the cache.
+ *uk.co.jwlawson.jcluster.data.QuiverMatrix QuiverMatrix} pools in the cache.
  * 
  * @author John Lawson
  * 
