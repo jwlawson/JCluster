@@ -21,10 +21,10 @@ package uk.co.jwlawson.jcluster;
  * 
  * @param <T> Type of matrix which is being checked
  */
-public class FiniteCheck implements MatrixTask<QuiverMatrix> {
+public class FiniteCheck<T extends QuiverMatrix> implements MatrixTask<T> {
 
 	/** Matrix to check. */
-	private QuiverMatrix mMatrix;
+	private T mMatrix;
 	/** Fast check task. */
 	private final FastInfiniteCheck mFastCheck;
 	/** Slower mutation class check. Loaded lazily as not always needed. */
@@ -38,7 +38,7 @@ public class FiniteCheck implements MatrixTask<QuiverMatrix> {
 	}
 
 	@Override
-	public void setMatrix(final QuiverMatrix matrix) {
+	public void setMatrix(final T matrix) {
 		mMatrix = matrix;
 	}
 

@@ -33,7 +33,7 @@ public class AllSubFiniteCheckTest {
 	public void testA4() {
 		log.debug("starting test for A4");
 		QuiverMatrix mat = DynkinDiagram.A4.getMatrix();
-		AllSubFiniteCheck<QuiverMatrix> task = new AllSubFiniteCheck<QuiverMatrix>(mat);
+		AllSubFiniteCheck<QuiverMatrix> task = AllSubFiniteCheck.getInstance(mat);
 
 		try {
 			MatrixInfo result = task.call();
@@ -47,7 +47,7 @@ public class AllSubFiniteCheckTest {
 	public void testD5() {
 		log.debug("starting test for D5");
 		QuiverMatrix mat = DynkinDiagram.D5.getMatrix();
-		AllSubFiniteCheck<QuiverMatrix> task = new AllSubFiniteCheck<QuiverMatrix>(mat);
+		AllSubFiniteCheck<QuiverMatrix> task = AllSubFiniteCheck.getInstance(mat);
 
 		try {
 			MatrixInfo result = task.call();
@@ -63,7 +63,7 @@ public class AllSubFiniteCheckTest {
 		QuiverMatrix mat =
 				new QuiverMatrix(5, 5, 0, 1, 0, 0, 1, -1, 0, 1, 1, 0, 0, -1, 0, 1, 0, 0, -1, -1, 0,
 						0, -1, 0, 0, 0, 0);
-		AllSubFiniteCheck<QuiverMatrix> task = new AllSubFiniteCheck<QuiverMatrix>(mat);
+		AllSubFiniteCheck<QuiverMatrix> task = AllSubFiniteCheck.getInstance(mat);
 
 		try {
 			MatrixInfo result = task.call();

@@ -19,11 +19,11 @@ package uk.co.jwlawson.jcluster;
  * 
  * @param <T> Type of matrix being checked
  */
-public class FiniteCheckTaskFactory implements MatrixTaskFactory<QuiverMatrix> {
+public class FiniteCheckTaskFactory<T extends QuiverMatrix> implements MatrixTaskFactory<T> {
 
 	@Override
-	public MatrixTask<QuiverMatrix> getTask(QuiverMatrix matrix) {
-		MatrixTask<QuiverMatrix> task = new FiniteCheck();
+	public MatrixTask<T> getTask(T matrix) {
+		MatrixTask<T> task = new FiniteCheck<T>();
 		task.setMatrix(matrix);
 		return task;
 	}

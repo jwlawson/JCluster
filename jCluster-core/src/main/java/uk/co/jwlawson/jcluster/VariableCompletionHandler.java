@@ -45,7 +45,7 @@ public class VariableCompletionHandler<V> extends CompletionHandler<V> {
 	 */
 	public void setWaitIfEmpty(boolean waitIfEmpty) {
 		this.waitIfEmpty = waitIfEmpty;
-		log.trace("Handler set to wait: {}. Currently waiting: {}", waitIfEmpty, waiting);
+		log.debug("Handler set to wait: {}. Currently waiting: {}", waitIfEmpty, waiting);
 		synchronized (this) {
 			if (waiting && !waitIfEmpty) {
 				notify();
@@ -63,10 +63,11 @@ public class VariableCompletionHandler<V> extends CompletionHandler<V> {
 		synchronized (this) {
 			numUnhandled++;
 			if (waiting) {
+				log.debug("Waking handler as new task produced");
 				notify();
 			}
 		}
-		log.trace("Task added");
+		log.debug("Task added");
 	}
 
 	@Override
@@ -92,7 +93,7 @@ public class VariableCompletionHandler<V> extends CompletionHandler<V> {
 				numUnhandled--;
 			}
 		}
-		log.trace("Handler finished");
+		log.debug("Handler finished");
 
 	}
 

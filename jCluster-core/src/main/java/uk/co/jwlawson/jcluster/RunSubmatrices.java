@@ -1,7 +1,7 @@
 /**
  * Copyright 2014 John Lawson
  * 
- * RunAllExtensions.java is part of JCluster. Licensed under the Apache License, Version 2.0 (the
+ * AlSubFiniteCheck.java is part of JCluster. Licensed under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance with the License. You may obtain a
  * copy of the License at
  * 
@@ -14,9 +14,6 @@
  */
 package uk.co.jwlawson.jcluster;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.co.jwlawson.jcluster.pool.Pool;
 
 import com.google.common.base.Preconditions;
@@ -25,50 +22,35 @@ import com.google.common.base.Preconditions;
  * @author John Lawson
  * 
  */
-public class RunAllExtensions<T extends QuiverMatrix> extends RunMultipleTask<T> {
+public class RunSubmatrices<T extends QuiverMatrix> extends RunMultipleTask<T> {
 
-	private final Logger log = LoggerFactory.getLogger(getClass());
-
-	private T mMatrix;
-	private T mEnlargedMatrix;
+	private T mInitial;
 	private final Pool<T> mPool;
 
-	protected RunAllExtensions(Builder<T, ?> builder) {
+	public RunSubmatrices(Builder<T, ?> builder) {
 		super(builder);
-		setMatrix(builder.mInitial);
-		mPool = builder.mPool;
+		this.mInitial = builder.mInitial;
+		this.mPool = builder.mPool;
 	}
 
 	@Override
 	public void setMatrix(T matrix) {
-		mMatrix = matrix;
-		mEnlargedMatrix = mMatrix.enlargeMatrix(1, 1, mPool.getObj());
+		mInitial = matrix;
 	}
 
 	@Override
 	protected void submitAllTasks() {
-		int size = Math.min(mMatrix.getNumRows(), mMatrix.getNumCols());
-		for (int num = 0; num < Math.pow(5, size); num++) {
-			submitTaskFor(getExtension(num, size));
+		for (int i = 0; i < mInitial.getNumRows(); i++) {
+			if (shouldSubmitTask()) {
+				submitTaskFor(mInitial.subQuiver(i, mPool.getObj()));
+			}
 		}
-	}
-
-	private T getExtension(int num, int size) {
-		T matrix = mPool.getObj();
-		matrix.set(mEnlargedMatrix);
-		for (int i = 0; i < size; i++) {
-			int val = (((int) (num / Math.pow(5, i))) % 5) - 2;
-			matrix.unsafeSet(size, i, val);
-			matrix.unsafeSet(i, size, -val);
-		}
-		log.debug("Added vertex id: {} to get matrix: {}", num, matrix);
-		return matrix;
 	}
 
 	public abstract static class Builder<T extends QuiverMatrix, A extends Builder<T, A>> extends
 			RunMultipleTask.Builder<T, A> {
 
-		private T mInitial;
+		protected T mInitial;
 		private Pool<T> mPool;
 
 		@Override
@@ -96,12 +78,12 @@ public class RunAllExtensions<T extends QuiverMatrix> extends RunMultipleTask<T>
 								mInitial.getNumCols() - 1, mInitial.getClass());
 				mPool = pool;
 			}
-			return this;
+			return self();
 		}
 
-		public RunAllExtensions<T> build() {
+		public RunSubmatrices<T> build() {
 			validate();
-			return new RunAllExtensions<T>(this);
+			return new RunSubmatrices<T>(this);
 		}
 
 		public static <T extends QuiverMatrix> Builder<T, ?> builder() {
@@ -117,5 +99,7 @@ public class RunAllExtensions<T extends QuiverMatrix> extends RunMultipleTask<T>
 
 		}
 	}
+
+
 
 }
