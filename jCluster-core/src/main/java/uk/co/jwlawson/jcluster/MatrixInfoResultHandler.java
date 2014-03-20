@@ -83,8 +83,8 @@ public abstract class MatrixInfoResultHandler implements Callable<MatrixInfo> {
 	/**
 	 * Request that the overlying task stops if it has been set.
 	 * <p>
-	 * This should be used if the results from the calculations carried out so far has determined the
-	 * final information required, so no further calculations are required.
+	 * This should be used if the results from the calculations carried out so far has determined
+	 * the final information required, so no further calculations are required.
 	 */
 	protected void requestStop() {
 		if (task != null) {
@@ -107,8 +107,8 @@ public abstract class MatrixInfoResultHandler implements Callable<MatrixInfo> {
 	protected abstract MatrixInfo getFinal();
 
 	/**
-	 * Inform the handler that all results have been queued, so once the queue is empty there will be
-	 * no more.
+	 * Inform the handler that all results have been queued, so once the queue is empty there will
+	 * be no more.
 	 */
 	public void allResultsQueued() {
 		running = false;
@@ -128,8 +128,8 @@ public abstract class MatrixInfoResultHandler implements Callable<MatrixInfo> {
 		while (mQueue.hasResult() || running) {
 
 			/*
-			 * TODO This is a really bad way of doing this. Using interrupts would be better but seems to
-			 * cause problems.
+			 * TODO This is a really bad way of doing this. Using interrupts would be better but
+			 * seems to cause problems.
 			 */
 			if (!mQueue.hasResult()) {
 				try {
@@ -149,11 +149,11 @@ public abstract class MatrixInfoResultHandler implements Callable<MatrixInfo> {
 					if (info != null) {
 						handleResult(info);
 					} else {
-						log.trace("Queue pop result timed out");
+						log.debug("Queue pop result timed out");
 					}
 				} catch (InterruptedException e) {
-					log.info("Caught interrupt in thread {}. Running: {}", Thread.currentThread().getName(),
-							running, e);
+					log.info("Caught interrupt in thread {}. Running: {}", Thread.currentThread()
+							.getName(), running, e);
 				}
 			}
 		}

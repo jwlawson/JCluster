@@ -37,8 +37,8 @@ public class RunAllExtensions<T extends QuiverMatrix> extends RunMultipleTask<T>
 
 	protected RunAllExtensions(Builder<T, ?> builder) {
 		super(builder);
-		setMatrix(builder.mInitial);
 		mPool = builder.mPool;
+		setMatrix(builder.mInitial);
 	}
 
 	@Override
@@ -94,8 +94,8 @@ public class RunAllExtensions<T extends QuiverMatrix> extends RunMultipleTask<T>
 			if (mPool == null) {
 				@SuppressWarnings("unchecked")
 				Pool<T> pool =
-						(Pool<T>) Pools.getQuiverMatrixPool(mInitial.getNumRows() - 1,
-								mInitial.getNumCols() - 1, mInitial.getClass());
+						(Pool<T>) Pools.getQuiverMatrixPool(mInitial.getNumRows() + 1,
+								mInitial.getNumCols() + 1, mInitial.getClass());
 				mPool = pool;
 			}
 			return this;
@@ -118,6 +118,10 @@ public class RunAllExtensions<T extends QuiverMatrix> extends RunMultipleTask<T>
 			}
 
 		}
+	}
+
+	public static RunAllExtensions<QuiverMatrix> getInstance(QuiverMatrix mat) {
+		return Builder.builder().withInitial(mat).build();
 	}
 
 }

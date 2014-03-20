@@ -91,21 +91,19 @@ public abstract class RunMultipleTask<T extends QuiverMatrix> implements MatrixT
 		try {
 			handlerThread.join();
 		} catch (InterruptedException e) {
-			log.error("Interrupted in thread {}", Thread.currentThread().getName());
+			log.error("Interrupted in thread {} on join with {}", Thread.currentThread().getName(),
+					handlerThread.getName());
 		}
 		mResultHandler.allResultsQueued();
 
 		log.debug("All results queued for handling. Waiting for result.");
 
-		if (Thread.currentThread().isInterrupted()) {
-			log.debug("The current thread {} is interrupted?! Clearing: {} {}", Thread.currentThread()
-					.getName(), Thread.interrupted(), Thread.interrupted());
-		}
 		MatrixInfo result = null;
 		try {
 			result = resultFuture.get();
 		} catch (InterruptedException e) {
-			log.debug("Caught interrupt in thread {}. Info: {}", Thread.currentThread().getName(), result);
+			log.debug("Caught interrupt in thread {}. Info: {}", Thread.currentThread().getName(),
+					result);
 		}
 		return result;
 	}
@@ -139,8 +137,8 @@ public abstract class RunMultipleTask<T extends QuiverMatrix> implements MatrixT
 	 * ensure that the task has not been requested to stop.
 	 * 
 	 * <p>
-	 * Tasks are submitted using the {@link RunMultipleTask#submitTaskFor(QuiverMatrix)} method, which
-	 * passes the matrix to each {@link MatrixTaskFactory} provided through the
+	 * Tasks are submitted using the {@link RunMultipleTask#submitTaskFor(QuiverMatrix)} method,
+	 * which passes the matrix to each {@link MatrixTaskFactory} provided through the
 	 * {@link RunMultipleTask#addTaskFactory(MatrixTaskFactory)} method.
 	 */
 	protected abstract void submitAllTasks();

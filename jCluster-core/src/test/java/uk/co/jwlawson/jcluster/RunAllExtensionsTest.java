@@ -1,7 +1,7 @@
 /**
  * Copyright 2014 John Lawson
  * 
- * RunMutationClassTest.java is part of JCluster. Licensed under the Apache License, Version 2.0
+ * RunAllExtensionsTest.java is part of JCluster. Licensed under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with the License. You may obtain
  * a copy of the License at
  * 
@@ -24,20 +24,24 @@ import java.util.concurrent.Future;
 import org.junit.Test;
 
 import uk.co.jwlawson.jcluster.data.DynkinDiagram;
-import uk.co.jwlawson.jcluster.data.EquivQuiverMatrix;
 import uk.co.jwlawson.jcluster.data.MatrixInfo;
+import uk.co.jwlawson.jcluster.data.QuiverMatrix;
 
 /**
  * @author John Lawson
  * 
  */
-public class RunMutationClassTest {
+public class RunAllExtensionsTest {
 
+	/**
+	 * Checks that the number of matrices which are submitted to have tasks run on them matches the
+	 * total number of possible extensions.
+	 */
 	@Test
 	public void testA4() {
-		CountTaskFactory<EquivQuiverMatrix> factory = new CountTaskFactory<EquivQuiverMatrix>();
-		EquivQuiverMatrix mat = new EquivQuiverMatrix(DynkinDiagram.A4.getMatrix());
-		RunMutationClass task = RunMutationClass.getInstance(mat);
+		CountTaskFactory<QuiverMatrix> factory = new CountTaskFactory<QuiverMatrix>();
+		QuiverMatrix mat = DynkinDiagram.A4.getMatrix();
+		RunAllExtensions<QuiverMatrix> task = RunAllExtensions.getInstance(mat);
 		task.setResultHandler(new ResultHandler());
 		task.addTaskFactory(factory);
 
@@ -47,35 +51,7 @@ public class RunMutationClassTest {
 		try {
 			future.get();
 			int val = factory.getCount();
-			// Expected value is one less than the size of the class, as the first matrix does not
-			// get counted
-			assertEquals(5, val);
-		} catch (InterruptedException e) {
-			throw new RuntimeException(e);
-		} catch (ExecutionException e) {
-			throw new RuntimeException(e);
-		} finally {
-			thread.shutdown();
-		}
-	}
-
-	@Test
-	public void testD5() {
-		CountTaskFactory<EquivQuiverMatrix> factory = new CountTaskFactory<EquivQuiverMatrix>();
-		EquivQuiverMatrix mat = new EquivQuiverMatrix(DynkinDiagram.D5.getMatrix());
-		RunMutationClass task = RunMutationClass.getInstance(mat);
-		task.setResultHandler(new ResultHandler());
-		task.addTaskFactory(factory);
-
-		ExecutorService thread = Executors.newSingleThreadExecutor();
-		Future<MatrixInfo> future = thread.submit(task);
-
-		try {
-			future.get();
-			int val = factory.getCount();
-			// Expected value is one less than the size of the class, as the first matrix does not
-			// get counted
-			assertEquals(25, val);
+			assertEquals((int) Math.pow(5, 4), val);
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
 		} catch (ExecutionException e) {
@@ -86,8 +62,10 @@ public class RunMutationClassTest {
 	}
 
 	/**
-	 * Dummy result handler which does nothing when a new result comes in and just returns null at
-	 * the end.
+	 * Dummy result handler which does nothing with the results and just returns null at the end.
+	 * 
+	 * @author John Lawson
+	 * 
 	 */
 	private class ResultHandler extends MatrixInfoResultHandler {
 
