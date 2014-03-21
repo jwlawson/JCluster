@@ -52,6 +52,8 @@ public class MinMutInfCheckTest {
 			throw new RuntimeException(e);
 		} catch (ExecutionException e) {
 			throw new RuntimeException(e);
+		} finally {
+			exec.shutdown();
 		}
 	}
 
@@ -74,6 +76,8 @@ public class MinMutInfCheckTest {
 			throw new RuntimeException(e);
 		} catch (ExecutionException e) {
 			throw new RuntimeException(e);
+		} finally {
+			exec.shutdown();
 		}
 	}
 
@@ -94,6 +98,8 @@ public class MinMutInfCheckTest {
 			throw new RuntimeException(e);
 		} catch (ExecutionException e) {
 			throw new RuntimeException(e);
+		} finally {
+			exec.shutdown();
 		}
 	}
 

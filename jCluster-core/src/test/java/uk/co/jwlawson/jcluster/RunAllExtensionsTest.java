@@ -51,7 +51,8 @@ public class RunAllExtensionsTest {
 		try {
 			future.get();
 			int val = factory.getCount();
-			assertEquals((int) Math.pow(5, 4), val);
+			// subtract 1 as the extension which adds a vertex with no arrows is not submitted
+			assertEquals((int) Math.pow(5, 4) - 1, val);
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
 		} catch (ExecutionException e) {
