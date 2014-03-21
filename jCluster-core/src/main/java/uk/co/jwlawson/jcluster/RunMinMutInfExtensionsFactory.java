@@ -28,6 +28,8 @@ public class RunMinMutInfExtensionsFactory<T extends QuiverMatrix> implements Ma
 	private final List<MatrixTaskFactory<QuiverMatrix>> mFactories =
 			new ArrayList<MatrixTaskFactory<QuiverMatrix>>();
 
+	private MatrixInfoResultHandler mHandler;
+
 	/**
 	 * Add a factory to provide tasks to run on each minimally mutation infinite matrix found.
 	 * 
@@ -37,10 +39,15 @@ public class RunMinMutInfExtensionsFactory<T extends QuiverMatrix> implements Ma
 		mFactories.add(factory);
 	}
 
+	public void setResultHandler(MatrixInfoResultHandler handler) {
+		mHandler = handler;
+	}
+
 	@Override
 	public MatrixTask<T> getTask(T matrix) {
 		RunMinMutInfExtensions<T> result =
-				RunMinMutInfExtensions.Builder.builder().withInitial(matrix).build();
+				RunMinMutInfExtensions.Builder.builder().withInitial(matrix)
+						.withResultHandler(mHandler).build();
 		for (MatrixTaskFactory<QuiverMatrix> fac : mFactories) {
 			result.addTaskFactory(fac);
 		}

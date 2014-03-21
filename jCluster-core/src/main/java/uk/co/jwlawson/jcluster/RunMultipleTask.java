@@ -194,7 +194,6 @@ public abstract class RunMultipleTask<T extends QuiverMatrix> implements MatrixT
 
 		protected abstract A self();
 
-
 		public A withQueue(CompletionResultQueue<MatrixInfo> mQueue) {
 			this.mQueue = mQueue;
 			return self();
@@ -219,7 +218,6 @@ public abstract class RunMultipleTask<T extends QuiverMatrix> implements MatrixT
 			this.mFactorys.add(factory);
 			return self();
 		}
-
 
 		protected Builder<T, A> validate() {
 			if (mQueue == null) {

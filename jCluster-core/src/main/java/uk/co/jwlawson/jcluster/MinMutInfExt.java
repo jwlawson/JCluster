@@ -14,10 +14,13 @@
  */
 package uk.co.jwlawson.jcluster;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import uk.co.jwlawson.jcluster.data.EquivQuiverMatrix;
 import uk.co.jwlawson.jcluster.data.QuiverMatrix;
+
+import com.google.common.base.Preconditions;
 
 
 /**
@@ -33,20 +36,37 @@ public class MinMutInfExt extends RunMutationClass {
 		for (MatrixTaskFactory<QuiverMatrix> fac : builder.mFactories) {
 			extFac.addTaskFactory(fac);
 		}
+		extFac.setResultHandler(builder.mHandler);
 		addTaskFactory(extFac);
 	}
 
 	public static abstract class Builder<A extends Builder<A>> extends RunMutationClass.Builder<A> {
 
-		private Collection<MatrixTaskFactory<QuiverMatrix>> mFactories;
+		private final Collection<MatrixTaskFactory<QuiverMatrix>> mFactories =
+				new ArrayList<MatrixTaskFactory<QuiverMatrix>>();
+		private MatrixInfoResultHandler mHandler;
 
 		public A addTaskFactory(MatrixTaskFactory<QuiverMatrix> fac) {
 			mFactories.add(fac);
 			return self();
 		}
 
+		public A withMinMutResultHandler(MatrixInfoResultHandler handler) {
+			mHandler = handler;
+			return self();
+		}
+
 		public static Builder<?> builder() {
 			return new Builder2();
+		}
+
+		@Override
+		protected A validate() {
+			super.validate();
+			Preconditions
+					.checkNotNull(mHandler,
+							"Result handler for results of tasks run on the MinMutInf matrices cannot be null");
+			return self();
 		}
 
 		@Override
