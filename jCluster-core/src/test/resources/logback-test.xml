@@ -27,6 +27,19 @@
 		</encoder>
 	</appender>
 
+	<appender name="OUT_FILE" class="ch.qos.logback.core.FileAppender">
+		<file>out-${bySecond}.log</file>
+		<append>true</append>
+		<encoder>
+			<pattern>%msg%n
+			</pattern>
+		</encoder>
+	</appender>
+	
+	<logger name="uk.co.jwlawson.jcluster.LoggerTask" level="INFO" additivity="false">
+	    <appender-ref ref="OUT_FILE"/>
+	</logger>
+
 
 	<root level="TRACE">
 		<appender-ref ref="STDOUT" />

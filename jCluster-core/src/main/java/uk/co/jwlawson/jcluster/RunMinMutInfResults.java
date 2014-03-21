@@ -59,6 +59,10 @@ public class RunMinMutInfResults extends RunOnResults {
 			return self();
 		}
 
+		public RunMinMutInfResults build() {
+			return new RunMinMutInfResults(this);
+		}
+
 		public static Builder<?> builder() {
 			return new Builder2();
 		}

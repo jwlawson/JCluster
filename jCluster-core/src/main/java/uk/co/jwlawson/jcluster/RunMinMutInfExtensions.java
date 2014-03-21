@@ -14,8 +14,13 @@
  */
 package uk.co.jwlawson.jcluster;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import uk.co.jwlawson.jcluster.data.MatrixInfo;
 import uk.co.jwlawson.jcluster.data.QuiverMatrix;
+
+import com.google.common.base.Preconditions;
 
 /**
  * @author John Lawson
@@ -23,26 +28,91 @@ import uk.co.jwlawson.jcluster.data.QuiverMatrix;
  */
 public class RunMinMutInfExtensions<T extends QuiverMatrix> implements MatrixTask<T> {
 
-	private T mMatrix;
+	private RunAllExtensions<T> mExtTask;
+	private RunMinMutInfResults mMinMutInfSubmitter;
 
+	private RunMinMutInfExtensions(T matrix) {
+		setMatrix(matrix);
+	}
+
+	public final void addTaskFactory(MatrixTaskFactory<QuiverMatrix> factory) {
+		mMinMutInfSubmitter.addTaskFactory(factory);
+	}
+
+	public final void setResultHandler(MatrixInfoResultHandler handler) {
+		mMinMutInfSubmitter.setResultHandler(handler);
+	}
+
+	@SuppressWarnings("unchecked")
 	@Override
 	public void setMatrix(T matrix) {
-		mMatrix = matrix;
+		mExtTask =
+				(RunAllExtensions<T>) RunAllExtensions.Builder.builder()
+						.addFactory(new MinMutInfCheckFactory()).withInitial(matrix).build();
+		mMinMutInfSubmitter =
+				RunMinMutInfResults.Builder.builder().withSubmittingTask(mExtTask).build();
 	}
 
 	@Override
 	public void reset() {}
 
 	@Override
-	public void requestStop() {
-		// TODO Auto-generated method stub
-
+	public final void requestStop() {
+		mExtTask.requestStop();
+		mMinMutInfSubmitter.requestStop();
 	}
 
 	@Override
 	public MatrixInfo call() throws Exception {
-		// TODO Auto-generated method stub
 		return null;
+	}
+
+	public static class Builder<T extends QuiverMatrix> {
+
+		private T mMatrix;
+		private final List<MatrixTaskFactory<QuiverMatrix>> mFactories;
+		private MatrixInfoResultHandler mResultHandler;
+
+		private Builder() {
+			mFactories = new ArrayList<MatrixTaskFactory<QuiverMatrix>>();
+		}
+
+		public Builder<T> builder() {
+			return new Builder<T>();
+		}
+
+		public <S extends QuiverMatrix> Builder<S> withInitial(S matrix) {
+			@SuppressWarnings("unchecked")
+			Builder<S> self = (Builder<S>) this;
+			self.mMatrix = matrix;
+			return self;
+		}
+
+		public Builder<T> addTaskFactory(MatrixTaskFactory<QuiverMatrix> factory) {
+			mFactories.add(factory);
+			return this;
+		}
+
+		public Builder<T> withResultHandler(MatrixInfoResultHandler handler) {
+			mResultHandler = handler;
+			return this;
+		}
+
+		public RunMinMutInfExtensions<T> build() {
+			validate();
+			RunMinMutInfExtensions<T> task = new RunMinMutInfExtensions<T>(mMatrix);
+			for (MatrixTaskFactory<QuiverMatrix> fac : mFactories) {
+				task.addTaskFactory(fac);
+			}
+			task.setResultHandler(mResultHandler);
+			return task;
+
+		}
+
+		private void validate() {
+			Preconditions.checkNotNull(mMatrix, "Initial matrix cannot be null");
+			Preconditions.checkNotNull(mResultHandler, "Result handler cannot be null");
+		}
 	}
 
 }

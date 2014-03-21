@@ -117,8 +117,9 @@ public abstract class RunOnResults extends RunMultipleTask<QuiverMatrix> {
 		@Override
 		protected abstract A self();
 
-		public void withSubmittingTask(RunMultipleTask<?> submittingTask) {
+		public A withSubmittingTask(RunMultipleTask<?> submittingTask) {
 			this.mSubmittingTask = submittingTask;
+			return self();
 		}
 
 		@Override
