@@ -14,6 +14,9 @@
  */
 package uk.co.jwlawson.jcluster;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import uk.co.jwlawson.jcluster.data.EquivQuiverMatrix;
 import uk.co.jwlawson.jcluster.data.MatrixInfo;
 import uk.co.jwlawson.jcluster.data.QuiverMatrix;
@@ -26,6 +29,8 @@ import uk.co.jwlawson.jcluster.data.QuiverMatrix;
  * @param <T> Type of matrix which is being checked
  */
 public class FiniteCheck<T extends QuiverMatrix> implements MatrixTask<T> {
+
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	/** Matrix to check. */
 	private T mMatrix;
@@ -43,6 +48,10 @@ public class FiniteCheck<T extends QuiverMatrix> implements MatrixTask<T> {
 
 	@Override
 	public void setMatrix(final T matrix) {
+		if (matrix.getNumRows() == 0 || matrix.getNumCols() == 0) {
+			log.error("Matrix {} cannot be of size 0", matrix);
+			throw new IllegalArgumentException("Matrix cannot be of size 0");
+		}
 		mMatrix = matrix;
 	}
 

@@ -43,6 +43,7 @@ public abstract class RunMultipleTask<T extends QuiverMatrix> implements MatrixT
 	private MatrixInfoResultHandler mResultHandler;
 	private VariableCompletionHandler<MatrixInfo> mHandler;
 	private ExecutorService mExecutor;
+	private final boolean mShutdownExecutor;
 	private ExecutorCompletionService<MatrixInfo> mService;
 	private Collection<MatrixTaskFactory<T>> mFactorys;
 	private boolean mShouldStop = false;
@@ -95,17 +96,16 @@ public abstract class RunMultipleTask<T extends QuiverMatrix> implements MatrixT
 					handlerThread.getName());
 		}
 		mResultHandler.allResultsQueued();
+		resultThread.shutdown();
 
 		log.debug("All results queued for handling. Waiting for result.");
-
-		MatrixInfo result = null;
 		try {
-			result = resultFuture.get();
-		} catch (InterruptedException e) {
-			log.debug("Caught interrupt in thread {}. Info: {}", Thread.currentThread().getName(),
-					result);
+			return resultFuture.get();
+		} finally {
+			if (mShutdownExecutor) {
+				mExecutor.shutdown();
+			}
 		}
-		return result;
 	}
 
 	@Override
@@ -174,12 +174,13 @@ public abstract class RunMultipleTask<T extends QuiverMatrix> implements MatrixT
 		this.mResultHandler = builder.mResultHandler;
 		this.mHandler = builder.mHandler;
 		this.mExecutor = builder.mExecutor;
+		this.mShutdownExecutor = builder.mShutdownExecutor;
 		this.mFactorys = builder.mFactorys;
 	}
 
 	public static abstract class Builder<T extends QuiverMatrix, A extends Builder<T, A>> {
 
-		private static final int DEF_NUM_THREAD = 2;
+		private static final int DEF_NUM_THREAD = 1;
 		private static final long DEF_KEEP_ALIVE_SEC = 0;
 		private static final int DEF_QUEUE_SIZE = 10;
 
@@ -187,6 +188,7 @@ public abstract class RunMultipleTask<T extends QuiverMatrix> implements MatrixT
 		private MatrixInfoResultHandler mResultHandler;
 		private VariableCompletionHandler<MatrixInfo> mHandler;
 		private ExecutorService mExecutor;
+		private boolean mShutdownExecutor = false;
 		private final Collection<MatrixTaskFactory<T>> mFactorys =
 				new ArrayList<MatrixTaskFactory<T>>();
 
@@ -233,6 +235,7 @@ public abstract class RunMultipleTask<T extends QuiverMatrix> implements MatrixT
 						new ThreadPoolExecutor(DEF_NUM_THREAD, DEF_NUM_THREAD, DEF_KEEP_ALIVE_SEC,
 								TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(DEF_QUEUE_SIZE),
 								new ThreadPoolExecutor.CallerRunsPolicy());
+				mShutdownExecutor = true;
 			}
 			mHandler.setQueue(mQueue);
 			return self();

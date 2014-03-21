@@ -69,14 +69,21 @@ public abstract class RunOnResults extends RunMultipleTask<QuiverMatrix> {
 	@Override
 	protected void submitAllTasks() {
 		while (!mAllResultsReceived) {
-			synchronized (this) {
-				try {
+			try {
+				synchronized (this) {
 					wait();
-					log.debug("All tasks submitted and object woken up.");
-				} catch (InterruptedException e) {
-					log.debug("Caught interrupt in thread {}", Thread.currentThread().getName());
+					log.debug("All tasks submitted and object woken up in {}.", Thread
+							.currentThread().getName());
 				}
+			} catch (InterruptedException e) {
+				log.debug("Caught interrupt in thread {}", Thread.currentThread().getName());
 			}
+		}
+	}
+
+	private void wakeup() {
+		synchronized (this) {
+			notify();
 		}
 	}
 
@@ -101,9 +108,9 @@ public abstract class RunOnResults extends RunMultipleTask<QuiverMatrix> {
 		protected final MatrixInfo getFinal() {
 			log.debug("All results received. Waking submitting thread.");
 			mAllResultsReceived = true;
-			synchronized (this) {
-				notify();
-			}
+			wakeup();
+			log.debug("Notify to wake submitting thread sent from thread {}", Thread
+					.currentThread().getName());
 			return getInitial();
 		}
 

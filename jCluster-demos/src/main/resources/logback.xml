@@ -5,10 +5,8 @@
 	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
 		<!-- encoders are assigned the type ch.qos.logback.classic.encoder.PatternLayoutEncoder 
 			by default -->
-		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
 			<level>ERROR</level>
-			<onMatch>ACCEPT</onMatch>
-			<onMismatch>DENY</onMismatch>
 		</filter>
 		<encoder>
 			<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{5} - %msg%n
@@ -18,6 +16,9 @@
 
 	<timestamp key="bySecond" datePattern="yyyyMMdd'T'HHmmss" />
 	<appender name="FILE" class="ch.qos.logback.core.FileAppender">
+	    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>INFO</level>
+		</filter>
 		<file>log-${bySecond}.log</file>
 		<append>true</append>
 		<!-- encoders are assigned the type ch.qos.logback.classic.encoder.PatternLayoutEncoder 
@@ -37,7 +38,7 @@
 			<onMismatch>DENY</onMismatch>
 		</filter>
 		<encoder>
-			<pattern>[%-5level] %msg%n
+			<pattern>[%-4level] %msg%n
 			</pattern>
 		</encoder>
 	</appender>
@@ -46,10 +47,30 @@
 		<file>mutationBenchmark-1.log</file>
 		<append>true</append>
 		<encoder>
-			<pattern>[%-5level] %msg%n
+			<pattern>[%-4level] %msg%n
 			</pattern>
 		</encoder>
 	</appender>
+	
+	
+	<timestamp key="byTime" datePattern="HHmmss" />
+	<appender name="MIN_OUT" class="ch.qos.logback.core.FileAppender">
+		<file>out-${byTime}.log</file>
+		<encoder>
+			<pattern>%msg%n
+			</pattern>
+		</encoder>
+	</appender>
+	
+	<logger name="uk.co.jwlawson.jcluster.LoggerTask" level="INFO">
+	    <appender-ref ref="MIN_OUT" />
+	    <appender-ref ref="BENCH_STDOUT" />
+	</logger>
+	
+	<logger name="uk.co.jwlawson.jcluster.demos.LogMinMutInfExt" level="INFO">
+	    <appender-ref ref="MIN_OUT" />
+	    <appender-ref ref="BENCH_STDOUT" />
+	</logger>
 
 
 	<logger name="uk.co.jwlawson.jcluster.demos.MutationBenchmark"
@@ -58,13 +79,14 @@
 		<appender-ref ref="BENCH_STDOUT" />
 	</logger>
 
-	<logger name="uk.co.jwlawson.jcluster" level="INFO" additivity="false">
+	<logger name="uk.co.jwlawson.jcluster" level="DEBUG" additivity="false">
 		<appender-ref ref="FILE" />
 	</logger>
 
 	<!-- the level of the root level is set to DEBUG by default. -->
 	<root level="INFO">
 		<appender-ref ref="STDOUT" />
+		<appender-ref ref="FILE" />
 	</root>
 
 </configuration>

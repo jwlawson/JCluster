@@ -75,7 +75,7 @@ public class MinMutInfCheck<T extends QuiverMatrix> implements MatrixTask<T> {
 	public MatrixInfo call() throws Exception {
 		MatrixInfo result = new MatrixInfo(mMatrix);
 
-		log.debug("Checking whether matrix is infinite");
+		log.debug("Checking whether matrix is infinite. {}", mMatrix);
 		MatrixInfo checkInf = mFiniteCheck.call();
 		result.combine(checkInf);
 		if (checkInf.isFinite()) {
@@ -86,7 +86,7 @@ public class MinMutInfCheck<T extends QuiverMatrix> implements MatrixTask<T> {
 		if (mSubCheck == null) {
 			mSubCheck = AllSubFiniteCheck.getInstance(mMatrix);
 		}
-		log.debug("Checking whether all submatrices are finite");
+		log.debug("Checking whether all submatrices are finite. {}", mMatrix);
 		MatrixInfo checkSubs = mSubCheck.call();
 		result.combine(checkSubs);
 		if (!result.isFinite() && result.getAllSubmatricesFinite()) {

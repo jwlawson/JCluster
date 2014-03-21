@@ -50,9 +50,23 @@ public class RunAllExtensions<T extends QuiverMatrix> extends RunMultipleTask<T>
 	@Override
 	protected void submitAllTasks() {
 		int size = Math.min(mMatrix.getNumRows(), mMatrix.getNumCols());
+		// Don't want the extension where the new row is all zero
+		int allZeros = getAllZeroIndex(size);
 		for (int num = 0; num < Math.pow(5, size); num++) {
+			if (num == allZeros) {
+				continue;
+			}
 			submitTaskFor(getExtension(num, size));
 		}
+	}
+
+	private int getAllZeroIndex(int size) {
+		int result = 2;
+		for (int i = 0; i < size - 1; i++) {
+			result *= 5;
+			result += 2;
+		}
+		return result;
 	}
 
 	private T getExtension(int num, int size) {

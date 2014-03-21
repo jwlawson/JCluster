@@ -60,6 +60,7 @@ public class RunMinMutInfResults extends RunOnResults {
 		}
 
 		public RunMinMutInfResults build() {
+			validate();
 			return new RunMinMutInfResults(this);
 		}
 

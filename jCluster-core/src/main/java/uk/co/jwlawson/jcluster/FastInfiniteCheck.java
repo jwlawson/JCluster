@@ -63,13 +63,11 @@ public class FastInfiniteCheck implements MatrixTask<QuiverMatrix> {
 		setMatrix(matrix);
 	}
 
-	/** {@inheritDoc} */
 	@Override
 	public void setMatrix(final QuiverMatrix matrix) {
 		mMatrix = matrix;
 	}
 
-	/** {@inheritDoc} */
 	@Override
 	public void reset() {}
 

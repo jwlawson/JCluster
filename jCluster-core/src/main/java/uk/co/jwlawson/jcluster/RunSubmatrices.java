@@ -14,6 +14,9 @@
  */
 package uk.co.jwlawson.jcluster;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import uk.co.jwlawson.jcluster.data.QuiverMatrix;
 import uk.co.jwlawson.jcluster.pool.Pool;
 import uk.co.jwlawson.jcluster.pool.Pools;
@@ -25,6 +28,8 @@ import com.google.common.base.Preconditions;
  * 
  */
 public class RunSubmatrices<T extends QuiverMatrix> extends RunMultipleTask<T> {
+
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	private T mInitial;
 	private final Pool<T> mPool;
@@ -44,7 +49,12 @@ public class RunSubmatrices<T extends QuiverMatrix> extends RunMultipleTask<T> {
 	protected void submitAllTasks() {
 		for (int i = 0; i < mInitial.getNumRows(); i++) {
 			if (shouldSubmitTask()) {
-				submitTaskFor(mInitial.subQuiver(i, mPool.getObj()));
+				T sub = mInitial.subQuiver(i, mPool.getObj());
+				if (sub.getNumRows() == 0 || sub.getNumCols() == 0) {
+					log.debug("Zero size matrix as submatrix of {} at {}", mInitial, i);
+				} else {
+					submitTaskFor(sub);
+				}
 			}
 		}
 	}

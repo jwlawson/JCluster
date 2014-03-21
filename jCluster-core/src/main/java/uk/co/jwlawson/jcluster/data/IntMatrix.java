@@ -588,7 +588,12 @@ public class IntMatrix {
 			sb.append("{");
 			for (int j = 0; j < mCols; j++) {
 				sb.append(" ");
-				sb.append(mData[getIndex(i, j)]);
+				int val = mData[getIndex(i, j)];
+				if (val < 0) {
+					sb.append(val);
+				} else {
+					sb.append(" ").append(val);
+				}
 			}
 			sb.append(" } ");
 		}
