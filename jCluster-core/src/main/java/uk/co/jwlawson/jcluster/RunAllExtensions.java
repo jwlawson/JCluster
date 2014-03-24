@@ -52,7 +52,7 @@ public class RunAllExtensions<T extends QuiverMatrix> extends RunMultipleTask<T>
 		int size = Math.min(mMatrix.getNumRows(), mMatrix.getNumCols());
 		// Don't want the extension where the new row is all zero
 		int allZeros = getAllZeroIndex(size);
-		for (int num = 0; num < Math.pow(5, size); num++) {
+		for (int num = 0; num < Math.pow(5, size) && shouldSubmitTask(); num++) {
 			if (num == allZeros) {
 				continue;
 			}

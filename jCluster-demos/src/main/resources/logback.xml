@@ -84,7 +84,7 @@
 	</logger>
 
 	<!-- the level of the root level is set to DEBUG by default. -->
-	<root level="INFO">
+	<root level="DEBUG">
 		<appender-ref ref="STDOUT" />
 		<appender-ref ref="FILE" />
 	</root>

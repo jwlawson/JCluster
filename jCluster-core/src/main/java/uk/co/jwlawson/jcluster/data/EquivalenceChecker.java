@@ -47,9 +47,9 @@ public final class EquivalenceChecker {
 	private static final int[] NO_PERMUTATION = new int[0];
 
 	/**
-	 * The cache which stores {@link EquivalenceChecker} instances. There is a maximum bound on it to
-	 * prevent unused instances filling memory, which roughly corresponds to how much memory is being
-	 * used by the instance.
+	 * The cache which stores {@link EquivalenceChecker} instances. There is a maximum bound on it
+	 * to prevent unused instances filling memory, which roughly corresponds to how much memory is
+	 * being used by the instance.
 	 */
 	private static LoadingCache<Integer, EquivalenceChecker> sInstanceCache = CacheBuilder
 			.newBuilder().maximumWeight(400000000) // Max num for 10x10 is 363 million
@@ -64,6 +64,10 @@ public final class EquivalenceChecker {
 
 				@Override
 				public EquivalenceChecker load(final Integer key) throws Exception {
+					if (key == 0) {
+						throw new IllegalArgumentException(
+								"Cannot have an EquivalenceChecker with size 0");
+					}
 					log.info("New EquivalenceChecker of size {} created", key);
 					return new EquivalenceChecker(key);
 				}
@@ -72,18 +76,19 @@ public final class EquivalenceChecker {
 
 	/**
 	 * Cache storing previously checked equivalences between pairs of matrices. For larger matrices
-	 * the time spent multiplying matrices together becomes prohibitive, so caching helps to speed up
-	 * the checks.
+	 * the time spent multiplying matrices together becomes prohibitive, so caching helps to speed
+	 * up the checks.
 	 */
 	private final LoadingCache<IntMatrixPair, Boolean> mPermCache = CacheBuilder.newBuilder()
 			.maximumSize(500000).build(new CacheLoader<IntMatrixPair, Boolean>() {
 
 				/*
-				 * When a new cache entry is loaded, also load the same result with the pair switched over.
-				 * This means that fewer calculations have to be done, but more memory is used.
+				 * When a new cache entry is loaded, also load the same result with the pair
+				 * switched over. This means that fewer calculations have to be done, but more
+				 * memory is used.
 				 * 
-				 * The pair cannot be made agnostic to the order of its matrices as that results in a much
-				 * weaker hashcode and mistakes in the cache. (non-Javadoc)
+				 * The pair cannot be made agnostic to the order of its matrices as that results in
+				 * a much weaker hashcode and mistakes in the cache. (non-Javadoc)
 				 * 
 				 * @see com.google.common.cache.CacheLoader#load(java.lang.Object)
 				 */
@@ -166,8 +171,8 @@ public final class EquivalenceChecker {
 	 * 
 	 * @param size Size of the permutation matrix required
 	 * @param i Id for the permutation matrix
-	 * @return An array of column numbers indicating the positions of the 1s, or NO_PERMUTATION if an
-	 *         invalid id is provided
+	 * @return An array of column numbers indicating the positions of the 1s, or NO_PERMUTATION if
+	 *         an invalid id is provided
 	 */
 	private int[] getPermValues(final int size, final int i) {
 		int[] result = new int[size];
@@ -194,6 +199,9 @@ public final class EquivalenceChecker {
 		if (num == 1) {
 			return 1;
 		}
+		if (num == 0) {
+			return 0;
+		}
 		return num * factorial(num - 1);
 	}
 
@@ -202,11 +210,11 @@ public final class EquivalenceChecker {
 	 * without looking up in the cache.
 	 * 
 	 * <p>
-	 * A lot of calculation is done before blindly multiplying matrices as for larger matrices this is
-	 * horrifically slow. As the sum of each row is invariant under permutations of rows and columns
-	 * these values are calculated and it is checked that each matrix has the same number of rows with
-	 * the same sum. These also show narrow which permutations could potentially be the right ones so
-	 * the invalid ones are not considered.
+	 * A lot of calculation is done before blindly multiplying matrices as for larger matrices this
+	 * is horrifically slow. As the sum of each row is invariant under permutations of rows and
+	 * columns these values are calculated and it is checked that each matrix has the same number of
+	 * rows with the same sum. These also show narrow which permutations could potentially be the
+	 * right ones so the invalid ones are not considered.
 	 * 
 	 * @param a The first matrix
 	 * @param b The second matrix
@@ -265,7 +273,8 @@ public final class EquivalenceChecker {
 		}
 
 		boolean columnsMatch =
-				checkColumnsMatch(a, b, aCols, aColSum, aAbsColSum, bColSum, bAbsColSum, colMappings);
+				checkColumnsMatch(a, b, aCols, aColSum, aAbsColSum, bColSum, bAbsColSum,
+						colMappings);
 		if (!columnsMatch) {
 			return false;
 		}
@@ -318,8 +327,8 @@ public final class EquivalenceChecker {
 	 * @return true if the matrices have matching columns
 	 */
 	private boolean checkColumnsMatch(final IntMatrix a, final IntMatrix b, final int aCols,
-			final int[] aColSum, final int[] aAbsColSum, final int[] bColSum, final int[] bAbsColSum,
-			final int[] colMappings) {
+			final int[] aColSum, final int[] aAbsColSum, final int[] bColSum,
+			final int[] bAbsColSum, final int[] colMappings) {
 		boolean columnsMatch = true;
 		for (int aInd = 0; aInd < aCols; aInd++) {
 			int inCol = numberIn(bColSum, aColSum[aInd]);
@@ -346,8 +355,8 @@ public final class EquivalenceChecker {
 	}
 
 	private boolean checkRowsMatch(final IntMatrix a, final IntMatrix b, final int aRows,
-			final int[] aRowSum, final int[] aAbsRowSum, final int[] bRowSum, final int[] bAbsRowSum,
-			final int[] rowMappings) {
+			final int[] aRowSum, final int[] aAbsRowSum, final int[] bRowSum,
+			final int[] bAbsRowSum, final int[] rowMappings) {
 		boolean rowsMatch = true;
 		for (int aInd = 0; aInd < aRows && rowsMatch; aInd++) {
 			int inRow = numberIn(bRowSum, aRowSum[aInd]);

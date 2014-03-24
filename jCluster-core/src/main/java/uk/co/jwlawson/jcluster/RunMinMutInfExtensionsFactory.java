@@ -51,7 +51,7 @@ public class RunMinMutInfExtensionsFactory<T extends QuiverMatrix> implements Ma
 		for (MatrixTaskFactory<QuiverMatrix> fac : mFactories) {
 			result.addTaskFactory(fac);
 		}
-		return null;
+		return result;
 	}
 
 }
