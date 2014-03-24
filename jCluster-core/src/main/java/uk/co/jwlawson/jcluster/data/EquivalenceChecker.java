@@ -54,10 +54,10 @@ public abstract class EquivalenceChecker {
 				@Override
 				public EquivalenceChecker load(final Integer key) throws Exception {
 					if (key == 0) {
-						log.info("New EquivalenceChecker of size {} created", key);
+						log.debug("New EquivalenceChecker of size {} created", key);
 						return new EquivalenceCheckerZero();
 					}
-					log.info("New EquivalenceChecker of size {} created", key);
+					log.debug("New EquivalenceChecker of size {} created", key);
 					return new EquivalenceCheckerImpl(key);
 				}
 

@@ -171,7 +171,9 @@ public abstract class RunMultipleTask<T extends QuiverMatrix> implements MatrixT
 
 	protected RunMultipleTask(Builder<T, ?> builder) {
 		this.mQueue = builder.mQueue;
-		this.mResultHandler = builder.mResultHandler;
+		if (builder.mResultHandler != null) {
+			setResultHandler(builder.mResultHandler);
+		}
 		this.mHandler = builder.mHandler;
 		this.mExecutor = builder.mExecutor;
 		this.mShutdownExecutor = builder.mShutdownExecutor;

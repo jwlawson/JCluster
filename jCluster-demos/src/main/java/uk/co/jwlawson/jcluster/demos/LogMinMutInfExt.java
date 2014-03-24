@@ -27,15 +27,11 @@ public class LogMinMutInfExt {
 
 	private final static Logger log = LoggerFactory.getLogger(LogMinMutInfExt.class);
 
-//	private final RunMinMutInfExtensions<QuiverMatrix> task;
 	private final MinMutInfExt task;
 
 	public LogMinMutInfExt(String matrix) {
 		QuiverMatrix mat = getDynkinDiagram(matrix).getMatrix();
 		task =
-//				RunMinMutInfExtensions.Builder.builder().withInitial(mat)
-//						.addTaskFactory(new LoggerTaskFactory<QuiverMatrix>())
-//						.withResultHandler(new ResultHandler()).build();
 				MinMutInfExt.Builder.builder().withInitial(new EquivQuiverMatrix(mat))
 						.addTaskFactory(new LoggerTaskFactory<QuiverMatrix>())
 						.withResultHandler(new ResultHandler())

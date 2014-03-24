@@ -65,6 +65,10 @@ public class ArrayCompletionResultQueue<T> implements CompletionResultQueue<T> {
 	 */
 	@Override
 	public void pushResult(final T result) {
+		if (result == null) {
+			log.error("Null result pushed to queue");
+			return;
+		}
 		try {
 			queue.put(result);
 		} catch (InterruptedException e) {
