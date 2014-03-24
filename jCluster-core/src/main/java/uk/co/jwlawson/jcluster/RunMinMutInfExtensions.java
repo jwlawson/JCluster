@@ -85,10 +85,10 @@ public class RunMinMutInfExtensions<T extends QuiverMatrix> implements MatrixTas
 			return future.get();
 		} finally {
 			if (mShutdownExtExec) {
-				mExtTaskExec.shutdown();
+				mExtTaskExec.shutdownNow();
 			}
 			if (mShutdownSubmitExec) {
-				mSubmitExec.shutdown();
+				mSubmitExec.shutdownNow();
 			}
 		}
 	}

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<configuration>
+<configuration debug="true">
 
 	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
 		<!-- encoders are assigned the type ch.qos.logback.classic.encoder.PatternLayoutEncoder 
@@ -52,7 +52,6 @@
 		</encoder>
 	</appender>
 
-
 	<timestamp key="byTime" datePattern="HHmmss" />
 	<appender name="MIN_OUT" class="ch.qos.logback.core.FileAppender">
 		<file>out-${byTime}.log</file>
@@ -73,17 +72,16 @@
 		<appender-ref ref="BENCH_STDOUT" />
 	</logger>
 
-
 	<logger name="uk.co.jwlawson.jcluster.demos.MutationBenchmark"
 		level="INFO" additivity="true">
 		<appender-ref ref="BENCH_FILE" />
 		<appender-ref ref="BENCH_STDOUT" />
 	</logger>
 
-	<logger name="uk.co.jwlawson.jcluster.AllSubFiniteCheck"
+<!-- 	<logger name="uk.co.jwlawson.jcluster.AllFiniteResultHandler" level="DEBUG"
 		additivity="false">
 		<appender-ref ref="FILE" />
-	</logger>
+	</logger> -->
 
 
 	<logger name="uk.co.jwlawson.jcluster" level="INFO" additivity="false">
@@ -91,7 +89,7 @@
 	</logger>
 
 	<!-- the level of the root level is set to DEBUG by default. -->
-	<root level="DEBUG">
+	<root level="INFO">
 		<appender-ref ref="STDOUT" />
 		<appender-ref ref="FILE" />
 	</root>

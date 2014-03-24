@@ -28,6 +28,7 @@ public class LogMinMutInfExt {
 	private final static Logger log = LoggerFactory.getLogger(LogMinMutInfExt.class);
 
 	private final MinMutInfExt task;
+	private long startTime;
 
 	public LogMinMutInfExt(String matrix) {
 		QuiverMatrix mat = getDynkinDiagram(matrix).getMatrix();
@@ -40,10 +41,13 @@ public class LogMinMutInfExt {
 
 	public void run() {
 		ExecutorService exec = Executors.newSingleThreadExecutor();
+		startTime = System.nanoTime();
 		Future<MatrixInfo> future = exec.submit(task);
 
 		try {
 			future.get();
+			log.info("Total time taken: {}ns, or {}ms", (System.nanoTime() - startTime),
+					(System.nanoTime() - startTime) / 1000000);
 		} catch (InterruptedException e) {
 			log.error("Caught interrupt in thread {}", Thread.currentThread().getName());
 			throw new RuntimeException(e);
@@ -51,7 +55,7 @@ public class LogMinMutInfExt {
 			log.error("Execution error", e);
 			throw new RuntimeException(e);
 		} finally {
-			exec.shutdown();
+			exec.shutdownNow();
 		}
 	}
 
@@ -92,6 +96,7 @@ public class LogMinMutInfExt {
 			log.info("Finding all minimally mutation infinite extensions of {}", args[0]);
 			LogMinMutInfExt t = new LogMinMutInfExt(args[0]);
 			t.run();
+			log.info("All matrices found");
 		} else {
 			log.info("Arguments should be a dynkin diagram");
 		}

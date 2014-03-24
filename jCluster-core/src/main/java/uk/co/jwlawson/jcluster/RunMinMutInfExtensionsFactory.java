@@ -16,6 +16,7 @@ package uk.co.jwlawson.jcluster;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 import uk.co.jwlawson.jcluster.data.QuiverMatrix;
 
@@ -29,6 +30,7 @@ public class RunMinMutInfExtensionsFactory<T extends QuiverMatrix> implements Ma
 			new ArrayList<MatrixTaskFactory<QuiverMatrix>>();
 
 	private MatrixInfoResultHandler mHandler;
+	private ExecutorService mExecutor;
 
 	/**
 	 * Add a factory to provide tasks to run on each minimally mutation infinite matrix found.
@@ -43,11 +45,20 @@ public class RunMinMutInfExtensionsFactory<T extends QuiverMatrix> implements Ma
 		mHandler = handler;
 	}
 
+	public void setExecutor(ExecutorService executor) {
+		mExecutor = executor;
+	}
+
 	@Override
 	public MatrixTask<T> getTask(T matrix) {
-		RunMinMutInfExtensions<T> result =
+		RunMinMutInfExtensions.Builder<T> builder =
 				RunMinMutInfExtensions.Builder.builder().withInitial(matrix)
-						.withResultHandler(mHandler).build();
+						.withResultHandler(mHandler);
+		if (mExecutor != null) {
+			builder.withSubmittingExecutor(mExecutor);
+			builder.withExtensionExecutor(mExecutor);
+		}
+		RunMinMutInfExtensions<T> result = builder.build();
 		for (MatrixTaskFactory<QuiverMatrix> fac : mFactories) {
 			result.addTaskFactory(fac);
 		}

@@ -38,7 +38,7 @@ public class ArrayCompletionResultQueue<T> implements CompletionResultQueue<T> {
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	/** Default size of the queue. */
-	private static final int DEF_SIZE = 100;
+	private static final int DEF_SIZE = 10;
 	/** Backing queue to store results in. */
 	private final BlockingQueue<T> queue;
 
@@ -87,13 +87,7 @@ public class ArrayCompletionResultQueue<T> implements CompletionResultQueue<T> {
 	@Override
 	@Nullable
 	public T popResult() throws InterruptedException {
-		try {
-			return queue.poll(1, TimeUnit.SECONDS);
-		} catch (InterruptedException e) {
-			log.info("Thread {} interrupted while fetching result. Interrupted: {}", Thread
-					.currentThread().getName(), Thread.interrupted(), e);
-			return null;
-		}
+		return queue.poll(1, TimeUnit.SECONDS);
 	}
 
 	/**

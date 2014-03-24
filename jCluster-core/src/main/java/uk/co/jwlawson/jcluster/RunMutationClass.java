@@ -18,6 +18,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,8 +48,8 @@ public class RunMutationClass extends RunMultipleTask<EquivQuiverMatrix> impleme
 	private final Pool<EquivQuiverMatrix> mPool;
 	private Thread mSubmittingThread;
 	private final BlockingQueue<EquivQuiverMatrix> mQueue;
-	private boolean mRunning = true;
-	private boolean mWaiting = false;
+	private final AtomicBoolean mRunning = new AtomicBoolean(true);
+	private final AtomicBoolean mWaiting = new AtomicBoolean(false);
 
 	protected RunMutationClass(Builder<?> builder) {
 		super(builder);
@@ -73,18 +74,18 @@ public class RunMutationClass extends RunMultipleTask<EquivQuiverMatrix> impleme
 		ExecutorService calcThread = Executors.newSingleThreadExecutor();
 		calcThread.submit(mTask);
 
-		while (!mQueue.isEmpty() || mRunning) {
+		while (!mQueue.isEmpty() || mRunning.get()) {
 			try {
-				mWaiting = true;
+				mWaiting.set(true);
 				EquivQuiverMatrix mat = mQueue.take();
-				mWaiting = false;
+				mWaiting.set(false);
 				submitTaskFor(mat);
 			} catch (InterruptedException e) {
 				// No more matrices to wait for
 				log.debug("Caught interrupt in thread {}", Thread.currentThread().getName());
 			}
 		}
-		calcThread.shutdown();
+		calcThread.shutdownNow();
 	}
 
 	@Override
@@ -101,8 +102,8 @@ public class RunMutationClass extends RunMultipleTask<EquivQuiverMatrix> impleme
 
 	@Override
 	public void allMatricesSeen() {
-		mRunning = false;
-		if (mWaiting) {
+		mRunning.set(false);
+		if (mWaiting.get()) {
 			log.debug("Interrupting thread {} from thread {}", mSubmittingThread.getName(), Thread
 					.currentThread().getName());
 			mSubmittingThread.interrupt();
@@ -136,8 +137,8 @@ public class RunMutationClass extends RunMultipleTask<EquivQuiverMatrix> impleme
 
 			if (mPool == null) {
 				Pool<EquivQuiverMatrix> pool =
-						Pools.getQuiverMatrixPool(mInitial.getNumRows() - 1, mInitial.getNumCols() - 1,
-								EquivQuiverMatrix.class);
+						Pools.getQuiverMatrixPool(mInitial.getNumRows() - 1,
+								mInitial.getNumCols() - 1, EquivQuiverMatrix.class);
 				mPool = pool;
 			}
 			return this;

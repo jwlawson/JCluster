@@ -36,6 +36,8 @@ public class MinMutInfExt extends RunMutationClass {
 		for (MatrixTaskFactory<QuiverMatrix> fac : builder.mFactories) {
 			extFac.addTaskFactory(fac);
 		}
+//		extFac.setExecutor(new ThreadPoolExecutor(10, 10, 0, TimeUnit.SECONDS,
+//				new LinkedBlockingQueue<Runnable>(10), new ThreadPoolExecutor.CallerRunsPolicy()));
 		extFac.setResultHandler(builder.mHandler);
 		addTaskFactory(extFac);
 	}

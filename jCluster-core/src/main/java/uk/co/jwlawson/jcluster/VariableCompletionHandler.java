@@ -14,6 +14,9 @@
  */
 package uk.co.jwlawson.jcluster;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,15 +29,13 @@ public class VariableCompletionHandler<V> extends CompletionHandler<V> {
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	/** Number of results waiting to be handled. */
-	private int numUnhandled;
+	private final AtomicInteger numUnhandled = new AtomicInteger();
 	/**
 	 * True if the handler should wait for more results when there are no results to handle
 	 * immediately. Set to true by default, so that once the handler is started it won't return
 	 * straight away.
 	 */
-	private boolean waitIfEmpty = true;
-	/** True if waiting on this object. */
-	private boolean waiting = false;
+	private final AtomicBoolean waitIfEmpty = new AtomicBoolean(true);
 
 	/**
 	 * Set whether the handler should wait for more results if there are no more results to handle
@@ -44,10 +45,10 @@ public class VariableCompletionHandler<V> extends CompletionHandler<V> {
 	 * @param waitIfEmpty true if should wait for more results
 	 */
 	public void setWaitIfEmpty(boolean waitIfEmpty) {
-		this.waitIfEmpty = waitIfEmpty;
-		log.debug("Handler set to wait: {}. Currently waiting: {}", waitIfEmpty, waiting);
+		this.waitIfEmpty.set(waitIfEmpty);
+		log.debug("Handler set to wait: {}.", waitIfEmpty);
 		synchronized (this) {
-			if (waiting && !waitIfEmpty) {
+			if (!waitIfEmpty) {
 				log.trace("Waking handler");
 				notify();
 			}
@@ -61,41 +62,36 @@ public class VariableCompletionHandler<V> extends CompletionHandler<V> {
 	 */
 	public void taskAdded() {
 
+		numUnhandled.incrementAndGet();
 		synchronized (this) {
-			numUnhandled++;
-			if (waiting) {
-				log.debug("Waking handler as new task produced");
-				notify();
-			}
+			log.debug("Waking handler as new task produced");
+			notify();
 		}
 		log.debug("Task added");
 	}
 
 	@Override
 	public void run() {
-		while (numUnhandled > 0 || waitIfEmpty) {
-			log.trace("Running. unhandled:{} Wait:{}", numUnhandled, waitIfEmpty);
+		while (numUnhandled.get() > 0 || waitIfEmpty.get()) {
+			log.trace("Running. unhandled:{} Wait:{}", numUnhandled, waitIfEmpty.get());
 
-			if (numUnhandled == 0) {
+			if (numUnhandled.get() == 0) {
 				log.trace("Waiting for new tasks");
 
-				synchronized (this) {
-					try {
-						waiting = true;
-						wait();
+				try {
+					synchronized (this) {
+						wait(1000);
 						log.trace("Handler woken");
-						waiting = false;
-					} catch (InterruptedException e) {
-						log.info("Thread {} interrupted", Thread.currentThread().getName(), e);
 					}
+				} catch (InterruptedException e) {
+					log.info("Thread {} interrupted", Thread.currentThread().getName(), e);
 				}
 			} else {
 				log.debug("Handling task");
-				handleNextTask();
+				boolean handled = handleNextTask();
 				log.debug("Task handled");
-
-				synchronized (this) {
-					numUnhandled--;
+				if (handled) {
+					numUnhandled.decrementAndGet();
 				}
 			}
 		}

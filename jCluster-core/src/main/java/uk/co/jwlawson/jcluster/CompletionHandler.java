@@ -17,6 +17,7 @@ package uk.co.jwlawson.jcluster;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,15 +57,21 @@ public abstract class CompletionHandler<V> implements Runnable {
 
 	/**
 	 * Process the next task and queue its result.
+	 * 
+	 * @return
 	 */
-	protected void handleNextTask() {
+	protected boolean handleNextTask() {
 		Future<V> future;
 		try {
 			log.debug("Waiting for new result to queue up");
-			future = service.take();
+			future = service.poll(1, TimeUnit.SECONDS);
+			if (future == null) {
+				return false;
+			}
 			V result = future.get();
 			log.debug("Result pushed to queue {}", result);
 			queue.pushResult(result);
+			return true;
 
 		} catch (InterruptedException e) {
 			log.error("Caught interrupt in thread {}", Thread.currentThread().getName(), e);
@@ -72,5 +79,6 @@ public abstract class CompletionHandler<V> implements Runnable {
 			log.error("Exception in executing task", e);
 			throw new RuntimeException("Exception in executing task", e);
 		}
+		return false;
 	}
 }

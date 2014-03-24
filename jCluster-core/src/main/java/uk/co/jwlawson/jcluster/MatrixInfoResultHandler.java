@@ -41,6 +41,10 @@ public abstract class MatrixInfoResultHandler implements Callable<MatrixInfo> {
 	/** Initial matrix. */
 	private final MatrixInfo mInitial;
 
+	private Thread mHandlingThread;
+
+	private final String thisstr = this.toString();
+
 	/** Task creating the results. */
 	@Nullable
 	private MatrixTask<?> task;
@@ -111,50 +115,44 @@ public abstract class MatrixInfoResultHandler implements Callable<MatrixInfo> {
 	 * be no more.
 	 */
 	public void allResultsQueued() {
-		running = false;
+		synchronized (this) {
+			running = false;
+		}
 		mQueue.allResultsQueued();
 
-		synchronized (this) {
-			if (waiting) {
-				log.debug("Interrupting waiting for result");
-				notify();
-			}
+		if (mHandlingThread != null) {
+//			log.debug("Interrupting handling thread {} from thread {}. {}", mHandlingThread,
+//					Thread.currentThread(), thisstr);
+			mHandlingThread.interrupt();
 		}
 	}
 
 	@Override
 	public MatrixInfo call() throws Exception {
-		log.debug("Result handler started");
-		while (mQueue.hasResult() || running) {
+		mHandlingThread = Thread.currentThread();
+		boolean run;
+		synchronized (this) {
+			run = mQueue.hasResult() || running;
+		}
+		while (run) {
 
-			/*
-			 * TODO This is a really bad way of doing this. Using interrupts would be better but
-			 * seems to cause problems.
-			 */
-			if (!mQueue.hasResult()) {
-				try {
-					log.debug("Sleeping");
-					synchronized (this) {
-						waiting = true;
-						wait(100);
-						waiting = false;
-					}
-				} catch (InterruptedException e) {
-					log.debug("Caught interrupt in thread {}", Thread.currentThread().getName());
+			try {
+				waiting = true;
+				MatrixInfo info = mQueue.popResult();
+				waiting = false;
+				if (info != null) {
+					handleResult(info);
+				} else {
+					log.debug("Queue pop result timed out. hasResult(): {} Running: {} {}",
+							mQueue.hasResult(), running, thisstr);
+					break;
 				}
-			} else {
-
-				try {
-					MatrixInfo info = mQueue.popResult();
-					if (info != null) {
-						handleResult(info);
-					} else {
-						log.debug("Queue pop result timed out");
-					}
-				} catch (InterruptedException e) {
-					log.info("Caught interrupt in thread {}. Running: {}", Thread.currentThread()
-							.getName(), running, e);
-				}
+			} catch (InterruptedException e) {
+				log.debug("Caught interrupt in thread {}. Running: {}", Thread.currentThread()
+						.getName(), running);
+			}
+			synchronized (this) {
+				run = mQueue.hasResult() || running;
 			}
 		}
 		return getFinal();

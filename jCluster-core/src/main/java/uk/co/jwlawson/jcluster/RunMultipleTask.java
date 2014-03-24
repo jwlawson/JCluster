@@ -45,7 +45,7 @@ public abstract class RunMultipleTask<T extends QuiverMatrix> implements MatrixT
 	private ExecutorService mExecutor;
 	private final boolean mShutdownExecutor;
 	private ExecutorCompletionService<MatrixInfo> mService;
-	private Collection<MatrixTaskFactory<T>> mFactorys;
+	private Collection<MatrixTaskFactory<T>> mFactories;
 	private boolean mShouldStop = false;
 
 	public final void setExecutor(ExecutorService executor) {
@@ -67,10 +67,10 @@ public abstract class RunMultipleTask<T extends QuiverMatrix> implements MatrixT
 	}
 
 	public final void addTaskFactory(MatrixTaskFactory<T> factory) {
-		if (mFactorys == null) {
-			mFactorys = new ArrayList<MatrixTaskFactory<T>>();
+		if (mFactories == null) {
+			mFactories = new ArrayList<MatrixTaskFactory<T>>();
 		}
-		mFactorys.add(factory);
+		mFactories.add(factory);
 	}
 
 	@Override
@@ -103,7 +103,7 @@ public abstract class RunMultipleTask<T extends QuiverMatrix> implements MatrixT
 			return resultFuture.get();
 		} finally {
 			if (mShutdownExecutor) {
-				mExecutor.shutdown();
+				mExecutor.shutdownNow();
 			}
 		}
 	}
@@ -144,7 +144,7 @@ public abstract class RunMultipleTask<T extends QuiverMatrix> implements MatrixT
 	protected abstract void submitAllTasks();
 
 	protected final void submitTaskFor(T matrix) {
-		for (MatrixTaskFactory<T> fac : mFactorys) {
+		for (MatrixTaskFactory<T> fac : mFactories) {
 			MatrixTask<T> task = fac.getTask(matrix);
 			submitTask(task);
 		}
@@ -177,7 +177,7 @@ public abstract class RunMultipleTask<T extends QuiverMatrix> implements MatrixT
 		this.mHandler = builder.mHandler;
 		this.mExecutor = builder.mExecutor;
 		this.mShutdownExecutor = builder.mShutdownExecutor;
-		this.mFactorys = builder.mFactorys;
+		this.mFactories = builder.mFactorys;
 	}
 
 	public static abstract class Builder<T extends QuiverMatrix, A extends Builder<T, A>> {
