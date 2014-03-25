@@ -26,15 +26,15 @@ import java.util.concurrent.TimeUnit;
  */
 public class BlockingThreadPoolFactory implements ThreadPoolFactory {
 
-	private static final int DEF_NUM_THREADS = 10;
-	private static final int DEF_NUM_QUEUE = 30;
+	private static final int DEF_NUM_THREADS = 4;
+	private static final int DEF_NUM_QUEUE = 15;
 	private static final long DEF_KEEP_ALIVE = 1;
 	private static final TimeUnit DEF_KEEP_TIMEUNIT = TimeUnit.SECONDS;
 	private static final long DEF_BLOCKING_TIMEOUT = 100;
 	private static final TimeUnit DEF_BLOCKING_TIMEUNIT = TimeUnit.MILLISECONDS;
 
 	@Override
-	public ExecutorService createSubmittingThreadPool() {
+	public ExecutorService createThreadPool() {
 		return new BlockingThreadPool(DEF_NUM_THREADS, DEF_NUM_QUEUE, DEF_KEEP_ALIVE,
 				DEF_KEEP_TIMEUNIT, DEF_BLOCKING_TIMEOUT, DEF_BLOCKING_TIMEUNIT, new Callable<Boolean>() {
 
@@ -45,16 +45,5 @@ public class BlockingThreadPoolFactory implements ThreadPoolFactory {
 				});
 	}
 
-	@Override
-	public ExecutorService createCalculationThreadPool() {
-		return new BlockingThreadPool(DEF_NUM_THREADS, DEF_NUM_QUEUE, DEF_KEEP_ALIVE,
-				DEF_KEEP_TIMEUNIT, DEF_BLOCKING_TIMEOUT, DEF_BLOCKING_TIMEUNIT, new Callable<Boolean>() {
-
-					@Override
-					public Boolean call() throws Exception {
-						return true;
-					}
-				});
-	}
 
 }

@@ -109,6 +109,7 @@ public abstract class TECSResultHandler implements Callable<MatrixInfo> {
 	 * result.
 	 */
 	public final void allTasksSubmitted() {
+		log.debug("All tasks submitted");
 		mRunning.set(false);
 		if (mLock.isLocked()) {
 			log.debug("Interrupting thread {} from thread {} as it is waiting for mTask", mHandlingThread
@@ -133,7 +134,8 @@ public abstract class TECSResultHandler implements Callable<MatrixInfo> {
 				mLock.unlock();
 			}
 			if (future == null) {
-				log.debug("TECS has no results. Poll fell through.");
+				log.debug("TECS has no results. Poll fell through. hasResult: {}, Running:{}",
+						mService.hasResult(), mRunning.get());
 				continue;
 			}
 			MatrixInfo result = future.get();

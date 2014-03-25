@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<configuration debug="true">
+<configuration>
 
 	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
 		<!-- encoders are assigned the type ch.qos.logback.classic.encoder.PatternLayoutEncoder 
@@ -77,12 +77,6 @@
 		<appender-ref ref="BENCH_FILE" />
 		<appender-ref ref="BENCH_STDOUT" />
 	</logger>
-
-<!-- 	<logger name="uk.co.jwlawson.jcluster.AllFiniteResultHandler" level="DEBUG"
-		additivity="false">
-		<appender-ref ref="FILE" />
-	</logger> -->
-
 
 	<logger name="uk.co.jwlawson.jcluster" level="INFO" additivity="false">
 		<appender-ref ref="FILE" />

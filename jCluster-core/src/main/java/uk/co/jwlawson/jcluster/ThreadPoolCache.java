@@ -1,7 +1,7 @@
 /**
  * Copyright 2014 John Lawson
  * 
- * ThreadPoolFactory.java is part of JCluster. Licensed under the Apache License, Version 2.0 (the
+ * ThreadPoolCache.java is part of JCluster. Licensed under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance with the License. You may obtain a
  * copy of the License at
  * 
@@ -17,18 +17,24 @@ package uk.co.jwlawson.jcluster;
 import java.util.concurrent.ExecutorService;
 
 /**
- * Factory for the thread pools used to compute MatrixTasks.
+ * Cache the ThreadPools depending on which task should be run on each pool.
  * 
  * @author John Lawson
  * 
  */
-public interface ThreadPoolFactory {
+public interface ThreadPoolCache {
 
 	/**
-	 * Create a new thread pool to be used for MatrixTasks.
+	 * Get the ThreadPool which should be used to run any tasks submitted by this task.
 	 * 
-	 * @return New thread pool
+	 * @param task Task to get pool for
+	 * @return ThreadPool
 	 */
-	ExecutorService createThreadPool();
+	ExecutorService getThreadPool(MatrixTask<?> task);
+
+	/**
+	 * Shutdown all threads in the cache.
+	 */
+	void shutdownAll();
 
 }

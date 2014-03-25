@@ -36,7 +36,7 @@ public abstract class RunMultipleTask<T extends QuiverMatrix> implements MatrixT
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	private TECSResultHandler mResultHandler;
-	private final ExecutorService mExecutor;
+	private ExecutorService mExecutor;
 	private TrackingExecutorCompletionService<MatrixInfo> mService;
 	private Collection<MatrixTaskFactory<T>> mFactories;
 	private boolean mShouldStop = false;
@@ -56,6 +56,9 @@ public abstract class RunMultipleTask<T extends QuiverMatrix> implements MatrixT
 
 	@Override
 	public final MatrixInfo call() throws Exception {
+		if (mExecutor == null) {
+			setExecutor();
+		}
 		mService = new TrackingExecutorCompletionService<MatrixInfo>(mExecutor);
 		mResultHandler.setCompletionService(mService);
 
@@ -143,9 +146,12 @@ public abstract class RunMultipleTask<T extends QuiverMatrix> implements MatrixT
 		this.mFactories = builder.factories;
 		if (builder.executor != null) {
 			this.mExecutor = builder.executor;
-		} else {
-			mExecutor = Threads.getThreadPoolForTask(this);
 		}
+	}
+
+	private void setExecutor() {
+		log.debug("Task submits submitting: {}", submitsSubmitting());
+		mExecutor = Threads.getThreadPoolForTask(this);
 	}
 
 	public static abstract class Builder<T extends QuiverMatrix, A extends Builder<T, A>> {

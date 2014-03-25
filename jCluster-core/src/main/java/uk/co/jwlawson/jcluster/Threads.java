@@ -17,41 +17,30 @@ package uk.co.jwlawson.jcluster;
 import java.util.concurrent.ExecutorService;
 
 /**
+ * Get ThreadPools for the specific task that is to be run.
+ * 
  * @author John Lawson
  * 
  */
 public class Threads {
 
-	public static synchronized ExecutorService getSubmittingThreadPool() {
-		if (submittingPool == null) {
-			submittingPool = factory.createSubmittingThreadPool();
-		}
-		return submittingPool;
-	}
-
-	public static synchronized ExecutorService getCalculationThreadPool() {
-		if (calculatingPool == null) {
-			calculatingPool = factory.createCalculationThreadPool();
-		}
-		return calculatingPool;
-	}
-
+	/**
+	 * Get the ThreadPool which should be used to run any tasks submitted by the specified task.
+	 * 
+	 * @param task Task to get the ThreadPool for
+	 * @return ThreadPool
+	 */
 	public static ExecutorService getThreadPoolForTask(MatrixTask<?> task) {
-		if (task.submitsSubmitting()) {
-			return getSubmittingThreadPool();
-		} else {
-			return getCalculationThreadPool();
-		}
+		return mCache.getThreadPool(task);
 	}
 
+	/**
+	 * Send {@link ExecutorService#shutdownNow()} signal to all cached threads.
+	 */
 	public static void shutdownAll() {
-		submittingPool.shutdown();
-		calculatingPool.shutdown();
+		mCache.shutdownAll();
 	}
 
-	private static ExecutorService submittingPool;
-	private static ExecutorService calculatingPool;
-
-	private static ThreadPoolFactory factory = new BlockingThreadPoolFactory();
+	private static ThreadPoolCache mCache = new ThreadCacheImpl(new BlockingThreadPoolFactory());
 
 }
