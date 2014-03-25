@@ -123,22 +123,6 @@ public abstract class RunMultipleTask<T extends QuiverMatrix> implements MatrixT
 		return !mShouldStop;
 	}
 
-	@Override
-	public final boolean isSubmitting() {
-		return true;
-	}
-
-	@Override
-	public final boolean submitsSubmitting() {
-		boolean result = false;
-		for (MatrixTaskFactory<T> fac : mFactories) {
-			if (fac.isTaskSubmiting()) {
-				result = true;
-			}
-		}
-		return result;
-	}
-
 	protected RunMultipleTask(Builder<T, ?> builder) {
 		if (builder.resultHandler != null) {
 			setResultHandler(builder.resultHandler);
@@ -150,7 +134,6 @@ public abstract class RunMultipleTask<T extends QuiverMatrix> implements MatrixT
 	}
 
 	private void setExecutor() {
-		log.debug("Task submits submitting: {}", submitsSubmitting());
 		mExecutor = Threads.getThreadPoolForTask(this);
 	}
 

@@ -163,13 +163,4 @@ public class FastInfiniteCheck implements MatrixTask<QuiverMatrix> {
 	@Override
 	public void requestStop() {}
 
-	@Override
-	public boolean isSubmitting() {
-		return false;
-	}
-
-	@Override
-	public boolean submitsSubmitting() {
-		return false;
-	}
 }

@@ -138,15 +138,4 @@ public class RunMinMutInfExtensions<T extends QuiverMatrix> implements MatrixTas
 			}
 		}
 	}
-
-	@Override
-	public boolean isSubmitting() {
-		return true;
-	}
-
-	@Override
-	public boolean submitsSubmitting() {
-		return true;
-	}
-
 }

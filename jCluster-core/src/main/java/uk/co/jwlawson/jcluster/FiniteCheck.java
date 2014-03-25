@@ -105,14 +105,4 @@ public class FiniteCheck<T extends QuiverMatrix> implements MatrixTask<T> {
 	@Override
 	public void requestStop() {}
 
-	@Override
-	public boolean isSubmitting() {
-		return false;
-	}
-
-	@Override
-	public boolean submitsSubmitting() {
-		return false;
-	}
-
 }

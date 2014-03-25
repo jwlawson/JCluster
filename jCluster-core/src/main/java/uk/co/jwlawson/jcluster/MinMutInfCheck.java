@@ -96,15 +96,4 @@ public class MinMutInfCheck<T extends QuiverMatrix> implements MatrixTask<T> {
 
 		return result;
 	}
-
-	@Override
-	public final boolean isSubmitting() {
-		return false;
-	}
-
-	@Override
-	public final boolean submitsSubmitting() {
-		return false;
-	}
-
 }
