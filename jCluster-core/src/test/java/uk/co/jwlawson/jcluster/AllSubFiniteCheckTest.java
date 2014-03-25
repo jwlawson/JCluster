@@ -65,8 +65,8 @@ public class AllSubFiniteCheckTest {
 	public void testInf() {
 		log.debug("starting test for infinite matrix");
 		QuiverMatrix mat =
-				new QuiverMatrix(5, 5, 0, 1, 0, 0, 1, -1, 0, 1, 1, 0, 0, -1, 0, 1, 0, 0, -1, -1, 0,
-						0, -1, 0, 0, 0, 0);
+				new QuiverMatrix(5, 5, 0, 1, 0, 0, 1, -1, 0, 1, 1, 0, 0, -1, 0, 1, 0, 0, -1, -1, 0, 0, -1,
+						0, 0, 0, 0);
 		AllSubFiniteCheck<QuiverMatrix> task = AllSubFiniteCheck.getInstance(mat);
 
 		try {
@@ -77,4 +77,19 @@ public class AllSubFiniteCheckTest {
 		}
 	}
 
+	@Test
+	public void testInf2() {
+		log.debug("starting test for infinite matrix");
+		QuiverMatrix mat =
+				new QuiverMatrix(5, 5, 0, -1, 1, 0, 2, 1, 0, -1, 0, -2, -1, 1, 0, 1, 2, 0, 0, -1, 0, 0, -2,
+						2, -2, 0, 0);
+		AllSubFiniteCheck<QuiverMatrix> task = AllSubFiniteCheck.getInstance(mat);
+
+		try {
+			MatrixInfo result = task.call();
+			assertFalse(result.getAllSubmatricesFinite());
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
 }

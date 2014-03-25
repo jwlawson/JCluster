@@ -36,8 +36,7 @@ public class MinMutInfCheckTest {
 
 	@Test
 	public void testMinMutInf() {
-		QuiverMatrix mat =
-				new QuiverMatrix(4, 4, 0, 1, 0, 0, -1, 0, 1, 1, 0, -1, 0, 1, 0, -1, -1, 0);
+		QuiverMatrix mat = new QuiverMatrix(4, 4, 0, 1, 0, 0, -1, 0, 1, 1, 0, -1, 0, 1, 0, -1, -1, 0);
 		MinMutInfCheck<QuiverMatrix> task = new MinMutInfCheck<QuiverMatrix>();
 		task.setMatrix(mat);
 
@@ -60,8 +59,8 @@ public class MinMutInfCheckTest {
 	@Test
 	public void testNotMinMutInf() {
 		QuiverMatrix mat =
-				new QuiverMatrix(5, 5, 0, 1, 0, 0, 1, -1, 0, 1, 1, 1, 0, -1, 0, 1, 0, 0, -1, -1, 0,
-						0, -1, -1, 0, 0, 0);
+				new QuiverMatrix(5, 5, 0, 1, 0, 0, 1, -1, 0, 1, 1, 1, 0, -1, 0, 1, 0, 0, -1, -1, 0, 0, -1,
+						-1, 0, 0, 0);
 		MinMutInfCheck<QuiverMatrix> task = new MinMutInfCheck<QuiverMatrix>();
 		task.setMatrix(mat);
 
@@ -103,5 +102,25 @@ public class MinMutInfCheckTest {
 		}
 	}
 
+	@Test
+	public void testInfiniteNotMinMutInf() {
+		QuiverMatrix mat =
+				new QuiverMatrix(5, 5, 0, -1, 1, 0, 2, 1, 0, -1, 0, -2, -1, 1, 0, 1, 2, 0, 0, -1, 0, 0, -2,
+						2, -2, 0, 0);
+		MinMutInfCheck<QuiverMatrix> task = new MinMutInfCheck<QuiverMatrix>();
+		task.setMatrix(mat);
+
+		MatrixInfo result;
+		try {
+			result = task.call();
+			assertFalse(result.isMinMutInf());
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		} catch (ExecutionException e) {
+			throw new RuntimeException(e);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 }
