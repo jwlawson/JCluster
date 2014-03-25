@@ -15,6 +15,7 @@
 package uk.co.jwlawson.jcluster;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.Nullable;
 
@@ -35,9 +36,9 @@ public abstract class MatrixInfoResultHandler implements Callable<MatrixInfo> {
 	/** Queue that the new results are being left in. */
 	private CompletionResultQueue<MatrixInfo> mQueue;
 	/** True if the task is still creating new results. */
-	private boolean running = true;
+	private final AtomicBoolean running = new AtomicBoolean(true);
 	/** True if currently blocking. */
-	private boolean waiting = false;
+	private final AtomicBoolean waiting = new AtomicBoolean(false);
 	/** Initial matrix. */
 	private final MatrixInfo mInitial;
 
@@ -87,8 +88,8 @@ public abstract class MatrixInfoResultHandler implements Callable<MatrixInfo> {
 	/**
 	 * Request that the overlying task stops if it has been set.
 	 * <p>
-	 * This should be used if the results from the calculations carried out so far has determined
-	 * the final information required, so no further calculations are required.
+	 * This should be used if the results from the calculations carried out so far has determined the
+	 * final information required, so no further calculations are required.
 	 */
 	protected void requestStop() {
 		if (task != null) {
@@ -111,55 +112,49 @@ public abstract class MatrixInfoResultHandler implements Callable<MatrixInfo> {
 	protected abstract MatrixInfo getFinal();
 
 	/**
-	 * Inform the handler that all results have been queued, so once the queue is empty there will
-	 * be no more.
+	 * Inform the handler that all results have been queued, so once the queue is empty there will be
+	 * no more.
 	 */
 	public void allResultsQueued() {
-		synchronized (this) {
-			running = false;
-		}
+		running.set(false);
 		mQueue.allResultsQueued();
 
 		if (mHandlingThread != null) {
-//			log.debug("Interrupting handling thread {} from thread {}. {}", mHandlingThread,
-//					Thread.currentThread(), thisstr);
+			log.debug("Interrupting handling thread {} from thread {}. Waiting: {} {}", mHandlingThread,
+					Thread.currentThread(), waiting.get(), thisstr);
 			mHandlingThread.interrupt();
 		}
 	}
 
+	/*
+	 * This should only ever be run on one thread, so should not have any threading problems.
+	 */
 	@Override
 	public MatrixInfo call() throws Exception {
 		mHandlingThread = Thread.currentThread();
-		boolean run;
-		synchronized (this) {
-			run = mQueue.hasResult() || running;
-		}
-		while (run) {
+		while (mQueue.hasResult() || running.get()) {
 
 			try {
-				waiting = true;
+				waiting.set(true);
 				MatrixInfo info = mQueue.popResult();
-				waiting = false;
+				waiting.set(false);
 				if (info != null) {
 					handleResult(info);
 				} else {
-					log.debug("Queue pop result timed out. hasResult(): {} Running: {} {}",
+					log.error("Queue pop result timed out for task {}. hasResult(): {} Running: {} {}", task,
 							mQueue.hasResult(), running, thisstr);
 					break;
 				}
 			} catch (InterruptedException e) {
-				log.debug("Caught interrupt in thread {}. Running: {}", Thread.currentThread()
-						.getName(), running);
-			}
-			synchronized (this) {
-				run = mQueue.hasResult() || running;
+				log.debug("Caught interrupt in thread {}. Running: {}", Thread.currentThread().getName(),
+						running);
 			}
 		}
 		return getFinal();
 	}
 
 	public boolean isWaiting() {
-		return waiting;
+		return waiting.get();
 	}
 
 }

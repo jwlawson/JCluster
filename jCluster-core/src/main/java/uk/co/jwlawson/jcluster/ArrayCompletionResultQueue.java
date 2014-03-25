@@ -64,16 +64,17 @@ public class ArrayCompletionResultQueue<T> implements CompletionResultQueue<T> {
 	 * @param result Result to put on queue.
 	 */
 	@Override
-	public void pushResult(final T result) {
+	public boolean pushResult(final T result) {
 		if (result == null) {
 			log.error("Null result pushed to queue");
-			return;
+			return true;
 		}
 		try {
-			queue.put(result);
+			return queue.offer(result, 1, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
 			log.error("Thread interrupted {}", Thread.currentThread().getName(), e);
 		}
+		return false;
 	}
 
 	/**

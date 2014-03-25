@@ -82,7 +82,8 @@ public class RunMutationClass extends RunMultipleTask<EquivQuiverMatrix> impleme
 				submitTaskFor(mat);
 			} catch (InterruptedException e) {
 				// No more matrices to wait for
-				log.debug("Caught interrupt in thread {}", Thread.currentThread().getName());
+				log.error("Caught interrupt in thread {}. Queue empty: {}", Thread.currentThread()
+						.getName(), mQueue.isEmpty());
 			}
 		}
 		calcThread.shutdownNow();
@@ -104,7 +105,7 @@ public class RunMutationClass extends RunMultipleTask<EquivQuiverMatrix> impleme
 	public void allMatricesSeen() {
 		mRunning.set(false);
 		if (mWaiting.get()) {
-			log.debug("Interrupting thread {} from thread {}", mSubmittingThread.getName(), Thread
+			log.error("Interrupting thread {} from thread {}", mSubmittingThread.getName(), Thread
 					.currentThread().getName());
 			mSubmittingThread.interrupt();
 		}
@@ -137,8 +138,8 @@ public class RunMutationClass extends RunMultipleTask<EquivQuiverMatrix> impleme
 
 			if (mPool == null) {
 				Pool<EquivQuiverMatrix> pool =
-						Pools.getQuiverMatrixPool(mInitial.getNumRows() - 1,
-								mInitial.getNumCols() - 1, EquivQuiverMatrix.class);
+						Pools.getQuiverMatrixPool(mInitial.getNumRows() - 1, mInitial.getNumCols() - 1,
+								EquivQuiverMatrix.class);
 				mPool = pool;
 			}
 			return this;

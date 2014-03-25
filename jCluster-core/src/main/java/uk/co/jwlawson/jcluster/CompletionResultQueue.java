@@ -26,8 +26,9 @@ public interface CompletionResultQueue<T> {
 	 * Put a new result in the queue.
 	 * 
 	 * @param result Result to put on queue.
+	 * @return
 	 */
-	void pushResult(T result);
+	boolean pushResult(T result);
 
 	/**
 	 * Get the next result from the queue or null if the thread is interrupted.

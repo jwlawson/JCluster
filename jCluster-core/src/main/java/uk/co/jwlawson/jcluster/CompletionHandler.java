@@ -66,15 +66,20 @@ public abstract class CompletionHandler<V> implements Runnable {
 			log.debug("Waiting for new result to queue up");
 			future = service.poll(1, TimeUnit.SECONDS);
 			if (future == null) {
+				log.error("No result to take from completionservice");
 				return false;
 			}
 			V result = future.get();
 			log.debug("Result pushed to queue {}", result);
-			queue.pushResult(result);
+			boolean pushed = queue.pushResult(result);
+			if (pushed == false) {
+				log.error("Queue is full. Cannot push new result.");
+				return false;
+			}
 			return true;
 
 		} catch (InterruptedException e) {
-			log.error("Caught interrupt in thread {}", Thread.currentThread().getName(), e);
+			log.error("Caught interrupt in thread {}", Thread.currentThread().getName());
 		} catch (ExecutionException e) {
 			log.error("Exception in executing task", e);
 			throw new RuntimeException("Exception in executing task", e);

@@ -14,8 +14,8 @@
  */
 package uk.co.jwlawson.jcluster;
 
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,28 +29,35 @@ public class VariableCompletionHandler<V> extends CompletionHandler<V> {
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	/** Number of results waiting to be handled. */
-	private final AtomicInteger numUnhandled = new AtomicInteger();
+	private final Semaphore semaphore;
 	/**
 	 * True if the handler should wait for more results when there are no results to handle
 	 * immediately. Set to true by default, so that once the handler is started it won't return
 	 * straight away.
 	 */
 	private final AtomicBoolean waitIfEmpty = new AtomicBoolean(true);
+	private final AtomicBoolean waiting = new AtomicBoolean(false);
+	private Thread handlingThread;
+
+	public VariableCompletionHandler() {
+		semaphore = new Semaphore(100);
+		semaphore.drainPermits();
+	}
 
 	/**
 	 * Set whether the handler should wait for more results if there are no more results to handle
 	 * immediately. If set to false and the handler is currently waiting then this will wake the
 	 * handler.
 	 * 
-	 * @param waitIfEmpty true if should wait for more results
+	 * @param wait true if should wait for more results
 	 */
-	public void setWaitIfEmpty(boolean waitIfEmpty) {
-		this.waitIfEmpty.set(waitIfEmpty);
-		log.debug("Handler set to wait: {}.", waitIfEmpty);
+	public void setWaitIfEmpty(boolean wait) {
+		this.waitIfEmpty.set(wait);
+		log.debug("Handler set to wait: {}.", wait);
 		synchronized (this) {
-			if (!waitIfEmpty) {
-				log.trace("Waking handler");
-				notify();
+			if (!wait && waiting.get()) {
+				log.debug("Waking handler on thread {}", handlingThread.getName());
+				handlingThread.interrupt();
 			}
 		}
 	}
@@ -61,42 +68,35 @@ public class VariableCompletionHandler<V> extends CompletionHandler<V> {
 	 * If the handler is waiting for a result then this will wake it.
 	 */
 	public void taskAdded() {
-
-		numUnhandled.incrementAndGet();
-		synchronized (this) {
-			log.debug("Waking handler as new task produced");
-			notify();
-		}
+		semaphore.release();
 		log.debug("Task added");
 	}
 
 	@Override
 	public void run() {
-		while (numUnhandled.get() > 0 || waitIfEmpty.get()) {
-			log.trace("Running. unhandled:{} Wait:{}", numUnhandled, waitIfEmpty.get());
+		handlingThread = Thread.currentThread();
+		while (semaphore.availablePermits() > 0 || waitIfEmpty.get()) {
+			log.trace("Running. unhandled:{} Wait:{}", semaphore.availablePermits(), waitIfEmpty.get());
 
-			if (numUnhandled.get() == 0) {
-				log.trace("Waiting for new tasks");
-
-				try {
-					synchronized (this) {
-						wait(1000);
-						log.trace("Handler woken");
-					}
-				} catch (InterruptedException e) {
-					log.info("Thread {} interrupted", Thread.currentThread().getName(), e);
-				}
-			} else {
-				log.debug("Handling task");
-				boolean handled = handleNextTask();
-				log.debug("Task handled");
-				if (handled) {
-					numUnhandled.decrementAndGet();
-				}
+			log.trace("Waiting for new tasks");
+			try {
+				waiting.set(true);
+				semaphore.acquire();
+				waiting.set(false);
+			} catch (InterruptedException e) {
+				waiting.set(false);
+				log.info("Thread {} interrupted", Thread.currentThread().getName());
+				continue;
+			}
+			log.debug("Handling task");
+			boolean handled = handleNextTask();
+			if (!handled) {
+				log.error("Result not handled");
+				// Put back so we can try again
+				semaphore.release();
 			}
 		}
 		log.debug("Handler finished");
-
 	}
 
 }
