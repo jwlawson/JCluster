@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import uk.co.jwlawson.jcluster.data.MatrixInfo;
 import uk.co.jwlawson.jcluster.data.QuiverMatrix;
@@ -35,8 +34,6 @@ public class RunMinMutInfExtensions<T extends QuiverMatrix> implements MatrixTas
 	private RunMinMutInfResults mMinMutInfSubmitter;
 	private final ExecutorService mExtTaskExec;
 	private final boolean mShutdownExtExec;
-	private final ExecutorService mSubmitExec;
-	private final boolean mShutdownSubmitExec;
 
 	private RunMinMutInfExtensions(Builder<T> builder) {
 		setMatrix(builder.mMatrix);
@@ -45,16 +42,14 @@ public class RunMinMutInfExtensions<T extends QuiverMatrix> implements MatrixTas
 		}
 		setResultHandler(builder.mResultHandler);
 		mExtTaskExec = builder.mExtTaskExec;
-		mSubmitExec = builder.mSubmitExec;
 		mShutdownExtExec = builder.mShutdownExtExec;
-		mShutdownSubmitExec = builder.mShutdownSubmitExec;
 	}
 
 	public final void addTaskFactory(MatrixTaskFactory<QuiverMatrix> factory) {
 		mMinMutInfSubmitter.addTaskFactory(factory);
 	}
 
-	public final void setResultHandler(MatrixInfoResultHandler handler) {
+	public final void setResultHandler(TECSResultHandler handler) {
 		mMinMutInfSubmitter.setResultHandler(handler);
 	}
 
@@ -80,15 +75,11 @@ public class RunMinMutInfExtensions<T extends QuiverMatrix> implements MatrixTas
 	@Override
 	public MatrixInfo call() throws Exception {
 		mExtTaskExec.submit(mExtTask);
-		Future<MatrixInfo> future = mSubmitExec.submit(mMinMutInfSubmitter);
 		try {
-			return future.get();
+			return mMinMutInfSubmitter.call();
 		} finally {
 			if (mShutdownExtExec) {
 				mExtTaskExec.shutdownNow();
-			}
-			if (mShutdownSubmitExec) {
-				mSubmitExec.shutdownNow();
 			}
 		}
 	}
@@ -97,11 +88,9 @@ public class RunMinMutInfExtensions<T extends QuiverMatrix> implements MatrixTas
 
 		private T mMatrix;
 		private final List<MatrixTaskFactory<QuiverMatrix>> mFactories;
-		private MatrixInfoResultHandler mResultHandler;
+		private TECSResultHandler mResultHandler;
 		private ExecutorService mExtTaskExec;
-		private ExecutorService mSubmitExec;
 		private boolean mShutdownExtExec = false;
-		private boolean mShutdownSubmitExec = false;
 
 
 		private Builder() {
@@ -124,18 +113,13 @@ public class RunMinMutInfExtensions<T extends QuiverMatrix> implements MatrixTas
 			return this;
 		}
 
-		public Builder<T> withResultHandler(MatrixInfoResultHandler handler) {
+		public Builder<T> withResultHandler(TECSResultHandler handler) {
 			mResultHandler = handler;
 			return this;
 		}
 
 		public Builder<T> withExtensionExecutor(ExecutorService exec) {
 			mExtTaskExec = exec;
-			return this;
-		}
-
-		public Builder<T> withSubmittingExecutor(ExecutorService exec) {
-			mSubmitExec = exec;
 			return this;
 		}
 
@@ -152,11 +136,17 @@ public class RunMinMutInfExtensions<T extends QuiverMatrix> implements MatrixTas
 				mExtTaskExec = Executors.newSingleThreadExecutor();
 				mShutdownExtExec = true;
 			}
-			if (mSubmitExec == null) {
-				mSubmitExec = Executors.newSingleThreadExecutor();
-				mShutdownSubmitExec = true;
-			}
 		}
+	}
+
+	@Override
+	public boolean isSubmitting() {
+		return true;
+	}
+
+	@Override
+	public boolean submitsSubmitting() {
+		return true;
 	}
 
 }

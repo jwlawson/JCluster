@@ -21,6 +21,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 
+import javax.annotation.Nullable;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,11 +51,15 @@ public abstract class TECSResultHandler implements Callable<MatrixInfo> {
 	/** Initial MatrixInfo object containing the original matrix and any info known about it. */
 	private final MatrixInfo mInitial;
 
-	/** Lock to check whether the hanlder is waiting for a task. */
+	/** Lock to check whether the hanlder is waiting for a mTask. */
 	private final ReentrantLock mLock;
 
 	/** Reference to thread which is handling results. */
 	private final AtomicReference<Thread> mHandlingThread;
+
+	/** Task creating the results. */
+	@Nullable
+	private MatrixTask<?> mTask;
 
 	/**
 	 * Create a new instance with the specified initial MatrixInfo object.
@@ -77,6 +83,27 @@ public abstract class TECSResultHandler implements Callable<MatrixInfo> {
 	}
 
 	/**
+	 * Set the main mTask which is being run and which is relying on the results from this.
+	 * 
+	 * @param mTask Task which is waiting for the results from this
+	 */
+	public void setTask(MatrixTask<?> task) {
+		this.mTask = task;
+	}
+
+	/**
+	 * Request that the overlying mTask stops if it has been set.
+	 * <p>
+	 * This should be used if the results from the calculations carried out so far has determined the
+	 * final information required, so no further calculations are required.
+	 */
+	protected void requestStop() {
+		if (mTask != null) {
+			mTask.requestStop();
+		}
+	}
+
+	/**
 	 * Inform the result handler that all tasks have been submitted to the CompletionService, so once
 	 * the service has no further results to provide then the results handler should return its final
 	 * result.
@@ -84,7 +111,7 @@ public abstract class TECSResultHandler implements Callable<MatrixInfo> {
 	public final void allTasksSubmitted() {
 		mRunning.set(false);
 		if (mLock.isLocked()) {
-			log.debug("Interrupting thread {} from thread {} as it is waiting for task", mHandlingThread
+			log.debug("Interrupting thread {} from thread {} as it is waiting for mTask", mHandlingThread
 					.get().getName(), Thread.currentThread().getName());
 			mHandlingThread.get().interrupt();
 		}

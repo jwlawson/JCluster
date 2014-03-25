@@ -86,10 +86,10 @@ public class RunMutationClassTest {
 	}
 
 	/**
-	 * Dummy result handler which does nothing when a new result comes in and just returns null at
-	 * the end.
+	 * Dummy result handler which does nothing when a new result comes in and just returns null at the
+	 * end.
 	 */
-	private class ResultHandler extends MatrixInfoResultHandler {
+	private class ResultHandler extends TECSResultHandler {
 
 		public ResultHandler() {
 			super(null);

@@ -33,28 +33,26 @@ public class MinMutInfExt extends RunMutationClass {
 		super(builder);
 		RunMinMutInfExtensionsFactory<EquivQuiverMatrix> extFac =
 				new RunMinMutInfExtensionsFactory<EquivQuiverMatrix>();
-		for (MatrixTaskFactory<QuiverMatrix> fac : builder.mFactories) {
+		for (MatrixTaskFactory<QuiverMatrix> fac : builder.factories) {
 			extFac.addTaskFactory(fac);
 		}
-//		extFac.setExecutor(new ThreadPoolExecutor(10, 10, 0, TimeUnit.SECONDS,
-//				new LinkedBlockingQueue<Runnable>(10), new ThreadPoolExecutor.CallerRunsPolicy()));
-		extFac.setResultHandler(builder.mHandler);
+		extFac.setResultHandler(builder.resultHandler);
 		addTaskFactory(extFac);
 	}
 
 	public static abstract class Builder<A extends Builder<A>> extends RunMutationClass.Builder<A> {
 
-		private final Collection<MatrixTaskFactory<QuiverMatrix>> mFactories =
+		private final Collection<MatrixTaskFactory<QuiverMatrix>> factories =
 				new ArrayList<MatrixTaskFactory<QuiverMatrix>>();
-		private MatrixInfoResultHandler mHandler;
+		private TECSResultHandler resultHandler;
 
 		public A addTaskFactory(MatrixTaskFactory<QuiverMatrix> fac) {
-			mFactories.add(fac);
+			factories.add(fac);
 			return self();
 		}
 
-		public A withMinMutResultHandler(MatrixInfoResultHandler handler) {
-			mHandler = handler;
+		public A withMinMutResultHandler(TECSResultHandler handler) {
+			resultHandler = handler;
 			return self();
 		}
 
@@ -65,9 +63,8 @@ public class MinMutInfExt extends RunMutationClass {
 		@Override
 		protected A validate() {
 			super.validate();
-			Preconditions
-					.checkNotNull(mHandler,
-							"Result handler for results of tasks run on the MinMutInf matrices cannot be null");
+			Preconditions.checkNotNull(resultHandler,
+					"Result handler for results of tasks run on the MinMutInf matrices cannot be null");
 			return self();
 		}
 

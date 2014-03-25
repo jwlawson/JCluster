@@ -56,4 +56,8 @@ public interface MatrixTask<T extends QuiverMatrix> extends Callable<MatrixInfo>
 	@Override
 	MatrixInfo call() throws Exception;
 
+	boolean isSubmitting();
+
+	boolean submitsSubmitting();
+
 }

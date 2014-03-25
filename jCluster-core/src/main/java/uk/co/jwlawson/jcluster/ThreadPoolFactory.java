@@ -1,7 +1,7 @@
 /**
  * Copyright 2014 John Lawson
  * 
- * LoggerTaskFactory.java is part of JCluster. Licensed under the Apache License, Version 2.0 (the
+ * ThreadPoolFactory.java is part of JCluster. Licensed under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance with the License. You may obtain a
  * copy of the License at
  * 
@@ -14,24 +14,28 @@
  */
 package uk.co.jwlawson.jcluster;
 
-import uk.co.jwlawson.jcluster.data.QuiverMatrix;
+import java.util.concurrent.ExecutorService;
 
 /**
+ * Factory for the thread pools used to compute MatrixTasks.
+ * 
  * @author John Lawson
  * 
  */
-public class LoggerTaskFactory<T extends QuiverMatrix> implements MatrixTaskFactory<T> {
+public interface ThreadPoolFactory {
 
-	@Override
-	public MatrixTask<T> getTask(T matrix) {
-		MatrixTask<T> task = new LoggerTask<T>();
-		task.setMatrix(matrix);
-		return task;
-	}
+	/**
+	 * Create a new thread pool to be used for MatrixTasks which submit extra tasks.
+	 * 
+	 * @return New thread pool
+	 */
+	ExecutorService createSubmittingThreadPool();
 
-	@Override
-	public boolean isTaskSubmiting() {
-		return false;
-	}
+	/**
+	 * Create a new thread pool to be used for computing results of tasks.
+	 * 
+	 * @return New thread pool
+	 */
+	ExecutorService createCalculationThreadPool();
 
 }

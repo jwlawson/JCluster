@@ -29,7 +29,7 @@ public class RunMinMutInfExtensionsFactory<T extends QuiverMatrix> implements Ma
 	private final List<MatrixTaskFactory<QuiverMatrix>> mFactories =
 			new ArrayList<MatrixTaskFactory<QuiverMatrix>>();
 
-	private MatrixInfoResultHandler mHandler;
+	private TECSResultHandler mHandler;
 	private ExecutorService mExecutor;
 
 	/**
@@ -41,7 +41,7 @@ public class RunMinMutInfExtensionsFactory<T extends QuiverMatrix> implements Ma
 		mFactories.add(factory);
 	}
 
-	public void setResultHandler(MatrixInfoResultHandler handler) {
+	public void setResultHandler(TECSResultHandler handler) {
 		mHandler = handler;
 	}
 
@@ -52,10 +52,8 @@ public class RunMinMutInfExtensionsFactory<T extends QuiverMatrix> implements Ma
 	@Override
 	public MatrixTask<T> getTask(T matrix) {
 		RunMinMutInfExtensions.Builder<T> builder =
-				RunMinMutInfExtensions.Builder.builder().withInitial(matrix)
-						.withResultHandler(mHandler);
+				RunMinMutInfExtensions.Builder.builder().withInitial(matrix).withResultHandler(mHandler);
 		if (mExecutor != null) {
-			builder.withSubmittingExecutor(mExecutor);
 			builder.withExtensionExecutor(mExecutor);
 		}
 		RunMinMutInfExtensions<T> result = builder.build();
@@ -65,4 +63,8 @@ public class RunMinMutInfExtensionsFactory<T extends QuiverMatrix> implements Ma
 		return result;
 	}
 
+	@Override
+	public boolean isTaskSubmiting() {
+		return true;
+	}
 }

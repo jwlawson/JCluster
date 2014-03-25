@@ -34,11 +34,10 @@ public class MinMutInfCheck<T extends QuiverMatrix> implements MatrixTask<T> {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	/** MAtrix to check if min mut inf. */
+	/** Matrix to check if min mut inf. */
 	private T mMatrix;
 	/**
-	 * Task to check whether each submatrix is mutation finite. Lazily loaded as not always
-	 * required.
+	 * Task to check whether each submatrix is mutation finite. Lazily loaded as not always required.
 	 */
 	private AllSubFiniteCheck<T> mSubCheck;
 	/** Task to check whether the matrix is infinite. */
@@ -96,6 +95,16 @@ public class MinMutInfCheck<T extends QuiverMatrix> implements MatrixTask<T> {
 		}
 
 		return result;
+	}
+
+	@Override
+	public final boolean isSubmitting() {
+		return false;
+	}
+
+	@Override
+	public final boolean submitsSubmitting() {
+		return false;
 	}
 
 }

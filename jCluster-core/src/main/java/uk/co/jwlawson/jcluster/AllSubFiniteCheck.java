@@ -32,30 +32,20 @@ public class AllSubFiniteCheck<T extends QuiverMatrix> extends RunSubmatrices<T>
 
 	public AllSubFiniteCheck(Builder<T, ?> builder) {
 		super(builder);
-		setResultHandler(builder.mResultHandler);
 	}
 
 	public abstract static class Builder<T extends QuiverMatrix, A extends Builder<T, A>> extends
 			RunSubmatrices.Builder<T, A> {
 
-		private MatrixInfoResultHandler mResultHandler;
-
 		@Override
 		protected abstract A self();
 
-		public A setResultHandler(MatrixInfoResultHandler handler) {
-			mResultHandler = handler;
-			return self();
-		}
-
 		@Override
 		protected Builder<T, A> validate() {
-			super.validate();
 
-			if (mResultHandler == null) {
-				mResultHandler = new AllFiniteResultHandler(new MatrixInfo(mInitial));
-			}
 			addFactory(new FiniteCheckTaskFactory<T>());
+			withResultHandler(new AllFiniteResultHandler(new MatrixInfo(mInitial)));
+			super.validate();
 			return self();
 		}
 
@@ -64,7 +54,6 @@ public class AllSubFiniteCheck<T extends QuiverMatrix> extends RunSubmatrices<T>
 			validate();
 			return new AllSubFiniteCheck<T>(this);
 		}
-
 
 		public static <T extends QuiverMatrix> Builder<T, ?> builder() {
 			return new Builder2<T>();

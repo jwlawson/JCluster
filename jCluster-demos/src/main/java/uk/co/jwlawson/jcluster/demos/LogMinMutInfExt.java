@@ -12,8 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.co.jwlawson.jcluster.LoggerTaskFactory;
-import uk.co.jwlawson.jcluster.MatrixInfoResultHandler;
 import uk.co.jwlawson.jcluster.MinMutInfExt;
+import uk.co.jwlawson.jcluster.TECSResultHandler;
 import uk.co.jwlawson.jcluster.data.DynkinDiagram;
 import uk.co.jwlawson.jcluster.data.EquivQuiverMatrix;
 import uk.co.jwlawson.jcluster.data.MatrixInfo;
@@ -35,8 +35,8 @@ public class LogMinMutInfExt {
 		task =
 				MinMutInfExt.Builder.builder().withInitial(new EquivQuiverMatrix(mat))
 						.addTaskFactory(new LoggerTaskFactory<QuiverMatrix>())
-						.withResultHandler(new ResultHandler())
-						.withMinMutResultHandler(new ResultHandler()).build();
+						.withResultHandler(new ResultHandler()).withMinMutResultHandler(new ResultHandler())
+						.build();
 	}
 
 	public void run() {
@@ -108,7 +108,7 @@ public class LogMinMutInfExt {
 	 * @author John Lawson
 	 * 
 	 */
-	private class ResultHandler extends MatrixInfoResultHandler {
+	private class ResultHandler extends TECSResultHandler {
 
 		public ResultHandler() {
 			super(null);

@@ -23,7 +23,7 @@ import uk.co.jwlawson.jcluster.data.MatrixInfo;
  * @author John Lawson
  * 
  */
-public class AllFiniteResultHandler extends MatrixInfoResultHandler {
+public class AllFiniteResultHandler extends TECSResultHandler {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 

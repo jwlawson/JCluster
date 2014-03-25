@@ -16,13 +16,9 @@ package uk.co.jwlawson.jcluster;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,31 +35,16 @@ public abstract class RunMultipleTask<T extends QuiverMatrix> implements MatrixT
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private CompletionResultQueue<MatrixInfo> mQueue;
-	private MatrixInfoResultHandler mResultHandler;
-	private VariableCompletionHandler<MatrixInfo> mHandler;
-	private ExecutorService mExecutor;
-	private final boolean mShutdownExecutor;
-	private ExecutorCompletionService<MatrixInfo> mService;
+	private TECSResultHandler mResultHandler;
+	private final ExecutorService mExecutor;
+	private TrackingExecutorCompletionService<MatrixInfo> mService;
 	private Collection<MatrixTaskFactory<T>> mFactories;
 	private boolean mShouldStop = false;
 
-	public final void setExecutor(ExecutorService executor) {
-		this.mExecutor = executor;
-	}
 
-	public final void setHandler(VariableCompletionHandler<MatrixInfo> handler) {
-		this.mHandler = handler;
-	}
-
-	public final void setQueue(CompletionResultQueue<MatrixInfo> queue) {
-		this.mQueue = queue;
-	}
-
-	public final void setResultHandler(MatrixInfoResultHandler resultHandler) {
+	public final void setResultHandler(TECSResultHandler resultHandler) {
 		this.mResultHandler = resultHandler;
 		mResultHandler.setTask(this);
-		mResultHandler.setQueue(mQueue);
 	}
 
 	public final void addTaskFactory(MatrixTaskFactory<T> factory) {
@@ -75,59 +56,30 @@ public abstract class RunMultipleTask<T extends QuiverMatrix> implements MatrixT
 
 	@Override
 	public final MatrixInfo call() throws Exception {
-		mService = new ExecutorCompletionService<MatrixInfo>(mExecutor);
-
-		mHandler.setService(mService);
-		mHandler.setQueue(mQueue);
-		Thread handlerThread = new Thread(mHandler);
-		handlerThread.start();
-		log.debug("Handler thread started");
+		mService = new TrackingExecutorCompletionService<MatrixInfo>(mExecutor);
+		mResultHandler.setCompletionService(mService);
 
 		ExecutorService resultThread = Executors.newSingleThreadExecutor();
 		Future<MatrixInfo> resultFuture = resultThread.submit(mResultHandler);
 		log.debug("Result thread started");
 
-		submitTasks();
+		submitAllTasks();
 		log.debug("Tasks submitted");
-		try {
-			handlerThread.join();
-		} catch (InterruptedException e) {
-			log.error("Interrupted in thread {} on join with {}", Thread.currentThread().getName(),
-					handlerThread.getName());
-		}
-		mResultHandler.allResultsQueued();
+
+		mResultHandler.allTasksSubmitted();
 		resultThread.shutdown();
 
 		log.debug("All results queued for handling. Waiting for result.");
-		try {
-			return resultFuture.get();
-		} finally {
-			if (mShutdownExecutor) {
-				mExecutor.shutdownNow();
-			}
-		}
+		return resultFuture.get();
 	}
 
 	@Override
 	public final void requestStop() {
-		mHandler.setWaitIfEmpty(false);
 		mShouldStop = true;
-		mExecutor.shutdown();
 	}
 
 	@Override
-	public final void reset() {
-		mExecutor.shutdownNow();
-	}
-
-	/**
-	 * Submit tasks to be run on the initial matrix.
-	 */
-	private final void submitTasks() {
-		mHandler.setWaitIfEmpty(true);
-		submitAllTasks();
-		mHandler.setWaitIfEmpty(false);
-	}
+	public final void reset() {}
 
 	/**
 	 * Submit all tasks that should be run on the initial matrix.
@@ -137,8 +89,8 @@ public abstract class RunMultipleTask<T extends QuiverMatrix> implements MatrixT
 	 * ensure that the task has not been requested to stop.
 	 * 
 	 * <p>
-	 * Tasks are submitted using the {@link RunMultipleTask#submitTaskFor(QuiverMatrix)} method,
-	 * which passes the matrix to each {@link MatrixTaskFactory} provided through the
+	 * Tasks are submitted using the {@link RunMultipleTask#submitTaskFor(QuiverMatrix)} method, which
+	 * passes the matrix to each {@link MatrixTaskFactory} provided through the
 	 * {@link RunMultipleTask#addTaskFactory(MatrixTaskFactory)} method.
 	 */
 	protected abstract void submitAllTasks();
@@ -157,7 +109,6 @@ public abstract class RunMultipleTask<T extends QuiverMatrix> implements MatrixT
 	 */
 	private final void submitTask(MatrixTask<T> task) {
 		mService.submit(task);
-		mHandler.taskAdded();
 	}
 
 	/**
@@ -169,75 +120,59 @@ public abstract class RunMultipleTask<T extends QuiverMatrix> implements MatrixT
 		return !mShouldStop;
 	}
 
-	protected RunMultipleTask(Builder<T, ?> builder) {
-		this.mQueue = builder.mQueue;
-		if (builder.mResultHandler != null) {
-			setResultHandler(builder.mResultHandler);
+	@Override
+	public final boolean isSubmitting() {
+		return true;
+	}
+
+	@Override
+	public final boolean submitsSubmitting() {
+		boolean result = false;
+		for (MatrixTaskFactory<T> fac : mFactories) {
+			if (fac.isTaskSubmiting()) {
+				result = true;
+			}
 		}
-		this.mHandler = builder.mHandler;
-		this.mExecutor = builder.mExecutor;
-		this.mShutdownExecutor = builder.mShutdownExecutor;
-		this.mFactories = builder.mFactorys;
+		return result;
+	}
+
+	protected RunMultipleTask(Builder<T, ?> builder) {
+		if (builder.resultHandler != null) {
+			setResultHandler(builder.resultHandler);
+		}
+		this.mFactories = builder.factories;
+		if (builder.executor != null) {
+			this.mExecutor = builder.executor;
+		} else {
+			mExecutor = Threads.getThreadPoolForTask(this);
+		}
 	}
 
 	public static abstract class Builder<T extends QuiverMatrix, A extends Builder<T, A>> {
 
-		private static final int DEF_NUM_THREAD = 1;
-		private static final long DEF_KEEP_ALIVE_SEC = 0;
-		private static final int DEF_QUEUE_SIZE = 10;
-
-		private CompletionResultQueue<MatrixInfo> mQueue;
-		private MatrixInfoResultHandler mResultHandler;
-		private VariableCompletionHandler<MatrixInfo> mHandler;
-		private ExecutorService mExecutor;
-		private boolean mShutdownExecutor = false;
-		private final Collection<MatrixTaskFactory<T>> mFactorys =
+		private TECSResultHandler resultHandler;
+		private ExecutorService executor;
+		private final Collection<MatrixTaskFactory<T>> factories =
 				new ArrayList<MatrixTaskFactory<T>>();
 
 		protected abstract A self();
 
-		public A withQueue(CompletionResultQueue<MatrixInfo> mQueue) {
-			this.mQueue = mQueue;
+		public A withResultHandler(TECSResultHandler handler) {
+			this.resultHandler = handler;
 			return self();
 		}
 
-		public A withResultHandler(MatrixInfoResultHandler mResultHandler) {
-			this.mResultHandler = mResultHandler;
+		public A withExecutor(ExecutorService exec) {
+			this.executor = exec;
 			return self();
 		}
 
-		public A withHandler(VariableCompletionHandler<MatrixInfo> mHandler) {
-			this.mHandler = mHandler;
-			return self();
-		}
-
-		public A withExecutor(ExecutorService mExecutor) {
-			this.mExecutor = mExecutor;
-			return self();
-		}
-
-		public A addFactory(MatrixTaskFactory<T> factory) {
-			this.mFactorys.add(factory);
+		public A addFactory(MatrixTaskFactory<T> fac) {
+			this.factories.add(fac);
 			return self();
 		}
 
 		protected Builder<T, A> validate() {
-			if (mQueue == null) {
-				mQueue = new ArrayCompletionResultQueue<MatrixInfo>();
-			}
-
-			if (mHandler == null) {
-				mHandler = new VariableCompletionHandler<MatrixInfo>();
-			}
-
-			if (mExecutor == null) {
-				mExecutor =
-						new ThreadPoolExecutor(DEF_NUM_THREAD, DEF_NUM_THREAD, DEF_KEEP_ALIVE_SEC,
-								TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(DEF_QUEUE_SIZE),
-								new ThreadPoolExecutor.CallerRunsPolicy());
-				mShutdownExecutor = true;
-			}
-			mHandler.setQueue(mQueue);
 			return self();
 		}
 

@@ -106,8 +106,7 @@ public class FastInfiniteCheck implements MatrixTask<QuiverMatrix> {
 	 */
 	private boolean isInfinte() {
 		Pool<QuiverMatrix> matrixPool =
-				Pools.getQuiverMatrixPool(mMatrix.getNumRows(), mMatrix.getNumCols(),
-						QuiverMatrix.class);
+				Pools.getQuiverMatrixPool(mMatrix.getNumRows(), mMatrix.getNumCols(), QuiverMatrix.class);
 
 		try {
 			// All 2x2 matrices are mutation finite
@@ -133,8 +132,7 @@ public class FastInfiniteCheck implements MatrixTask<QuiverMatrix> {
 				/* Alternate between mutating the two matrices in the array. */
 				mutated[counter % 2].mutate(rand, mutated[++counter % 2]);
 				if (mutated[counter % 2].isInfinite()) {
-					log.debug("Infinite matrix found {} for initial {}", mutated[counter % 2],
-							mMatrix);
+					log.debug("Infinite matrix found {} for initial {}", mutated[counter % 2], mMatrix);
 					return true;
 				}
 				lastMutation = rand;
@@ -164,4 +162,14 @@ public class FastInfiniteCheck implements MatrixTask<QuiverMatrix> {
 
 	@Override
 	public void requestStop() {}
+
+	@Override
+	public boolean isSubmitting() {
+		return false;
+	}
+
+	@Override
+	public boolean submitsSubmitting() {
+		return false;
+	}
 }

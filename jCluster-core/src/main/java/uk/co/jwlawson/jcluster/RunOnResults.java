@@ -53,8 +53,8 @@ public abstract class RunOnResults extends RunMultipleTask<QuiverMatrix> {
 	}
 
 	/**
-	 * Get an instance of a {@link RunOnResultsHandler} which checks whether to submit a task for
-	 * each result.
+	 * Get an instance of a {@link RunOnResultsHandler} which checks whether to submit a task for each
+	 * result.
 	 * 
 	 * @return Handler instance
 	 */
@@ -72,8 +72,8 @@ public abstract class RunOnResults extends RunMultipleTask<QuiverMatrix> {
 			try {
 				synchronized (this) {
 					wait();
-					log.debug("All tasks submitted and object woken up in {}.", Thread
-							.currentThread().getName());
+					log.debug("All tasks submitted and object woken up in {}.", Thread.currentThread()
+							.getName());
 				}
 			} catch (InterruptedException e) {
 				log.debug("Caught interrupt in thread {}", Thread.currentThread().getName());
@@ -87,7 +87,7 @@ public abstract class RunOnResults extends RunMultipleTask<QuiverMatrix> {
 		}
 	}
 
-	protected abstract class RunOnResultsHandler extends MatrixInfoResultHandler {
+	protected abstract class RunOnResultsHandler extends TECSResultHandler {
 
 
 		public RunOnResultsHandler(MatrixInfo initial) {
@@ -109,8 +109,8 @@ public abstract class RunOnResults extends RunMultipleTask<QuiverMatrix> {
 			log.debug("All results received. Waking submitting thread.");
 			mAllResultsReceived = true;
 			wakeup();
-			log.debug("Notify to wake submitting thread sent from thread {}", Thread
-					.currentThread().getName());
+			log.debug("Notify to wake submitting thread sent from thread {}", Thread.currentThread()
+					.getName());
 			return getInitial();
 		}
 

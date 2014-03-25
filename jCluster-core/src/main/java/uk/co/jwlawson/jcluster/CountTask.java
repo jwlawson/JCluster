@@ -52,4 +52,14 @@ public class CountTask<T extends QuiverMatrix> implements MatrixTask<T> {
 		}
 		return new MatrixInfo(matrix);
 	}
+
+	@Override
+	public boolean isSubmitting() {
+		return false;
+	}
+
+	@Override
+	public boolean submitsSubmitting() {
+		return false;
+	}
 }

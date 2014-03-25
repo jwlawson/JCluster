@@ -38,4 +38,11 @@ public interface MatrixTaskFactory<T extends QuiverMatrix> {
 	 */
 	MatrixTask<T> getTask(T matrix);
 
+	/**
+	 * Check whether the task which this factory generates will submit more tasks or not.
+	 * 
+	 * @return True if the task submits tasks
+	 */
+	boolean isTaskSubmiting();
+
 }

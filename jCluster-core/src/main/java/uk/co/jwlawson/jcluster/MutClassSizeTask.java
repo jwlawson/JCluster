@@ -166,4 +166,14 @@ public class MutClassSizeTask<T extends QuiverMatrix> extends AbstractMutClassSi
 		}
 
 	}
+
+	@Override
+	public boolean isSubmitting() {
+		return false;
+	}
+
+	@Override
+	public boolean submitsSubmitting() {
+		return false;
+	}
 }

@@ -68,7 +68,7 @@ public class RunAllExtensionsTest {
 	 * @author John Lawson
 	 * 
 	 */
-	private class ResultHandler extends MatrixInfoResultHandler {
+	private class ResultHandler extends TECSResultHandler {
 
 		public ResultHandler() {
 			super(null);
