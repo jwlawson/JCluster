@@ -28,10 +28,4 @@ public class LoggerTaskFactory<T extends QuiverMatrix> implements MatrixTaskFact
 		task.setMatrix(matrix);
 		return task;
 	}
-
-	@Override
-	public boolean isTaskSubmiting() {
-		return false;
-	}
-
 }

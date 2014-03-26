@@ -35,6 +35,16 @@ public class Threads {
 	}
 
 	/**
+	 * Get the ThreadPool which should be used to run any tasks submitted by the specified task.
+	 * 
+	 * @param task Task to get the ThreadPool for
+	 * @return ThreadPool
+	 */
+	public static ExecutorService getResultThreadPoolForTask(MatrixTask<?> task) {
+		return mCache.getResultThreadPool(task);
+	}
+
+	/**
 	 * Send {@link ExecutorService#shutdownNow()} signal to all cached threads.
 	 */
 	public static void shutdownAll() {

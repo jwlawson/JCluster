@@ -132,7 +132,7 @@ public class FastInfiniteCheck implements MatrixTask<QuiverMatrix> {
 				/* Alternate between mutating the two matrices in the array. */
 				mutated[counter % 2].mutate(rand, mutated[++counter % 2]);
 				if (mutated[counter % 2].isInfinite()) {
-					log.debug("Infinite matrix found {} for initial {}", mutated[counter % 2], mMatrix);
+					log.trace("Infinite matrix found {} for initial {}", mutated[counter % 2], mMatrix);
 					return true;
 				}
 				lastMutation = rand;

@@ -41,10 +41,4 @@ public class CountTaskFactory<T extends QuiverMatrix> implements MatrixTaskFacto
 		return task;
 	}
 
-	@Override
-	public boolean isTaskSubmiting() {
-		return false;
-	}
-
-
 }

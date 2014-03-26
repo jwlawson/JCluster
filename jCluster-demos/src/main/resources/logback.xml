@@ -77,7 +77,15 @@
 		<appender-ref ref="BENCH_FILE" />
 		<appender-ref ref="BENCH_STDOUT" />
 	</logger>
-
+<!-- 	
+	<logger name="uk.co.jwlawson.jcluster.RunMinMutInfResults" level="DEBUG" additivity="false">
+	    <appender-ref ref="FILE" />
+	</logger>
+	
+	<logger name="uk.co.jwlawson.jcluster.RunAllExtensions" level="DEBUG" additivity="false">
+	    <appender-ref ref="FILE" />
+	</logger>	 -->
+	
 	<logger name="uk.co.jwlawson.jcluster" level="INFO" additivity="false">
 		<appender-ref ref="FILE" />
 	</logger>

@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 import uk.co.jwlawson.jcluster.data.MatrixInfo;
 import uk.co.jwlawson.jcluster.data.QuiverMatrix;
@@ -29,6 +30,9 @@ import com.google.common.base.Preconditions;
  * 
  */
 public class RunMinMutInfExtensions<T extends QuiverMatrix> implements MatrixTask<T> {
+
+	private static final ThreadFactory factory = new NamingThreadFactory(
+			RunMinMutInfExtensions.class.getSimpleName() + "-extensions");
 
 	private RunAllExtensions<T> mExtTask;
 	private RunMinMutInfResults mMinMutInfSubmitter;
@@ -133,7 +137,7 @@ public class RunMinMutInfExtensions<T extends QuiverMatrix> implements MatrixTas
 			Preconditions.checkNotNull(mMatrix, "Initial matrix cannot be null");
 			Preconditions.checkNotNull(mResultHandler, "Result handler cannot be null");
 			if (mExtTaskExec == null) {
-				mExtTaskExec = Executors.newSingleThreadExecutor();
+				mExtTaskExec = Executors.newSingleThreadExecutor(factory);
 				mShutdownExtExec = true;
 			}
 		}

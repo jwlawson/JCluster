@@ -30,9 +30,4 @@ public class FiniteCheckTaskFactory<T extends QuiverMatrix> implements MatrixTas
 		return task;
 	}
 
-	@Override
-	public boolean isTaskSubmiting() {
-		return false;
-	}
-
 }

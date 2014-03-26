@@ -4,9 +4,6 @@
 package uk.co.jwlawson.jcluster.demos;
 
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,12 +37,9 @@ public class LogMinMutInfExt {
 	}
 
 	public void run() {
-		ExecutorService exec = Executors.newSingleThreadExecutor();
 		startTime = System.nanoTime();
-		Future<MatrixInfo> future = exec.submit(task);
-
 		try {
-			future.get();
+			task.call();
 			log.info("Total time taken: {}ns, or {}ms", (System.nanoTime() - startTime),
 					(System.nanoTime() - startTime) / 1000000);
 		} catch (InterruptedException e) {
@@ -54,8 +48,8 @@ public class LogMinMutInfExt {
 		} catch (ExecutionException e) {
 			log.error("Execution error", e);
 			throw new RuntimeException(e);
-		} finally {
-			exec.shutdownNow();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
 		}
 	}
 

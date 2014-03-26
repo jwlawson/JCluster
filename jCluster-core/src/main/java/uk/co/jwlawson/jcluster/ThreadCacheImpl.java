@@ -30,6 +30,7 @@ import com.google.common.cache.LoadingCache;
 public class ThreadCacheImpl implements ThreadPoolCache {
 
 	private final LoadingCache<Class<?>, ExecutorService> mThreadCache;
+	private final LoadingCache<Class<?>, ExecutorService> mResultThreadCache;
 	private final ThreadPoolFactory mFactory;
 
 	/**
@@ -39,12 +40,18 @@ public class ThreadCacheImpl implements ThreadPoolCache {
 	 */
 	public ThreadCacheImpl(ThreadPoolFactory factory) {
 		mThreadCache = getCache();
+		mResultThreadCache = getResultCache();
 		mFactory = factory;
 	}
 
 	@Override
 	public ExecutorService getThreadPool(MatrixTask<?> task) {
 		return mThreadCache.getUnchecked(task.getClass());
+	}
+
+	@Override
+	public ExecutorService getResultThreadPool(MatrixTask<?> task) {
+		return mResultThreadCache.getUnchecked(task.getClass());
 	}
 
 	@Override
@@ -61,7 +68,19 @@ public class ThreadCacheImpl implements ThreadPoolCache {
 			@Override
 			public ExecutorService load(Class<?> key) throws Exception {
 				log.debug("Creating new ThreadPool for MatrixTask {}", key.getSimpleName());
-				return mFactory.createThreadPool();
+				return mFactory.createThreadPool(key);
+			}
+		});
+	}
+
+	private LoadingCache<Class<?>, ExecutorService> getResultCache() {
+		return CacheBuilder.newBuilder().build(new CacheLoader<Class<?>, ExecutorService>() {
+			private final Logger log = LoggerFactory.getLogger(getClass());
+
+			@Override
+			public ExecutorService load(Class<?> key) throws Exception {
+				log.debug("Creating new result ThreadPool for MatrixTask {}", key.getSimpleName());
+				return mFactory.createResultThreadPool(key);
 			}
 		});
 	}

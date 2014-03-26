@@ -62,9 +62,4 @@ public class RunMinMutInfExtensionsFactory<T extends QuiverMatrix> implements Ma
 		}
 		return result;
 	}
-
-	@Override
-	public boolean isTaskSubmiting() {
-		return true;
-	}
 }

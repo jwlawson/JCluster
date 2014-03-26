@@ -17,7 +17,6 @@ package uk.co.jwlawson.jcluster;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.slf4j.Logger;
@@ -32,7 +31,6 @@ import uk.co.jwlawson.jcluster.data.QuiverMatrix;
  * 
  */
 public abstract class RunMultipleTask<T extends QuiverMatrix> implements MatrixTask<T> {
-
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	private TECSResultHandler mResultHandler;
@@ -62,7 +60,7 @@ public abstract class RunMultipleTask<T extends QuiverMatrix> implements MatrixT
 		mService = new TrackingExecutorCompletionService<MatrixInfo>(mExecutor);
 		mResultHandler.setCompletionService(mService);
 
-		ExecutorService resultThread = Executors.newSingleThreadExecutor();
+		ExecutorService resultThread = Threads.getResultThreadPoolForTask(this);
 		Future<MatrixInfo> resultFuture = resultThread.submit(mResultHandler);
 		log.debug("Result thread started");
 
@@ -70,7 +68,6 @@ public abstract class RunMultipleTask<T extends QuiverMatrix> implements MatrixT
 		log.debug("Tasks submitted");
 
 		mResultHandler.allTasksSubmitted();
-		resultThread.shutdown();
 
 		log.debug("All results queued for handling. Waiting for result.");
 		return resultFuture.get();

@@ -29,9 +29,4 @@ public class MinMutInfCheckFactory implements MatrixTaskFactory<QuiverMatrix> {
 		return task;
 	}
 
-	@Override
-	public boolean isTaskSubmiting() {
-		return false;
-	}
-
 }

@@ -27,9 +27,4 @@ public class AllSubFiniteTaskFactory<T extends QuiverMatrix> implements MatrixTa
 		return AllSubFiniteCheck.getInstance(matrix);
 	}
 
-	@Override
-	public boolean isTaskSubmiting() {
-		return true;
-	}
-
 }

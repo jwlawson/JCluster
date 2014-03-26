@@ -29,6 +29,13 @@ public interface ThreadPoolFactory {
 	 * 
 	 * @return New thread pool
 	 */
-	ExecutorService createThreadPool();
+	ExecutorService createThreadPool(Class<?> clazz);
+
+	/**
+	 * Create a new thread pool to be used to handle results of MatrixTasks.
+	 * 
+	 * @return New thread pool
+	 */
+	ExecutorService createResultThreadPool(Class<?> clazz);
 
 }

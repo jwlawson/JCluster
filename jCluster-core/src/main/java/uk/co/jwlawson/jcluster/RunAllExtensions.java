@@ -14,9 +14,6 @@
  */
 package uk.co.jwlawson.jcluster;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.co.jwlawson.jcluster.data.QuiverMatrix;
 import uk.co.jwlawson.jcluster.pool.Pool;
 import uk.co.jwlawson.jcluster.pool.Pools;
@@ -28,8 +25,6 @@ import com.google.common.base.Preconditions;
  * 
  */
 public class RunAllExtensions<T extends QuiverMatrix> extends RunMultipleTask<T> {
-
-	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	private T mMatrix;
 	private T mEnlargedMatrix;
@@ -77,7 +72,6 @@ public class RunAllExtensions<T extends QuiverMatrix> extends RunMultipleTask<T>
 			matrix.unsafeSet(size, i, val);
 			matrix.unsafeSet(i, size, -val);
 		}
-		log.debug("Added vertex id: {} to get matrix: {}", num, matrix);
 		return matrix;
 	}
 

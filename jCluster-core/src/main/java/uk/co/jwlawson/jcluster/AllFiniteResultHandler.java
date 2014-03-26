@@ -36,12 +36,11 @@ public class AllFiniteResultHandler extends TECSResultHandler {
 
 	@Override
 	protected void handleResult(MatrixInfo matrix) {
-		log.debug("Handling result for matrix {}", matrix.getMatrix());
 		if (!matrix.hasFiniteSet()) {
 			throw new IllegalStateException("Cannot handle result which is unknown");
 		}
 		if (!matrix.isFinite()) {
-			log.debug("Infinite matrix found {}. Requesting stop.", matrix.getMatrix());
+			log.trace("Infinite matrix found {}. Requesting stop.", matrix.getMatrix());
 			allFinite = false;
 			requestStop();
 		}

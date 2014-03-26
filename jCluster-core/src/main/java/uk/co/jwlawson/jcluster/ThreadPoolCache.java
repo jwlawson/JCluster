@@ -33,6 +33,14 @@ public interface ThreadPoolCache {
 	ExecutorService getThreadPool(MatrixTask<?> task);
 
 	/**
+	 * Get the ThreadPool which should be used to handle results from this task.
+	 * 
+	 * @param task Task to get pool for
+	 * @return ThreadPool
+	 */
+	ExecutorService getResultThreadPool(MatrixTask<?> task);
+
+	/**
 	 * Shutdown all threads in the cache.
 	 */
 	void shutdownAll();

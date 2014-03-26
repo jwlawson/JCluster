@@ -37,8 +37,8 @@ import java.util.concurrent.TimeUnit;
  * 
  * @see <a href="https://today.java.net/pub/a/today/2008/10/23/creating-a-notifying-blocking
  *      -thread-pool-executor.html
- *      ">https://today.java.net/pub/a/today/2008/10/23/creating-a-notifying-blocking-thread-pool-executor.html
- *      < / a >
+ *      ">https://today.java.net/pub/a/today/2008/10/23/creating-a-notifying-blocking-thread-pool-executor.htm
+ *      l < / a >
  * 
  * @author Yaneeve Shekel & Amir Kirsh
  * @author John Lawson
@@ -67,11 +67,11 @@ public class BlockingThreadPool extends ThreadPoolExecutor {
 	 */
 	public BlockingThreadPool(int poolSize, int queueSize, long keepAliveTime,
 			TimeUnit keepAliveTimeUnit, long maxBlockingTime, TimeUnit maxBlockingTimeUnit,
-			Callable<Boolean> blockingTimeCallback) {
+			Callable<Boolean> blockingTimeCallback, String name) {
 
 		super(poolSize, poolSize, keepAliveTime, keepAliveTimeUnit, new ArrayBlockingQueue<Runnable>(
-				Math.max(poolSize, queueSize)), new BlockThenRunPolicy(maxBlockingTime,
-				maxBlockingTimeUnit, blockingTimeCallback));
+				Math.max(poolSize, queueSize)), new NamingThreadFactory(name), new BlockThenRunPolicy(
+				maxBlockingTime, maxBlockingTimeUnit, blockingTimeCallback));
 
 		super.allowCoreThreadTimeOut(true);
 	}

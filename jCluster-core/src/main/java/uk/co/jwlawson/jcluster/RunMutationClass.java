@@ -18,7 +18,10 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +40,12 @@ import com.google.common.base.Preconditions;
 public class RunMutationClass extends RunMultipleTask<EquivQuiverMatrix> implements
 		NewMatrixSeenListener<EquivQuiverMatrix> {
 
+	private final ThreadFactory factory = new NamingThreadFactory(getClass().getSimpleName()
+			+ "-mutator");
+
 	private final Logger log = LoggerFactory.getLogger(getClass());
+
+	private int count = 0;
 
 	public static RunMutationClass getInstance(EquivQuiverMatrix matrix) {
 		return Builder.builder().withInitial(matrix).build();
@@ -50,12 +58,13 @@ public class RunMutationClass extends RunMultipleTask<EquivQuiverMatrix> impleme
 	private final BlockingQueue<EquivQuiverMatrix> mQueue;
 	private final AtomicBoolean mRunning = new AtomicBoolean(true);
 	private final AtomicBoolean mWaiting = new AtomicBoolean(false);
+	private final AtomicInteger mQueueStall = new AtomicInteger(0);
 
 	protected RunMutationClass(Builder<?> builder) {
 		super(builder);
 		mMatrix = builder.mInitial;
 		mPool = builder.mPool;
-		mQueue = new ArrayBlockingQueue<EquivQuiverMatrix>(10);
+		mQueue = new ArrayBlockingQueue<EquivQuiverMatrix>(100);
 
 		mTask = new EquivMutClassSizeTask(mMatrix);
 		mTask.addNewMatrixListener(this);
@@ -71,14 +80,25 @@ public class RunMutationClass extends RunMultipleTask<EquivQuiverMatrix> impleme
 	protected void submitAllTasks() {
 		mSubmittingThread = Thread.currentThread();
 
-		ExecutorService calcThread = Executors.newSingleThreadExecutor();
+		ExecutorService calcThread = Executors.newSingleThreadExecutor(factory);
 		calcThread.submit(mTask);
 
 		while (!mQueue.isEmpty() || mRunning.get()) {
 			try {
 				mWaiting.set(true);
-				EquivQuiverMatrix mat = mQueue.take();
+				EquivQuiverMatrix mat = mQueue.poll(1, TimeUnit.SECONDS);
 				mWaiting.set(false);
+				if (mat == null) {
+					if (count++ > 10) {
+						// Don't want to be stuck in a loop forever
+						log.error("Pooling fell through 10 times. Giving up.");
+						break;
+					}
+					log.warn("Polling for matrix fell through. Queue empty: {} Running: {}",
+							mQueue.isEmpty(), mRunning.get());
+					continue;
+				}
+				count = 0;
 				submitTaskFor(mat);
 			} catch (InterruptedException e) {
 				// No more matrices to wait for
@@ -91,15 +111,36 @@ public class RunMutationClass extends RunMultipleTask<EquivQuiverMatrix> impleme
 
 	@Override
 	public void newMatrixSeen(EquivQuiverMatrix matrix) {
+
+		EquivQuiverMatrix m = mPool.getObj();
+		m.set(matrix);
+		if (!mRunning.get()) {
+			log.error("Trying to submit a new matrix after all have been seen.");
+		}
+		queueMatrix(m);
+		mQueueStall.set(0);
+	}
+
+	/**
+	 * Runs on the mutation class finding thread. Blocks until the matrix can be queued, therefore no
+	 * further matrices will be computed until this can be queued.
+	 * 
+	 * @param m Matrix to queue
+	 */
+	private void queueMatrix(EquivQuiverMatrix m) {
 		try {
-			EquivQuiverMatrix m = mPool.getObj();
-			m.set(matrix);
-			mQueue.put(m);
+			if (!mQueue.offer(m, 5, TimeUnit.SECONDS)) {
+				if (mQueueStall.incrementAndGet() > 100) {
+					log.error("Tried to insert matrix into queue 100 times and failed. Giving up.");
+					return;
+				}
+				log.warn("Cannot put new matrix into queue, trying again.");
+				queueMatrix(m);
+			}
 		} catch (InterruptedException e) {
 			log.debug("Caught interrupt in thread {}", Thread.currentThread().getName());
 		}
 	}
-
 
 	@Override
 	public void allMatricesSeen() {

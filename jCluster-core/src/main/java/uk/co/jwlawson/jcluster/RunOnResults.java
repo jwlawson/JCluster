@@ -14,6 +14,9 @@
  */
 package uk.co.jwlawson.jcluster;
 
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import javax.annotation.Nullable;
 
 import org.slf4j.Logger;
@@ -42,7 +45,8 @@ public abstract class RunOnResults extends RunMultipleTask<QuiverMatrix> {
 
 	private final RunMultipleTask<?> mSubmittingTask;
 	private final RunOnResultsHandler mSubmittingHandler;
-	private boolean mAllResultsReceived = false;
+	private final AtomicBoolean mAllResultsReceived = new AtomicBoolean(false);
+	private long mLastSubmitTime;
 
 
 	protected RunOnResults(Builder<?> builder) {
@@ -68,13 +72,19 @@ public abstract class RunOnResults extends RunMultipleTask<QuiverMatrix> {
 	 */
 	@Override
 	protected void submitAllTasks() {
-		while (!mAllResultsReceived) {
+		mLastSubmitTime = System.currentTimeMillis();
+		while (!mAllResultsReceived.get()) {
 			try {
 				synchronized (this) {
-					wait();
-					log.debug("All tasks submitted and object woken up in {}.", Thread.currentThread()
-							.getName());
+					wait(10000);
 				}
+				long now = System.currentTimeMillis();
+				if (now - mLastSubmitTime > TimeUnit.SECONDS.toMillis(100)) {
+					log.error("Waited over 100 seconds since last time a task was submitted. Giving up.");
+					break;
+				}
+				log.debug("All tasks submitted: {} Object woken up in {}.", mAllResultsReceived, Thread
+						.currentThread().getName());
 			} catch (InterruptedException e) {
 				log.debug("Caught interrupt in thread {}", Thread.currentThread().getName());
 			}
@@ -98,8 +108,9 @@ public abstract class RunOnResults extends RunMultipleTask<QuiverMatrix> {
 
 		@Override
 		protected final void handleResult(MatrixInfo matrix) {
+			mLastSubmitTime = System.currentTimeMillis();
 			if (shouldSubmit(matrix)) {
-				log.debug("Submitting result for new task");
+				log.debug("Submitting result {} for new task", matrix.getMatrix());
 				submitTaskFor(matrix.getMatrix());
 			}
 		}
@@ -107,7 +118,7 @@ public abstract class RunOnResults extends RunMultipleTask<QuiverMatrix> {
 		@Override
 		protected final MatrixInfo getFinal() {
 			log.debug("All results received. Waking submitting thread.");
-			mAllResultsReceived = true;
+			mAllResultsReceived.set(true);
 			wakeup();
 			log.debug("Notify to wake submitting thread sent from thread {}", Thread.currentThread()
 					.getName());

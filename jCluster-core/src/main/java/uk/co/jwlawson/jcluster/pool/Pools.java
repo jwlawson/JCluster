@@ -34,8 +34,8 @@ public class Pools {
 	private static PoolCache poolCache = new PoolCacheImpl(new DummyPoolFactory());
 
 	/**
-	 * Get the instance of {@link ObjectPool} which provides objects which extend
-	 * {@link QuiverMatrix} . The class provided will be the type of objects returned by the pool.
+	 * Get the instance of {@link ObjectPool} which provides objects which extend {@link QuiverMatrix}
+	 * . The class provided will be the type of objects returned by the pool.
 	 * 
 	 * <p>
 	 * The pool is thread local, so only return objects which have been borrowed in the same thread.
